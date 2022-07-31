@@ -621,6 +621,35 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package f
   :ensure t)
 
+(use-package org
+  :ensure nil
+  :commands (open-log-file+)
+  :bind (:map evil-leader-state-map-extension
+              ("o l" . open-log-file+))
+  :config
+  (setq org-startup-folded 'showeverything)
+  (setq org-property-format  "%-12s %s")
+  (setq org-image-actual-width nil)
+  (setq org-priority-highest ?A)
+  (setq org-priority-lowest  ?Z)
+  (setq org-hide-leading-stars nil)
+  (setq org-log-into-drawer t)
+  (setq org-fontify-whole-heading-line t)
+  
+  (set-face-attribute 'org-level-1 nil :background "#F0F0F0" :overline t :underline t :bold t)
+  (set-face-attribute 'org-level-2 nil :background "#F0F0F0" :overline t :underline t :bold t)
+  (set-face-attribute 'org-level-3 nil :background "#F0F0F0" :overline t :underline t :bold t)
+  (set-face-attribute 'org-level-4 nil :background "#F0F0F0" :overline t :underline t :bold t)
+  (set-face-attribute 'org-level-5 nil :background "#F0F0F0" :overline t :underline t :bold t)
+  (set-face-attribute 'org-level-6 nil :background "#F0F0F0" :overline t :underline t :bold t)
+  (set-face-attribute 'org-level-7 nil :background "#F0F0F0" :overline t :underline t :bold t)
+
+  (setq org-log-file (format "%s/daily-log.org" (expand-file-name "~")))
+
+  (defun open-log-file+ ()
+    (interactive)
+    (find-file org-log-file)))
+
 (setq debug-on-error nil)
 
 (message (format "Emacs started in %s" (emacs-init-time)))
