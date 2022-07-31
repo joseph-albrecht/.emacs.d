@@ -599,7 +599,6 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 				     (hydra/smerge/body)))))
 
 (use-package winner
-  :ensure t
   :after (evil-leader)
   :config
   (winner-mode 1)
@@ -679,4 +678,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (setq debug-on-error nil)
 
-(message (format "Emacs started in %s" (emacs-init-time)))
+(defun display-startup-echo-area-message ()
+  (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
+    (message (format "Emacs started in %s seconds" seconds))))
+
