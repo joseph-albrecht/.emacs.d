@@ -622,3 +622,5 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :ensure t)
 
 (setq debug-on-error nil)
+
+(message (format "Emacs started in %s" (emacs-init-time)))
