@@ -17,7 +17,7 @@
 	     toggle-show-trailing-whitespace
 	     select-from-history)
   :bind (:map minibuffer-mode-map
-	 ("M-r" . select-from-history)
+	 ("A-r" . select-from-history)
 	 ("A-p" . previous-history-element)
 	 ("A-n" . next-history-element)
 	 :map evil-leader-state-map-extension
@@ -147,8 +147,7 @@
               ("n" . next-line)
 	      ("p" . previous-line)
 	      ("N" . next-error+)
-	      ("P" . previous-error+))
-)
+	      ("P" . previous-error+)))
 
 (use-package compile
   :after (f evil)
@@ -178,7 +177,7 @@
     (ignore-errors (compile-goto-error-no-select))
     (previous-error-no-select))
 
-  (defun compilation--buffer-name ()
+  (defun compilation--buffer-name (mode)
     (concat "*compilation:" (f-short default-directory) "*"))
   (setq compilation-buffer-name-function 'compilation--buffer-name)
 
