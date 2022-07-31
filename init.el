@@ -2,7 +2,7 @@
 
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("gnu" . "https://elpa.gnu.org/packages/")))
+			 ("elpa"  . "https://elpa.gnu.org/packages/")))
 
 (setq use-package-enable-imenu-support t)
 (when (not (package-installed-p 'use-package))
