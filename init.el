@@ -18,14 +18,13 @@
 	     select-from-history
              mirror-window)
   :bind (:map minibuffer-mode-map
-	 ("A-r" . select-from-history)
-	 ("A-p" . previous-history-element)
-	 ("A-n" . next-history-element)
+	      ("A-r" . select-from-history)
+	      ("A-p" . previous-history-element)
+	      ("A-n" . next-history-element)
 	 :map evil-leader-state-map-extension
 	      ("v w" . toggle-show-trailing-whitespace)
 	      ("v h" . global-hl-line-mode)
-              ("t m" . 'mirror-window) 
-)
+              ("t m" . 'mirror-window))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   (indent-tabs-mode -1)
@@ -208,11 +207,11 @@
   :commands (project-dir-.emacs.d
 	     project-switch-current)
   :bind (:map evil-leader-state-map-extension
-	 ("p ." . project-switch-current)
-	 ("p F" . find-grep-dired-default-dir)
-	 ("C-p w" . project-dir-writing)
-	 ("C-p e" . project-dir-.emacs.d)
-	 ("n n" . project-dir-writing))
+	      ("p ." . project-switch-current)
+	      ("p F" . find-grep-dired-default-dir)
+	      ("C-p w" . project-dir-writing)
+	      ("C-p e" . project-dir-.emacs.d)
+	      ("n n" . project-dir-writing))
   :config
   (setq project-switch-commands
 	'((?f "File" project-find-file)
@@ -263,14 +262,14 @@
   :after (evil-leader)
   :ensure t
   :bind (:map evil-leader-state-map-extension
-   	 ("b b"   . consult-buffer)
-   	 ("b B"   . switch-to-buffer)
-   	 ("s l"   . consult-outline)
-   	 ("s s"   . consult-line)
-   	 ("s g"   . consult-grep-dir)
-   	 ("s G"   . lgrep)
-	 ("s i"   . consult-imenu)
-	 ("s o"   . occur))
+   	      ("b b"   . consult-buffer)
+   	      ("b B"   . switch-to-buffer)
+   	      ("s l"   . consult-outline)
+   	      ("s s"   . consult-line)
+   	      ("s g"   . consult-grep-dir)
+   	      ("s G"   . lgrep)
+	      ("s i"   . consult-imenu)
+	      ("s o"   . occur))
   :config
   (setq consult-preview-key nil)
   (defun consult-grep-dir (&optional dir)
@@ -299,20 +298,20 @@
   :commands (embark-act-quit forward-button-click+ backward-button-click+)
   :bind (("C-." . embark-act)
    	 :map minibuffer-mode-map
-   	 ("TAB" . minibuffer-force-complete)
-   	 ("SPC" . self-insert-command)
-   	 ("C-." . embark-act-quit)
-   	 ("M-." . embark-act)
-   	 ("C-," . embark-become)
-   	 ("C-c e" . embark-export)
+   	      ("TAB" . minibuffer-force-complete)
+   	      ("SPC" . self-insert-command)
+   	      ("C-." . embark-act-quit)
+   	      ("M-." . embark-act)
+   	      ("C-," . embark-become)
+   	      ("C-c e" . embark-export)
 	 :map vertico-map
-   	 ("C-c e" . embark-export)
+   	      ("C-c e" . embark-export)
    	 :map embark-meta-map
-   	 ("C-h" . nil)
-   	 ("C-." . embark-keymap-help)
+   	      ("C-h" . nil)
+   	      ("C-." . embark-keymap-help)
 	 :map embark-collect-mode-map
-	 ("N" . forward-button-click+)
-	 ("P" . backward-button-click+))
+	      ("N" . forward-button-click+)
+	      ("P" . backward-button-click+))
   :config
   (defun forward-button-click+ ()
     (interactive)
@@ -473,16 +472,16 @@
   :commands (find-grep-dired-default-dir)
   :hook (dired-mode . dired-hide-details-mode)
   :bind (:map evil-leader-state-map-extension
-	 ("s F" . find-grep-dired)
- 	 ("s f" . find-grep-dired-default-dir)
+	      ("s F" . find-grep-dired)
+ 	      ("s f" . find-grep-dired-default-dir)
   	 :map dired-mode-map
- 	 ("M-s f C-s" . nil)
-  	 ("M-s f ESC" . nil)
- 	 ("M-s f" . nil)
- 	 ("e" . wdired-change-to-wdired-mode)
-  	 ("N" . dired-preview-next)
-  	 ("P" . dired-preview-previous)
-	 ("S-<return>" . dired-preview))
+ 	      ("M-s f C-s" . nil)
+  	      ("M-s f ESC" . nil)
+ 	      ("M-s f" . nil)
+ 	      ("e" . wdired-change-to-wdired-mode)
+  	      ("N" . dired-preview-next)
+  	      ("P" . dired-preview-previous)
+	      ("S-<return>" . dired-preview))
   :config
   (setq dired-listing-switches "-Al")
 
@@ -620,7 +619,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :commands (wgrep-change-to-wgrep-mode)
   :bind (:map grep-mode-map
 	      ("e" . wgrep-change-to-wgrep-mode)
-	      :map wgrep-mode-map
+	 :map wgrep-mode-map
 	      ("C-c C-e" . nil)
 	      ("C-x C-s" . nil)
 	      ("C-c C-c" . wgrep-finish-edit)))
