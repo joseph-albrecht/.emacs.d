@@ -3,6 +3,7 @@
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 			 ("elpa"  . "https://elpa.gnu.org/packages/")))
+(setq package-init-dir (concat (expand-file-name user-emacs-directory) "init/"))
 
 (setq use-package-enable-imenu-support t)
 (when (not (package-installed-p 'use-package))
@@ -98,16 +99,6 @@
     (split-window-right)
     (other-window 1))
 
-  (defun insert-time-id ()
-    (interactive)
-    (let* ((alphabet "abcdefghijklmnopqrstuvwxyz")
- 	   (time     (format-time-string "%y.%m%d.%H%M%S"))
- 	   (seconds  (string-to-number (substring time 12 14)))
- 	   (index    (floor (* (/ seconds 60.0) 26)))
- 	   (letter   (substring alphabet index (1+ index) ))
- 	   (time-id  (format "%s%s" (substring time 0 12) letter)))
-      (insert time-id)))
-
   (setq joey-monitor-attributes '(("ultrawide" . ((font-height . 170)
 						(frame-width . 190)))
 				  ("mac-retina" . ((font-height . 150)
@@ -148,10 +139,19 @@
 	      ("N" . next-error+)
 	      ("P" . previous-error+))
   :config
-  (setq grep-command "grep --color=auto -nr")
+  (setq grep-command "grep --color=auto -nr"))
+
+(use-package occur
+  :after (compile)
+  :bind (:map occur-mode-map
+              ("n" . next-line)
+	      ("p" . previous-line)
+	      ("N" . next-error+)
+	      ("P" . previous-error+))
+)
 
 (use-package compile
-  :after (f)
+  :after (f evil)
   :demand t
   :commands (next-error+ previous-error+)
   :bind (:map compilation-mode-map
@@ -176,11 +176,18 @@
     (interactive)
     (next-error-select-buffer (current-buffer))
     (ignore-errors (compile-goto-error-no-select))
-    (previous-error-no-select)))
+    (previous-error-no-select))
 
   (defun compilation--buffer-name ()
     (concat "*compilation:" (f-short default-directory) "*"))
-  (setq compilation-buffer-name-function 'compilation--buffer-name))
+  (setq compilation-buffer-name-function 'compilation--buffer-name)
+
+  (evil-add-command-properties 'compile-goto-error :jump t)
+  (evil-add-command-properties 'next-error :jump t)
+  (evil-add-command-properties 'previous-error :jump t)
+
+
+  )
 
 (use-package project
   :after (evil-leader)
@@ -427,8 +434,6 @@
   (setq evil-normal-state-cursor   '("Royal Blue" box))
   (setq evil-operator-state-cursor '("Royal Blue" (hbar . 2)))
   (evil-mode 1))
-
-(setq package-init-dir (concat (expand-file-name user-emacs-directory) "init/"))
 
 (use-package evil-baptism
   :after evil
