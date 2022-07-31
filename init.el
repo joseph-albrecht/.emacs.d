@@ -50,8 +50,8 @@
 	   (inhibit-same-window . t))))
 
   (setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
-  (when (not (file-exists-p custom-file))
-    (shell-command (concat "touch " custom-file)))
+  (shell-command (concat "rm " custom-file))
+  (shell-command (concat "touch " custom-file))
   (load-file custom-file)
 
   (setq mac-command-modifier 'meta)
@@ -152,8 +152,9 @@
 
 (use-package compile
   :after (f)
+  :demand t
   :commands (next-error+ previous-error+)
-  :bind (:map compile-mode-map
+  :bind (:map compilation-mode-map
 	      ("n" . next-line)
 	      ("p" . previous-line)
 	      ("N" . next-error+)
@@ -259,6 +260,10 @@
       (consult-grep t)))
   (evil-add-command-properties 'consult-line :jump t)
   (evil-add-command-properties 'consult-imenu :jump t))
+
+(use-package embark-consult
+  :ensure t
+  :after (embark consult))
 
 (use-package consult-dir
   :ensure t
@@ -611,6 +616,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (kbd "<S-tab>") 'python-indent-shift-left))
 
 (use-package pyvenv
+  :ensure t)
+
+(use-package f
   :ensure t)
 
 (setq debug-on-error nil)
