@@ -12,8 +12,7 @@
 
 (use-package emacs
   :after (evil-leader)
-  :commands (joey-indent
-	     insert-time-id
+  :commands (insert-time-id
 	     toggle-show-trailing-whitespace
 	     select-from-history
              mirror-window)
@@ -27,7 +26,7 @@
               ("t m" . 'mirror-window))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
-  ;;; setup path
+
   (when (file-exists-p "/opt/homebrew/bin")
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/bin"))
     (setq exec-path (append exec-path (list "/opt/homebrew/bin"))))
@@ -35,7 +34,6 @@
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/sbin"))
     (setq exec-path (append exec-path (list "/opt/homebrew/sbin"))))
 
-  ;;; displaying windows
   (setq split-width-threshold 100
 	split-height-threshold 9999)
   (setq display-buffer-alist
@@ -52,38 +50,6 @@
 	   (display-buffer-reuse-window)
 	   (inhibit-same-window . t))))
 
-  (indent-tabs-mode -1)
-  (setq-default indent-tabs-mode nil)
-
-
-  ;; (setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
-  ;; (shell-command (concat "rm " custom-file))
-  ;; (shell-command (concat "touch " custom-file))
-  ;; (load-file custom-file)
-
-  (setq mac-command-modifier 'meta)
-  (setq mac-right-command-modifier 'meta)
-  (setq mac-option-modifier 'alt)
-  (setq mac-right-option-modifier 'alt)
-
-  (setq inhibit-startup-message t)
-
-  (setq ring-bell-function 'ignore)
-  (blink-cursor-mode 0)
-
-  (setq completion-cycle-threshold nil)
-  (setq tab-always-indent 'complete) ;;; TODO: maybe use a different keybinding for completion
-
-  (defun toggle-show-trailing-whitespace ()
-    (interactive)
-    (setq show-trailing-whitespace (not show-trailing-whitespace)))
-
-  (global-auto-revert-mode t)
-  (setq global-auto-revert-non-file-buffers nil)
-  (setq enable-recursive-minibuffers t)
-
-  (setq-default fill-column 85)
-
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (menu-bar-mode -1)
@@ -93,11 +59,18 @@
   (set-face-attribute 'region nil :background "#A0F5F4")
   (set-cursor-color "#007F00")
 
-  (setq backup-directory-alist
- 	`((".*" . "~/.emacs.d/backups-and-autosaves/")))
-  (setq auto-save-file-name-transforms
- 	`((".*" "~/.emacs.d/backups-and-autosaves/" t)))
-  (setq create-lockfiles nil)
+  (setq inhibit-startup-message t)
+  (setq ring-bell-function 'ignore)
+  (blink-cursor-mode 0)
+
+  (setq-default fill-column 85)
+
+  (indent-tabs-mode -1)
+  (setq-default indent-tabs-mode nil)
+
+  (defun toggle-show-trailing-whitespace ()
+    (interactive)
+    (setq show-trailing-whitespace (not show-trailing-whitespace)))
 
   (defun mirror-window ()
     (interactive)
@@ -121,6 +94,24 @@
       (set-face-attribute 'default nil
 			  :height font-height)
       (set-frame-size (selected-frame) frame-width 80)))
+
+  (setq mac-command-modifier 'meta)
+  (setq mac-right-command-modifier 'meta)
+  (setq mac-option-modifier 'alt)
+  (setq mac-right-option-modifier 'alt)
+
+  (setq completion-cycle-threshold nil)
+  (setq tab-always-indent 'complete) ;;; TODO: maybe use a different keybinding for completion
+
+  (global-auto-revert-mode t)
+  (setq global-auto-revert-non-file-buffers nil)
+  (setq enable-recursive-minibuffers t)
+
+  (setq backup-directory-alist
+ 	`((".*" . "~/.emacs.d/backups-and-autosaves/")))
+  (setq auto-save-file-name-transforms
+ 	`((".*" "~/.emacs.d/backups-and-autosaves/" t)))
+  (setq create-lockfiles nil)
 
   (defun clear-line ()
     (move-beginning-of-line 1)
