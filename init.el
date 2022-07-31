@@ -27,17 +27,17 @@
               ("t m" . 'mirror-window))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
-  (indent-tabs-mode -1)
-  (setq-default indent-tabs-mode nil)
+  ;;; setup path
   (when (file-exists-p "/opt/homebrew/bin")
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/bin"))
     (setq exec-path (append exec-path (list "/opt/homebrew/bin"))))
   (when (file-exists-p "/opt/homebrew/sbin")
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/sbin"))
     (setq exec-path (append exec-path (list "/opt/homebrew/sbin"))))
+
+  ;;; displaying windows
   (setq split-width-threshold 100
 	split-height-threshold 9999)
-
   (setq display-buffer-alist
 	'(("\\*Help\\*"
 	   (display-buffer-reuse-window display-buffer-in-previous-window display-buffer-pop-up-window)
@@ -52,10 +52,14 @@
 	   (display-buffer-reuse-window)
 	   (inhibit-same-window . t))))
 
-  (setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
-  (shell-command (concat "rm " custom-file))
-  (shell-command (concat "touch " custom-file))
-  (load-file custom-file)
+  (indent-tabs-mode -1)
+  (setq-default indent-tabs-mode nil)
+
+
+  ;; (setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
+  ;; (shell-command (concat "rm " custom-file))
+  ;; (shell-command (concat "touch " custom-file))
+  ;; (load-file custom-file)
 
   (setq mac-command-modifier 'meta)
   (setq mac-right-command-modifier 'meta)
@@ -665,6 +669,13 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (defun open-log-file+ ()
     (interactive)
     (find-file org-log-file)))
+
+  (defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
+                                                 ;;; custom-set-icons isn't defined for some reason
+  (setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
+  (when (not (file-exists-p custom-file))
+    (shell-command (concat "touch " custom-file)))
+  (load-file custom-file)
 
 (setq debug-on-error nil)
 
