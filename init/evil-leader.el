@@ -79,7 +79,6 @@
 (define-key evil-leader-state-map-extension (kbd "t n") 'windmove-down)
 (define-key evil-leader-state-map-extension (kbd "t |") 'split-window-right)
 (define-key evil-leader-state-map-extension (kbd "t -") 'split-window-below)
-(define-key evil-leader-state-map-extension (kbd "t m") 'mirror-window)
 (define-key evil-leader-state-map-extension (kbd "t v") 'scroll-up-command)
 (define-key evil-leader-state-map-extension (kbd "t ^") 'scroll-down-command)
 (define-key evil-leader-state-map-extension (kbd "t b") 'balance-windows)

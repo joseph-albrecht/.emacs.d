@@ -15,14 +15,17 @@
   :commands (joey-indent
 	     insert-time-id
 	     toggle-show-trailing-whitespace
-	     select-from-history)
+	     select-from-history
+             mirror-window)
   :bind (:map minibuffer-mode-map
 	 ("A-r" . select-from-history)
 	 ("A-p" . previous-history-element)
 	 ("A-n" . next-history-element)
 	 :map evil-leader-state-map-extension
 	      ("v w" . toggle-show-trailing-whitespace)
-	      ("v h" . global-hl-line-mode))
+	      ("v h" . global-hl-line-mode)
+              ("t m" . 'mirror-window) 
+)
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   (indent-tabs-mode -1)
@@ -141,25 +144,36 @@
   :config
   (setq grep-command "grep --color=auto -nr"))
 
-(use-package occur
+(use-package replace
   :after (compile)
+  :demand t
+  :commands (occur-mode-goto-occurrence-no-select)
   :bind (:map occur-mode-map
               ("n" . next-line)
 	      ("p" . previous-line)
 	      ("N" . next-error+)
-	      ("P" . previous-error+)))
+	      ("P" . previous-error+)
+              ("S-<return>" . occur-mode-goto-occurrence-no-select))
+  :config
+  (defun occur-mode-goto-occurrence-no-select ()
+    (interactive)
+    (let ((window (selected-window)))
+      (occur-mode-goto-occurrence)
+      (select-window window)))
+  )
 
 (use-package compile
   :after (f evil)
   :demand t
-  :commands (next-error+ previous-error+)
+  :commands (next-error+ previous-error+ compile-goto-error-no-select)
   :bind (:map compilation-mode-map
 	      ("n" . next-line)
 	      ("p" . previous-line)
 	      ("N" . next-error+)
-	      ("P" . previous-error+))
+	      ("P" . previous-error+)
+              ("S-<return>" . compile-goto-error-no-select))
   :config
-    (defun compile-goto-error-no-select ()
+  (defun compile-goto-error-no-select ()
     (interactive)
     (let ((window (selected-window)))
       (compile-goto-error)
@@ -228,7 +242,7 @@
   :demand t
   :bind (("C-M-x" . vertico-repeat)
 	 :map vertico-map
-	 ("S-<return>" . vertico-exit-input)
+	 ("C-<return>" . vertico-exit-input)
 	 ("M-h" . vertico-directory-up))
   :config
   (vertico-mode 1)
@@ -290,7 +304,6 @@
    	 ("C-." . embark-act-quit)
    	 ("M-." . embark-act)
    	 ("C-," . embark-become)
-   	 ("M-q" . embark-occur-toggle-view)
    	 ("C-c e" . embark-export)
 	 :map vertico-map
    	 ("C-c e" . embark-export)
@@ -469,7 +482,7 @@
  	 ("e" . wdired-change-to-wdired-mode)
   	 ("N" . dired-preview-next)
   	 ("P" . dired-preview-previous)
-	 ("C-<return>" . dired-preview))
+	 ("S-<return>" . dired-preview))
   :config
   (setq dired-listing-switches "-Al")
 
