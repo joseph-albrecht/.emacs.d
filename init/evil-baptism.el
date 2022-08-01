@@ -10,6 +10,12 @@
     (thing-at-point thing props)))
 
 ;;;my functions
+
+(defun evil-delete-to-blackhole ()
+  (interactive)
+  (setq evil-this-register ?_)
+  (call-interactively 'evil-delete))
+
 (evil-define-motion evil-forward-symbol (count)
   (if (and evil-want-change-word-to-end
 	   (memq evil-this-operator evil-change-commands))
@@ -60,7 +66,7 @@
 (define-key evil-normal-state-map "c" 'evil-change)
 (define-key evil-normal-state-map "C" 'evil-change-line)
 (define-key evil-normal-state-map "k" 'evil-delete)
-(define-key evil-normal-state-map "K" 'evil-delete-line)
+(define-key evil-normal-state-map "K" 'evil-delete-to-blackhole)
 (define-key evil-normal-state-map "i" 'evil-insert)
 (define-key evil-normal-state-map (kbd "<insert>") 'evil-insert)
 (define-key evil-normal-state-map (kbd "<insertchar>") 'evil-insert)
