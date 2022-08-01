@@ -11,10 +11,9 @@
 
 ;;;my functions
 
-(evil-define-operator evil-delete-to-blackhole ()
-  (interactive)
-  (evil-use-register ?_)
-  (call-interactively 'evil-delete))
+(evil-define-operator evil-delete-to-blackhole (beg end type yank-handler)
+  (interactive "<R><y>")
+  (evil-delete beg end type ?\_ yank-handler))
 
 (evil-define-motion evil-forward-symbol (count)
   (if (and evil-want-change-word-to-end
