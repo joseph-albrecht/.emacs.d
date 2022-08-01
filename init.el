@@ -186,7 +186,7 @@
     (previous-error-no-select))
 
   (defun compilation--buffer-name (mode)
-    (concat "*compilation:" (f-short default-directory) "*"))
+    (concat "*compilation* (" (f-short default-directory) "): " (or (car compilation-arguments) compile-command)))
   (setq compilation-buffer-name-function 'compilation--buffer-name)
 
   (evil-add-command-properties 'compile-goto-error :jump t)
@@ -395,6 +395,7 @@
   (setq undo-tree-auto-save-history nil)
   (global-undo-tree-mode))
 
+;; TODO: evil-show-registers defaults to motion-state
 (use-package evil
   :ensure t
   :config
@@ -669,6 +670,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (setq debug-on-error nil)
 
+(kill-buffer "*scratch*")
 (defun display-startup-echo-area-message ()
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
     (message (format "Emacs started in %s seconds" seconds))))
