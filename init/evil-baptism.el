@@ -46,6 +46,11 @@
 (evil-define-motion evil-backward-sexp (count)
   (forward-sexp (- 0 (or count 1))))
 
+;;; functions should be added to the evil jump ring
+
+(evil-add-command-properties 'isearch-forward :jump t)
+(evil-add-command-properties 'isearch-backward :jump t)
+
 ;;; Normal state
 
 (setq evil-normal-state-map (make-sparse-keymap))
