@@ -13,7 +13,7 @@
 
 (defun evil-delete-to-blackhole ()
   (interactive)
-  (setq evil-this-register ?_)
+  (evil-use-register ?_)
   (call-interactively 'evil-delete))
 
 (evil-define-motion evil-forward-symbol (count)
