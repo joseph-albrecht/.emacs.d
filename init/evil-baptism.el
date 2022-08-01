@@ -11,7 +11,7 @@
 
 ;;;my functions
 
-(defun evil-delete-to-blackhole ()
+(evil-define-operator evil-delete-to-blackhole ()
   (interactive)
   (evil-use-register ?_)
   (call-interactively 'evil-delete))
@@ -274,6 +274,7 @@
 (define-key evil-motion-state-map (kbd "C-6") 'evil-switch-to-windows-last-buffer)
 (define-key evil-motion-state-map "\C-]" 'evil-jump-to-tag)
 (define-key evil-motion-state-map (kbd "C-o") 'evil-jump-backward)
+(define-key evil-motion-state-map (kbd "M-o") 'evil-jump-forward)
 (define-key evil-motion-state-map (kbd "RET") nil)
 (define-key evil-motion-state-map "\\" 'evil-execute-in-emacs-state)
 (define-key evil-motion-state-map "z^" 'evil-scroll-top-line-to-bottom)
