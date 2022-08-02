@@ -137,38 +137,40 @@
 	      ("n" . next-line)
 	      ("p" . previous-line)
 	      ("M-n" . next-error+)
-	      ("M-p" . previous-error+))
+	      ("M-p" . previous-error+)
+              ("d" . compile-delete-line+))
   :config
   (setq grep-command "grep --color=auto -nr"))
 
 (use-package replace
   :after (compile)
   :demand t
-  :commands (occur-mode-goto-occurrence-no-select)
+  :commands (occur-mode-goto-occurrence-no-select compile-delete-line+)
   :bind (:map occur-mode-map
               ("n" . next-line)
 	      ("p" . previous-line)
 	      ("M-n" . next-error+)
 	      ("M-p" . previous-error+)
-              ("M-<return>" . occur-mode-goto-occurrence-no-select))
+              ("M-<return>" . occur-mode-goto-occurrence-no-select)
+              ("d" . compile-delete-line+))
   :config
   (defun occur-mode-goto-occurrence-no-select ()
     (interactive)
     (let ((window (selected-window)))
       (occur-mode-goto-occurrence)
-      (select-window window)))
-  )
+      (select-window window))))
 
 (use-package compile
   :after (f evil)
   :demand t
-  :commands (next-error+ previous-error+ compile-goto-error-no-select)
+  :commands (next-error+ previous-error+ compile-goto-error-no-select compile-delete-line+)
   :bind (:map compilation-mode-map
 	      ("n" . next-line)
 	      ("p" . previous-line)
 	      ("M-n" . next-error+)
 	      ("M-p" . previous-error+)
-              ("M-<return>" . compile-goto-error-no-select))
+              ("M-<return>" . compile-goto-error-no-select)
+	      ("d" . compile-delete-line+))
   :config
   (defun compile-goto-error-no-select ()
     (interactive)
@@ -196,8 +198,21 @@
   (evil-add-command-properties 'next-error :jump t)
   (evil-add-command-properties 'previous-error :jump t)
 
+  (defun compile-delete-line+ ()
+    (interactive)
+    (let ((inhibit-read-only t))
+      (read-only-mode 0)
+      (beginning-of-line)
+      (delete-region (point-at-bol) (point-at-eol))
+      (delete-char 1)
+      (read-only-mode 1)
+      (when (equal (line-number-at-pos (point-max))
+                   (line-number-at-pos (point)))
+        (previous-line))
+      (previous-line)
+      (next-error+)))
 
-  )
+  (define-key compilation-mode-map (kbd "d") 'compile-delete-line+))
 
 (use-package project
   :after (evil-leader)
@@ -656,7 +671,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :ensure t)
 
 (use-package f
-  :ensure t)
+  :ensure t
+  :demand t)
 
 (use-package org
   :ensure nil
