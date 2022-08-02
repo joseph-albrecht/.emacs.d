@@ -80,9 +80,9 @@
     (other-window 1))
 
   (setq monitor-attributes '(("ultrawide" . ((font-height . 170)
-						(frame-width . 190)))
-				  ("mac-retina" . ((font-height . 150)
-						 (frame-width . 179)))))
+					     (frame-width . 190)))
+			     ("mac-retina" . ((font-height . 150)
+					      (frame-width . 179)))))
 
   (defun conform-frame-to-monitor ()
     (interactive)
