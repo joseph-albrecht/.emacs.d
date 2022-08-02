@@ -452,6 +452,14 @@
   (setq evil-operator-state-cursor '("Royal Blue" (hbar . 2)))
   (evil-mode 1))
 
+(use-package evil-escape
+  :ensure t 
+  :config
+  (evil-escape-mode)
+  (setq evil-escape-key-sequence "sd")
+  (setq evil-escape-unordered-key-sequence t)
+  (setq evil-escape-delay .2))
+
 (use-package evil-baptism
   :after evil
   :load-path package-init-dir)
