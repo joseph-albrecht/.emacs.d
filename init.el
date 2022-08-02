@@ -17,6 +17,8 @@
 	     select-from-history
              mirror-window)
   :bind (:map minibuffer-mode-map
+	      ("M-p" . nil)
+	      ("M-n" . nil)
 	      ("A-r" . select-from-history)
 	      ("A-p" . previous-history-element)
 	      ("A-n" . next-history-element)
@@ -134,8 +136,8 @@
   :bind (:map grep-mode-map
 	      ("n" . next-line)
 	      ("p" . previous-line)
-	      ("N" . next-error+)
-	      ("P" . previous-error+))
+	      ("M-n" . next-error+)
+	      ("M-p" . previous-error+))
   :config
   (setq grep-command "grep --color=auto -nr"))
 
@@ -146,9 +148,9 @@
   :bind (:map occur-mode-map
               ("n" . next-line)
 	      ("p" . previous-line)
-	      ("N" . next-error+)
-	      ("P" . previous-error+)
-              ("S-<return>" . occur-mode-goto-occurrence-no-select))
+	      ("M-n" . next-error+)
+	      ("M-p" . previous-error+)
+              ("M-<return>" . occur-mode-goto-occurrence-no-select))
   :config
   (defun occur-mode-goto-occurrence-no-select ()
     (interactive)
@@ -164,9 +166,9 @@
   :bind (:map compilation-mode-map
 	      ("n" . next-line)
 	      ("p" . previous-line)
-	      ("N" . next-error+)
-	      ("P" . previous-error+)
-              ("S-<return>" . compile-goto-error-no-select))
+	      ("M-n" . next-error+)
+	      ("M-p" . previous-error+)
+              ("M-<return>" . compile-goto-error-no-select))
   :config
   (defun compile-goto-error-no-select ()
     (interactive)
@@ -237,10 +239,17 @@
   :demand t
   :bind (("C-M-x" . vertico-repeat)
 	 :map vertico-map
+	 ("M-n" . vertico-next)
+	 ("M-p" . vertico-previous)
 	 ("C-<return>" . vertico-exit-input)
 	 ("M-h" . vertico-directory-up))
   :config
   (vertico-mode 1)
+  (vertico-multiform-mode 1)
+  (setq vertico-multiform-commands
+        '((consult-imenu buffer indexed)
+          (consult-grep buffer indexed)))
+  
   (setq vertico-count 10)
   (set-face-attribute 'vertico-group-title nil :foreground "blue"))
 
@@ -267,7 +276,9 @@
 	      ("s i"   . consult-imenu)
 	      ("s o"   . occur))
   :config
-  (setq consult-preview-key nil)
+  (setq consult-preview-key (list (kbd "M-<return>") (kbd "M-n") (kbd "M-p")))
+  (consult-customize consult-ripgrep consult-git-grep consult-grep :preview-key nil)
+
   (defun consult-grep-dir (&optional dir)
     (interactive "P")
     (if dir
@@ -300,14 +311,15 @@
    	      ("M-." . embark-act)
    	      ("C-," . embark-become)
    	      ("C-c e" . embark-export)
+   	      ("C-c c" . embark-collect)
 	 :map vertico-map
    	      ("C-c e" . embark-export)
    	 :map embark-meta-map
    	      ("C-h" . nil)
    	      ("C-." . embark-keymap-help)
 	 :map embark-collect-mode-map
-	      ("N" . forward-button-click+)
-	      ("P" . backward-button-click+))
+	      ("M-n" . forward-button-click+)
+	      ("M-p" . backward-button-click+))
   :config
   (defun forward-button-click+ ()
     (interactive)
@@ -318,7 +330,7 @@
     (interactive)
     (funcall-interactively #'backward-button 1)
     (funcall-interactively #'push-button))
-  
+
   (eval-when-compile
     (defmacro my/embark-ace-action (fn)
       `(defun ,(intern (concat "my/embark-ace-" (symbol-name fn))) ()
@@ -476,9 +488,9 @@
   	      ("M-s f ESC" . nil)
  	      ("M-s f" . nil)
  	      ("e" . wdired-change-to-wdired-mode)
-  	      ("N" . dired-preview-next)
-  	      ("P" . dired-preview-previous)
-	      ("S-<return>" . dired-preview))
+  	      ("M-n" . dired-preview-next)
+  	      ("M-p" . dired-preview-previous)
+	      ("M-<return>" . dired-preview))
   :config
   (setq dired-listing-switches "-Al")
 
@@ -670,8 +682,6 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (load-file custom-file)
 
 (setq debug-on-error nil)
-
-(kill-buffer "*scratch*")
 
 (defun display-startup-echo-area-message ()
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
