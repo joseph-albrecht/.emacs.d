@@ -3,7 +3,7 @@
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 			 ("elpa"  . "https://elpa.gnu.org/packages/")))
-(setq package-init-dir (concat (expand-file-name user-emacs-directory) "init/"))
+(setq my-package-dir (concat (expand-file-name user-emacs-directory) "init/"))
 
 (setq use-package-enable-imenu-support t)
 (when (not (package-installed-p 'use-package))
@@ -462,11 +462,11 @@
 
 (use-package evil-baptism
   :after evil
-  :load-path package-init-dir)
+  :load-path my-package-dir)
 
 (use-package evil-leader
   :after (evil)
-  :load-path package-init-dir
+  :load-path my-package-dir
   :config
   (define-key evil-leader-state-map-extension (kbd "i t") 'insert-time-id)
   (global-set-key (kbd "C-M-SPC") evil-leader-state-map-extension))
