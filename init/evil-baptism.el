@@ -50,6 +50,8 @@
 
 (evil-add-command-properties 'isearch-forward :jump t)
 (evil-add-command-properties 'isearch-backward :jump t)
+(evil-add-command-properties 'query-replace :jump t)
+(evil-add-command-properties 'query-replace-regexp :jump t)
 
 ;;; Normal state
 

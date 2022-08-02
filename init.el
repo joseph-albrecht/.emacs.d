@@ -70,7 +70,8 @@
 
   (defun toggle-show-trailing-whitespace ()
     (interactive)
-    (setq show-trailing-whitespace (not show-trailing-whitespace)))
+    (setq show-trailing-whitespace (not show-trailing-whitespace))
+    (font-lock-update))
 
   (defun mirror-window ()
     (interactive)
@@ -78,7 +79,7 @@
     (split-window-right)
     (other-window 1))
 
-  (setq joey-monitor-attributes '(("ultrawide" . ((font-height . 170)
+  (setq monitor-attributes '(("ultrawide" . ((font-height . 170)
 						(frame-width . 190)))
 				  ("mac-retina" . ((font-height . 150)
 						 (frame-width . 179)))))
@@ -86,8 +87,8 @@
   (defun conform-frame-to-monitor ()
     (interactive)
     (let* ((monitor-settings (cdr (assoc (completing-read "select monitor: "
-						     joey-monitor-attributes)
-				    joey-monitor-attributes)))
+						     monitor-attributes)
+				    monitor-attributes)))
 	   (font-height (cdr (assoc 'font-height monitor-settings)))
 	   (frame-width (cdr (assoc 'frame-width monitor-settings))))
       (message "monitor-settings: %s font-height: %s frame-width: %s" monitor-settings font-height frame-width)
