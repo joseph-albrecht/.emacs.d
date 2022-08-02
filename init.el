@@ -3,7 +3,7 @@
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 			 ("elpa"  . "https://elpa.gnu.org/packages/")))
-(setq my-package-dir (concat (expand-file-name user-emacs-directory) "init/"))
+(setq my-package-dir (concat (expand-file-name user-emacs-directory) "my-packages/"))
 
 (setq use-package-enable-imenu-support t)
 (when (not (package-installed-p 'use-package))
@@ -489,6 +489,7 @@
 	      ("s F" . find-grep-dired)
  	      ("s f" . find-grep-dired-default-dir)
   	 :map dired-mode-map
+ 	      ("<" . dired-up-directory)
  	      ("M-s f C-s" . nil)
   	      ("M-s f ESC" . nil)
  	      ("M-s f" . nil)
@@ -521,6 +522,13 @@
     (interactive)
     (dired-next-line 1)
     (dired-preview)))
+
+(use-package ls-lisp
+  :after (dired)
+  :config
+  (setq dired-use-ls-dired t)
+  (setq ls-lisp-use-insert-directory-program nil)
+  (setq ls-lisp-dirs-first t))
 
 (use-package dired-narrow
   :ensure t
