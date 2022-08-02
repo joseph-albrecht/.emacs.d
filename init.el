@@ -242,13 +242,10 @@
 	 ("M-n" . vertico-next)
 	 ("M-p" . vertico-previous)
 	 ("C-<return>" . vertico-exit-input)
-	 ("M-h" . vertico-directory-up))
+	 ("C-^" . vertico-directory-up)
+         ("M-h" . vertico-directory-up))
   :config
   (vertico-mode 1)
-  (vertico-multiform-mode 1)
-  (setq vertico-multiform-commands
-        '((consult-imenu buffer indexed)
-          (consult-grep buffer indexed)))
   
   (setq vertico-count 10)
   (set-face-attribute 'vertico-group-title nil :foreground "blue"))
