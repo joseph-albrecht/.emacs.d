@@ -486,7 +486,9 @@
 
 (use-package magit
   :ensure t
-  :bind (:map evil-leader-state-map-extension
+  :bind (:map magit-status-mode-map
+              ("<" . magit-section-up)
+         :map evil-leader-state-map-extension
 	      ("g g" . magit-status) 
               ("g c" . magit-clone)))
 
@@ -675,7 +677,10 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package org
   :ensure nil
   :commands (open-log-file+)
-  :bind (:map evil-leader-state-map-extension
+  :bind (:map org-mode-map
+	      ("M-n"  . org-next-visible-heading)
+	      ("M-p"  . org-previous-visible-heading)
+         :map evil-leader-state-map-extension
               ("o l" . open-log-file+))
   :config
   (setq org-startup-folded 'showeverything)
