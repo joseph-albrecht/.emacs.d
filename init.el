@@ -312,7 +312,7 @@
   :after (vertico)
   :ensure t
   :demand t
-  :commands (embark-act-quit forward-button-click+ backward-button-click+)
+  :commands (embark-act-quit forward-button-click+ backward-button-click+ embark-collect-delete+)
   :bind (("C-." . embark-act)
    	 :map minibuffer-mode-map
    	      ("TAB" . minibuffer-force-complete)
@@ -328,6 +328,7 @@
    	      ("C-h" . nil)
    	      ("C-." . embark-keymap-help)
 	 :map embark-collect-mode-map
+	      ("d" . embark-collect-delete+)
 	      ("M-n" . forward-button-click+)
 	      ("M-p" . backward-button-click+))
   :config
@@ -365,7 +366,19 @@
   (setq embark-action-indicator (lambda (map)
    				  (which-key--show-keymap "Embark" map nil nil 'no-paging)
    				  #'which-key--hide-popup-ignore-command))
-  (setq embark-become-indicator embark-action-indicator))
+  (setq embark-become-indicator embark-action-indicator)
+
+  (defun embark-collect-delete+ ()
+    (interactive)
+    (let ((inhibit-read-only t))
+      (beginning-of-line)
+      (delete-region (point-at-bol) (point-at-eol))
+      (delete-char 1)
+      (when (equal (line-number-at-pos (point-max))
+                   (line-number-at-pos (point)))
+        (previous-line))
+      (previous-line)
+      (next-line))))
 
 
 (use-package orderless
