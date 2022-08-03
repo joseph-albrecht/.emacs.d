@@ -220,9 +220,7 @@
   :bind (:map evil-leader-state-map-extension
 	      ("p ." . project-switch-current)
 	      ("p F" . find-grep-dired-default-dir)
-	      ("C-p w" . project-dir-writing)
-	      ("C-p e" . project-dir-.emacs.d)
-	      ("n n" . project-dir-writing))
+	      ("C-p e" . project-dir-.emacs.d))
   :config
   (setq project-switch-commands
 	'((?f "File" project-find-file)
