@@ -208,7 +208,7 @@
                    (line-number-at-pos (point)))
         (previous-line))
       (previous-line)
-      (next-error+)))
+      (next-line)))
 
   (define-key compilation-mode-map (kbd "d") 'compile-delete-line+))
 
