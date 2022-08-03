@@ -483,7 +483,7 @@
   :config
   (evil-escape-mode)
   (setq evil-escape-key-sequence "jk")
-  (setq evil-escape-unordered-key-sequence t)
+  (setq evil-escape-unordered-key-sequence nil)
   (setq evil-escape-delay .1))
 
 (use-package evil-baptism
