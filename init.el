@@ -482,9 +482,9 @@
   :ensure t 
   :config
   (evil-escape-mode)
-  (setq evil-escape-key-sequence "sd")
+  (setq evil-escape-key-sequence "jk")
   (setq evil-escape-unordered-key-sequence t)
-  (setq evil-escape-delay .2))
+  (setq evil-escape-delay .1))
 
 (use-package evil-baptism
   :after evil
