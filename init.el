@@ -243,7 +243,7 @@
 
   (defun project-dir-.emacs.d ()
     (interactive)
-    (project-switch-project "~/.emacs.d/")))
+    (project-switch-project user-emacs-directory)))
 
 (use-package vertico
   :ensure t
