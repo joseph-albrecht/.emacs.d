@@ -59,7 +59,11 @@
   (menu-bar-mode -1)
   (fringe-mode (cons 1 1))
   (tab-bar-mode -1)
-  (set-face-attribute 'default nil :font "iosevka" :height 150)
+
+  (condition-case nil
+      (set-face-attribute 'default nil :font "iosevka" :height 150)
+    (set-face-attribute 'default nil :height 150))
+
   (set-face-attribute 'region nil :background "#A0F5F4")
   (set-cursor-color "#007F00")
 
