@@ -23,6 +23,8 @@
 	      ("A-p" . previous-history-element)
 	      ("A-n" . next-history-element)
 	 :map evil-leader-state-map-extension
+	      ("f k" . kill-filepath)
+	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
 	      ("v h" . global-hl-line-mode)
               ("t m" . 'mirror-window))
@@ -129,7 +131,15 @@
 	  (let ((chosen-history (completing-read "input history: " history)))
 	    (clear-line)
 	    (insert chosen-history))
-	(message "no history items")))))
+	(message "no history items"))))
+
+  (defun kill-filepath ()
+    (interactive)
+    (kill-new (buffer-file-name)))
+
+  (defun echo-filepath ()
+    (interactive)
+    (message (buffer-file-name))))
 
 (use-package grep
   :after (compile)
@@ -152,6 +162,7 @@
 	      ("M-n" . next-error+)
 	      ("M-p" . previous-error+)
               ("M-<return>" . occur-mode-goto-occurrence-no-select)
+              ("<return>" . occur-mode-goto-occurrence)
               ("d" . compile-delete-line+))
   :config
   (defun occur-mode-goto-occurrence-no-select ()
@@ -219,6 +230,8 @@
 	     project-switch-current)
   :bind (:map evil-leader-state-map-extension
 	      ("p ." . project-switch-current)
+	      ("p r" . consult-grep)
+	      ("p R" . consult-grep-case-sensitive)
 	      ("p F" . find-grep-dired-default-dir)
 	      ("C-p e" . project-dir-.emacs.d))
   :config
@@ -226,12 +239,13 @@
 	'((?f "File" project-find-file)
 	  (?F "CLI Find" find-grep-dired-default-dir)
 	  (?n "New file" find-file)
-	  (?g "Grep" consult-grep)
+	  (?r "Grep" consult-grep)
+	  (?R "Grep" consult-grep-case-sensitive)
 	  (?d "Project Dir" project-dired)
 	  (?D "Dired" dired)
 	  (?b "Buffer" project-switch-to-buffer)
 	  (?q "Query replace" project-query-replace-regexp)
-	  (?G "Magit" magit-project-status)
+	  (?g "Magit" magit-project-status)
 	  (?c "Compile" compile)
 	  (?C "Recompile" recompile)
 	  (?e "Eshell" project-eshell)
@@ -273,25 +287,40 @@
 
 (use-package consult
   :after (evil-leader)
+  :commands (consult-grep-dir consult-grep-dir-case-sensitive)
   :ensure t
   :bind (:map evil-leader-state-map-extension
    	      ("b b"   . consult-buffer)
    	      ("b B"   . switch-to-buffer)
    	      ("s l"   . consult-outline)
    	      ("s s"   . consult-line)
-   	      ("s g"   . consult-grep-dir)
-   	      ("s G"   . lgrep)
+   	      ("s r"   . consult-grep-dir)
+   	      ("s R"   . consult-grep-dir-case-sensitive)
 	      ("s i"   . consult-imenu)
 	      ("s o"   . occur))
   :config
   (setq consult-preview-key (list (kbd "M-<return>") (kbd "M-n") (kbd "M-p")))
   (consult-customize consult-ripgrep consult-git-grep consult-grep :preview-key nil)
 
+  (defun consult-grep-case-sensitive (&optional dir)
+    (interactive "P")
+    (let ((consult-grep-args "grep --null --line-buffered --color=never --line-number -I -r ."))
+      (consult-grep)))
+
   (defun consult-grep-dir (&optional dir)
     (interactive "P")
     (if dir
 	(consult-grep default-directory)
       (consult-grep t)))
+
+  (defun consult-grep-dir-case-sensitive (&optional dir)
+    (interactive "P")
+    (let ((consult-grep-args "grep --null --line-buffered --color=never --line-number -I -r ."
+                             ))
+      (if dir
+	(consult-grep default-directory)
+      (consult-grep t))))
+  
   (evil-add-command-properties 'consult-line :jump t)
   (evil-add-command-properties 'consult-imenu :jump t))
 
@@ -465,6 +494,7 @@
   (evil-set-initial-state 'markdown-mode 'normal)
   (evil-set-initial-state 'shell-mode 'normal)
   (evil-set-initial-state 'wdired-mode 'normal)
+  (evil-set-initial-state 'nxml-mode 'normal)
 
   (evil-set-initial-state 'magit-log-edit-mode 'insert)
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
@@ -726,9 +756,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package which-key
   :ensure t
-  :disable
   ;;; TODO: how can i get which-key to use a consistent size regardless of the number
   ;;; of bindings? I think there is an option to write custom window creation functions
+  :config
   (which-key-add-key-based-replacements "SPC b" "buffers")
   (which-key-add-key-based-replacements "SPC d" "dir")
   (which-key-add-key-based-replacements "SPC e" "eval")
@@ -743,7 +773,13 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (which-key-add-key-based-replacements "SPC SPC" "C-c")
   (which-key-add-key-based-replacements "SPC g" "git")
   (which-key-add-key-based-replacements "SPC a" "edit")
-  (which-key-add-key-based-replacements "SPC i" "insert"))
+  (which-key-add-key-based-replacements "SPC i" "insert")
+
+  (setq embark-become-map (make-sparse-keymap))
+  (define-key embark-become-map (kbd "SPC") evil-leader-state-map-extension)
+  (setq embark-become-keymaps '(embark-become-map))
+
+  (which-key-mode))
 
 (setq debug-on-error nil)
 
