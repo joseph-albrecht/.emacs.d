@@ -722,10 +722,11 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package org
   :ensure nil
-  :commands (open-log-file+)
+  :commands (open-log-file+ org-insert-timestamp+)
   :bind (:map org-mode-map
 	      ("M-n"  . org-next-visible-heading)
 	      ("M-p"  . org-previous-visible-heading)
+	      ("C-c ."  . org-insert-timestamp+)
          :map evil-leader-state-map-extension
               ("o l" . open-log-file+))
   :config
@@ -750,7 +751,13 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
   (defun open-log-file+ ()
     (interactive)
-    (find-file org-log-file)))
+    (find-file org-log-file))
+
+  (defun org-insert-timestamp+ ()
+    (interactive)
+    (org-time-stamp '(16) t))
+
+  )
 
   (defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
                                                  ;;; custom-set-icons isn't defined for some reason
