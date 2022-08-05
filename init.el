@@ -499,6 +499,7 @@
   (evil-set-initial-state 'shell-mode 'normal)
   (evil-set-initial-state 'wdired-mode 'normal)
   (evil-set-initial-state 'nxml-mode 'normal)
+  (evil-set-initial-state 'conf-colon-mode 'normal)
 
   (evil-set-initial-state 'magit-log-edit-mode 'insert)
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
