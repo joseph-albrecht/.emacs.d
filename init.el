@@ -302,7 +302,8 @@
   :after (evil-leader)
   :commands (consult-grep-dir consult-grep-dir-case-sensitive)
   :ensure t
-  :bind (:map evil-leader-state-map-extension
+  :bind (("C-M-y" . consult-yank-from-kill-ring)
+         :map evil-leader-state-map-extension
    	      ("b b"   . consult-buffer)
    	      ("b B"   . switch-to-buffer)
    	      ("s l"   . consult-outline)
