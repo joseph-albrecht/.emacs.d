@@ -13,6 +13,7 @@
 (use-package emacs
   :after (evil-leader)
   :commands (insert-time-id
+             eval-region+
 	     toggle-show-trailing-whitespace
 	     select-from-history
              mirror-window)
@@ -23,6 +24,7 @@
 	      ("A-p" . previous-history-element)
 	      ("A-n" . next-history-element)
 	 :map evil-leader-state-map-extension
+	      ("e r" . eval-region+)
 	      ("f k" . kill-filepath)
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
@@ -143,7 +145,14 @@
 
   (defun echo-filepath ()
     (interactive)
-    (message (buffer-file-name))))
+    (message (buffer-file-name)))
+
+  (defun eval-region+ ()
+    (interactive)
+    (let ((start (region-beginning))
+          (end   (region-end)))
+      (eval-region start end)
+      (message "eval-region done."))))
 
 (use-package grep
   :after (compile)
