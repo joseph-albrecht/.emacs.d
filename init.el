@@ -737,6 +737,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 	      ("M-n"  . org-next-visible-heading)
 	      ("M-p"  . org-previous-visible-heading)
 	      ("C-c ."  . org-insert-timestamp+)
+	      ("C-c c"  . org-cycle)
          :map evil-leader-state-map-extension
               ("o l" . open-log-file+))
   :config
@@ -748,7 +749,10 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq org-hide-leading-stars nil)
   (setq org-log-into-drawer t)
   (setq org-fontify-whole-heading-line t)
-  
+
+  (setq org-babel-load-languages '((emacs-lisp . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+
   (set-face-attribute 'org-level-1 nil :background "#F0F0F0" :overline t :underline t :bold t)
   (set-face-attribute 'org-level-2 nil :background "#F0F0F0" :overline t :underline t :bold t)
   (set-face-attribute 'org-level-3 nil :background "#F0F0F0" :overline t :underline t :bold t)
@@ -766,6 +770,12 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (defun org-insert-timestamp+ ()
     (interactive)
     (org-time-stamp '(16) t)))
+
+(use-package ob-http
+  :ensure t
+  :config
+  (add-to-list 'org-babel-load-languages '(http . t))
+  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
 
 (defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
                                                ;;; custom-set-icons isn't defined for some reason
