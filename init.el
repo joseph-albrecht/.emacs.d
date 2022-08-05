@@ -755,12 +755,10 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
   (defun org-insert-timestamp+ ()
     (interactive)
-    (org-time-stamp '(16) t))
+    (org-time-stamp '(16) t)))
 
-  )
-
-  (defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
-                                                 ;;; custom-set-icons isn't defined for some reason
+(defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
+                                               ;;; custom-set-icons isn't defined for some reason
   (setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
   (when (not (file-exists-p custom-file))
     (shell-command (concat "touch " custom-file)))
