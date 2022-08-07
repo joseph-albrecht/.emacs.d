@@ -426,6 +426,9 @@
 
 (use-package orderless
   :ensure t
+  :commands (orderless-help+)
+  :bind (:map minibuffer-mode-map
+              ("C-c ?" . orderless-help+))
   :config
   (setq completion-styles '(orderless))
   (setq orderless-component-separator 'orderless-escapable-split-on-space)
@@ -435,38 +438,46 @@
     (cond
      ((equal "~" pattern)
       '(orderless-literal . "~"))
-     ((string-prefix-p "$~" pattern)
-      `(orderless-flex . ,(substring pattern 2)))))
+     ((string-prefix-p "~" pattern)
+      `(orderless-flex . ,(substring pattern 1)))))
 
   (defun orderless-literal-dispatcher+ (pattern _index _total)
     "match literally"
     (cond
      ((equal "=" pattern)
       '(orderless-literal . "="))
-     ((string-prefix-p "$=" pattern)
-      `(orderless-literal . ,(substring pattern 2)))))
+     ((string-prefix-p "=" pattern)
+      `(orderless-literal . ,(substring pattern 1)))))
 
   (defun orderless-initialism-dispatcher+ (pattern _index _total)
     "match characters as initials of words"
     (cond
      ((equal "," pattern)
       '(orderless-literal . ","))
-     ((string-prefix-p "$," pattern)
-      `(orderless-strict-initialism . ,(substring pattern 2)))))
+     ((string-prefix-p "," pattern)
+      `(orderless-initialism . ,(substring pattern 1)))))
 
   (defun orderless-without-dispatcher+ (pattern _index _total)
     "remove matches"
     (cond
      ((equal "!" pattern)
       '(orderless-literal . "!"))
-     ((string-prefix-p "$!" pattern)
-      `(orderless-without-literal . ,(substring pattern 2)))))
+     ((string-prefix-p "!" pattern)
+      `(orderless-without-literal . ,(substring pattern 1)))))
 
   (setq orderless-matching-styles '(orderless-regexp)
    	orderless-style-dispatchers '(orderless-flex-if-twiddle-dispatcher+
    				      orderless-initialism-dispatcher+
    				      orderless-literal-dispatcher+
-   				      orderless-without-dispatcher+)))
+   				      orderless-without-dispatcher+))
+
+  (defun orderless-help+ ()
+    (interactive)
+    (message "flex:%s... literal:%s... initial:%s... without:%s..."
+             (propertize "$~" 'face 'font-lock-warning-face)
+             (propertize "$=" 'face 'font-lock-warning-face)
+             (propertize "$," 'face 'font-lock-warning-face)
+             (propertize "$!" 'face 'font-lock-warning-face))))
 
 (use-package undo-tree
   :ensure t
