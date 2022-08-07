@@ -188,7 +188,9 @@
   :after (f evil)
   :demand t
   :commands (next-error+ previous-error+ compile-goto-error-no-select compile-delete-line+)
-  :bind (:map compilation-mode-map
+  :bind (("C-M-n" . next-error)
+         ("C-M-p" . previous-error)
+         :map compilation-mode-map
 	      ("n" . next-line)
 	      ("p" . previous-line)
 	      ("M-n" . next-error+)
@@ -560,6 +562,8 @@
 	      ("s F" . find-grep-dired)
  	      ("s f" . find-grep-dired-default-dir)
   	 :map dired-mode-map
+ 	      ("C-M-n" . nil)
+ 	      ("C-M-p" . nil)
  	      ("<" . dired-up-directory)
  	      ("M-s f C-s" . nil)
   	      ("M-s f ESC" . nil)
