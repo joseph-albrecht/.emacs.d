@@ -747,12 +747,13 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package org
   :ensure nil
-  :commands (open-log-file+ org-insert-timestamp+)
+  :commands (open-log-file+ org-insert-timestamp+ org-open-some-buffer-link+)
   :bind (:map org-mode-map
 	      ("M-n"  . org-next-visible-heading)
 	      ("M-p"  . org-previous-visible-heading)
 	      ("C-c ."  . org-insert-timestamp+)
 	      ("C-c c"  . org-cycle)
+	      ("C-c l"  . org-open-some-buffer-link+)
          :map evil-leader-state-map-extension
               ("o l" . open-log-file+))
   :config
@@ -784,7 +785,17 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
   (defun org-insert-timestamp+ ()
     (interactive)
-    (org-time-stamp '(16) t)))
+    (org-time-stamp '(16) t))
+
+  (add-hook 'org-mode-hook 'visual-line-mode)
+
+  (defun org-open-some-buffer-link+ ()
+    (interactive)
+    (let ((links (org-element-map (org-element-parse-buffer) 'link
+                   (lambda (link)
+                     (when (member (org-element-property :type link) '("http" "https"))
+                       (org-element-property :raw-link link))))))
+      (browse-url (completing-read "links: " links)))))
 
 (use-package ob-http
   :ensure t
