@@ -791,17 +791,18 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
   (defun org-open-some-buffer-link+ ()
     (interactive)
-    (let ((links (org-element-map (org-element-parse-buffer) 'link
-                   (lambda (link)
-                     (when (member (org-element-property :type link) '("http" "https"))
-                       (org-element-property :raw-link link))))))
+    (let* ((links (org-element-map (org-element-parse-buffer) 'link
+                    (lambda (link)
+                      (when (member (org-element-property :type link) '("http" "https"))
+                        link)))))
       (browse-url (completing-read "links: " links)))))
 
-(use-package ob-http
-  :ensure t
-  :config
-  (add-to-list 'org-babel-load-languages '(http . t))
-  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
+;; TODO: read through this package
+;; (use-package ob-http
+;;   :ensure t
+;;   :config
+;;   (add-to-list 'org-babel-load-languages '(http . t))
+;;   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
 
 (defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
                                                ;;; custom-set-icons isn't defined for some reason
