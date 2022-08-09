@@ -462,6 +462,7 @@
 
 (use-package orderless
   :ensure t
+  :demand t
   :commands (orderless-help+)
   :bind (:map minibuffer-mode-map
               ("C-c ?" . orderless-help+))
