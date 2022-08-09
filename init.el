@@ -291,14 +291,20 @@
       (->> (split-string (buffer-string) "\n")
            (seq-remove #'string-empty-p))))
 
+  (defun makefile-from-dir (dir)
+    (cond
+       ((file-exists-p (format "%s/GNUmakefile" dir)) (format "%s/GNUmakefile" dir))
+       ((file-exists-p (format "%s/makefile" dir)) (format "%s/makefile" dir))
+       ((file-exists-p (format "%s/Makefile" dir)) (format "%s/Makefile" dir))))
+  
   (defun project-make+ ()
     (interactive)
     (let* ((project-dir (project-root (project-current nil)))
            (default-dir project-dir)
-           (makefile (format "%sMakefile" project-dir))
+           (makefile (makefile-from-dir project-dir))
            (target-regexp "^[[:alnum:]_-]+:[\s]*\\(#[[:alnum:]\s]*\\)?$"))
-      (if (not (file-exists-p makefile))
-          (message (format "There is no file %s" makefile))
+      (if (not makefile)
+          (message (format "There is no makefile in %s" project-dir))
         (->> (lines-in-file-matching-re makefile target-regexp)
              (seq-remove #'string-empty-p)
              (seq-map (lambda (target)
