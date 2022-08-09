@@ -512,16 +512,7 @@
    	orderless-style-dispatchers '(orderless-flex-if-twiddle-dispatcher+
    				      orderless-initialism-dispatcher+
    				      orderless-literal-dispatcher+
-   				      orderless-without-dispatcher+))
-
-  ;; (defun orderless-help+ ()
-  ;;   (interactive)
-  ;;   (message "flex:%s... literal:%s... initial:%s... without:%s..."
-  ;;            (propertize "$~" 'face 'font-lock-warning-face)
-  ;;            (propertize "$=" 'face 'font-lock-warning-face)
-  ;;            (propertize "$," 'face 'font-lock-warning-face)
-  ;;            (propertize "$!" 'face 'font-lock-warning-face)))
-  )
+   				      orderless-without-dispatcher+)))
 
 (use-package undo-tree
   :ensure t
