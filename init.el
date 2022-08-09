@@ -508,13 +508,14 @@
    				      orderless-literal-dispatcher+
    				      orderless-without-dispatcher+))
 
-  (defun orderless-help+ ()
-    (interactive)
-    (message "flex:%s... literal:%s... initial:%s... without:%s..."
-             (propertize "$~" 'face 'font-lock-warning-face)
-             (propertize "$=" 'face 'font-lock-warning-face)
-             (propertize "$," 'face 'font-lock-warning-face)
-             (propertize "$!" 'face 'font-lock-warning-face))))
+  ;; (defun orderless-help+ ()
+  ;;   (interactive)
+  ;;   (message "flex:%s... literal:%s... initial:%s... without:%s..."
+  ;;            (propertize "$~" 'face 'font-lock-warning-face)
+  ;;            (propertize "$=" 'face 'font-lock-warning-face)
+  ;;            (propertize "$," 'face 'font-lock-warning-face)
+  ;;            (propertize "$!" 'face 'font-lock-warning-face)))
+  )
 
 (use-package undo-tree
   :ensure t
