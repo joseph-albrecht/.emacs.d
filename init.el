@@ -161,7 +161,9 @@
 	      ("p" . previous-line)
 	      ("M-n" . next-error+)
 	      ("M-p" . previous-error+)
-              ("d" . compile-delete-line+))
+              ("M-<return>" . compile-goto-error-no-select)
+              ("d" . compile-delete-line+)
+              ("D" . compile-delete-line-no-select+))
   :config
   (setq grep-command "grep --color=auto -nr"))
 
@@ -196,7 +198,8 @@
 	      ("M-n" . next-error+)
 	      ("M-p" . previous-error+)
               ("M-<return>" . compile-goto-error-no-select)
-	      ("d" . compile-delete-line+))
+	      ("d" . compile-delete-line+)
+              ("D" . compile-delete-line-no-select+))
   :config
   (defun compile-goto-error-no-select ()
     (interactive)
@@ -225,6 +228,12 @@
   (evil-add-command-properties 'previous-error :jump t)
 
   (defun compile-delete-line+ ()
+    (interactive)
+    (compile-delete-line-no-select+)
+    (previous-line)
+    (next-error+))
+
+  (defun compile-delete-line-no-select+ ()
     (interactive)
     (let ((inhibit-read-only t))
       (beginning-of-line)
@@ -396,6 +405,7 @@
    	      ("C-." . embark-keymap-help)
 	 :map embark-collect-mode-map
 	      ("d" . embark-collect-delete+)
+	      ("D" . embark-collect-delete-no-select+)
 	      ("M-n" . forward-button-click+)
 	      ("M-p" . backward-button-click+))
   :config
@@ -437,16 +447,18 @@
 
   (defun embark-collect-delete+ ()
     (interactive)
+    (embark-collect-delete-no-select+)
+    (call-interactively #'push-button))
+
+  (defun embark-collect-delete-no-select+ ()
+    (interactive)
     (let ((inhibit-read-only t))
       (beginning-of-line)
       (delete-region (point-at-bol) (point-at-eol))
       (delete-char 1)
       (when (equal (line-number-at-pos (point-max))
                    (line-number-at-pos (point)))
-        (previous-line))
-      (previous-line)
-      (next-line))))
-
+        (previous-line)))))
 
 (use-package orderless
   :ensure t
