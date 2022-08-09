@@ -522,7 +522,6 @@
   (setq undo-tree-auto-save-history nil)
   (global-undo-tree-mode))
 
-;; TODO: evil-show-registers defaults to motion-state
 (use-package evil
   :ensure t
   :config
@@ -569,7 +568,11 @@
   (setq evil-insert-state-cursor   '("Royal Blue" (bar . 2)))
   (setq evil-normal-state-cursor   '("Royal Blue" box))
   (setq evil-operator-state-cursor '("Royal Blue" (hbar . 2)))
-  (evil-mode 1))
+  (evil-mode 1)
+
+  ;;; for some reason this is necessary to not start in emacs-state
+  (advice-add 'evil-show-registers
+   :after (lambda (&rest r) (evil-change-state evil-default-state))))
 
 (use-package evil-escape
   :ensure t 
