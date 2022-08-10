@@ -887,6 +887,34 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
   (which-key-mode))
 
+(use-package shell
+  :commands (select-shell-history)
+  :bind (:map minibuffer-mode-map
+              ("A-h" . select-shell-history)
+         :map shell-mode-map
+              ("A-h" . select-shell-history))
+  :config
+  (defun clear-line ()
+    (move-beginning-of-line 1)
+    (ignore-errors (kill-line)
+		   (pop kill-ring)))
+  
+  (defun select-shell-history ()
+    (interactive)
+    (let* ((zsh     (shell-command-to-string "cat ~/.zsh_history  2> /dev/null"))
+           (bash    (shell-command-to-string "cat ~/.bash_history 2> /dev/null"))
+           (history (->> (concat zsh bash)
+	  		 (s-split "\n")
+                         (seq-remove #'string-empty-p)
+	  		 seq-uniq
+	  		 seq-reverse))
+	   (vertico-sort-override-function #'identity))
+      (if (> (length history) 0)
+	  (progn
+	    (let ((chosen-history (completing-read "history: " history)))
+	      (clear-line)
+	      (insert chosen-history)))))))
+
 (setq debug-on-error nil)
 
 (defun display-startup-echo-area-message ()
