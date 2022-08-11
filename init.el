@@ -309,7 +309,8 @@
              (seq-remove #'string-empty-p)
              (seq-map (lambda (target)
                         (replace-regexp-in-string ":.*$" "" target)))
-             (completing-read "run make command:")
+             (completing-read-multiple "run make command:")
+             (s-join " ")
              (format "make %s")
              compile))))
 
