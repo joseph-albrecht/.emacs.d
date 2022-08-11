@@ -922,3 +922,12 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
     (message (format "Emacs started in %s seconds." seconds))))
 
+;;; https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
+(use-package lsp-mode
+  :ensure t
+  :config
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-headerline-breadcrumb-enable nil))
+
+(use-package lsp-java
+  :ensure t)
