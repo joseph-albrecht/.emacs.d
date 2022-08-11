@@ -317,7 +317,7 @@
   (defun project-override (dir)
     (let ((root (locate-dominating-file default-directory ".project.el"))
           (backend  (ignore-errors (vc-responsible-backend dir))))
-      (when root (if (version<= "28")
+      (when root (if (version<= emacs-version "28")
                          (cons 'vc root)
                        (list 'vc backend root)))))
 
