@@ -155,7 +155,9 @@
     (let ((start (region-beginning))
           (end   (region-end)))
       (eval-region start end)
-      (message "eval-region done."))))
+      (message "eval-region done.")))
+
+  (setq confirm-kill-processes nil))
 
 (use-package grep
   :after (compile)
@@ -336,16 +338,19 @@
   :demand t
   :bind (("C-M-x" . vertico-repeat)
 	 :map vertico-map
-	 ("M-n" . vertico-next)
-	 ("M-p" . vertico-previous)
-	 ("C-<return>" . vertico-exit-input)
-	 ("C-^" . vertico-directory-up)
-         ("M-h" . vertico-directory-up))
+	      ("M-n" . vertico-next)
+	      ("M-p" . vertico-previous)
+	      ("C-<return>" . vertico-exit-input)
+	      ("C-^" . vertico-directory-up)
+              ("M-h" . vertico-directory-up)
+         :map evil-leader-state-map-extension
+              ("X" . vertico-repeat))
   :config
   (vertico-mode 1)
   (setq vertico-count 10)
-  (setq vertico-cycle t)
-  (set-face-attribute 'vertico-group-title nil :foreground "blue"))
+  (setq vertico-cycle nil)
+  (set-face-attribute 'vertico-group-title nil :foreground "blue")
+  (add-hook 'minibuffer-setup-hook #'vertico-repeat-save))
 
 (use-package marginalia
   :ensure t
@@ -617,7 +622,8 @@
               ("<" . magit-section-up)
          :map evil-leader-state-map-extension
 	      ("g g" . magit-status) 
-              ("g c" . magit-clone)))
+              ("g c" . magit-clone))
+  (setq magit-save-repository-buffers 'dontask))
 
 (use-package avy
   :ensure t
