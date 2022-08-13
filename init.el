@@ -10,6 +10,9 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
+(use-package use-package
+  :custom ((use-package-hook-name-suffix "")))
+
 (use-package emacs
   :after (evil-leader)
   :commands (insert-time-id
@@ -337,7 +340,6 @@
          ("M-h" . vertico-directory-up))
   :config
   (vertico-mode 1)
-  
   (setq vertico-count 10)
   (set-face-attribute 'vertico-group-title nil :foreground "blue"))
 
@@ -697,6 +699,8 @@
 (use-package yasnippet
   :ensure t
   :demand t
+  :bind (:map evil-leader-state-map-extension
+              ("i y" . yas-insert-snippet))
   :config
   (yas-global-mode 1))
 
@@ -893,8 +897,16 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :bind (:map minibuffer-mode-map
               ("A-h" . select-shell-history)
          :map shell-mode-map
-              ("A-h" . select-shell-history))
+              ("C-p" . comint-previous-input)
+              ("C-n" . comint-next-input)
+              ("M-p" . comint-previous-prompt)
+              ("M-n" . comint-next-prompt)
+              ("A-h" . select-shell-history)
+              ("C-c r" . shell-rename+))
   :config
+  (setq shell-file-name "/bin/zsh")
+  (setq comint-process-echoes t)
+  
   (defun clear-line ()
     (move-beginning-of-line 1)
     (ignore-errors (kill-line)
@@ -902,9 +914,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   
   (defun select-shell-history ()
     (interactive)
-    (let* ((zsh     (shell-command-to-string "cat ~/.zsh_history  2> /dev/null"))
-           (bash    (shell-command-to-string "cat ~/.bash_history 2> /dev/null"))
-           (history (->> (concat zsh bash)
+    (let* ((zsh-hist     (shell-command-to-string "cat ~/.zsh_history  2> /dev/null"))
+           (history (->> zsh-hist
 	  		 (s-split "\n")
                          (seq-remove #'string-empty-p)
 	  		 seq-uniq
@@ -914,15 +925,14 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 	  (progn
 	    (let ((chosen-history (completing-read "history: " history)))
 	      (clear-line)
-	      (insert chosen-history)))))))
+	      (insert chosen-history))))))
 
-(setq debug-on-error nil)
-
-(defun display-startup-echo-area-message ()
-  (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
-    (message (format "Emacs started in %s seconds." seconds))))
+  (defun shell-rename+()
+    (interactive)
+    (rename-buffer (concat "*shell* " (read-string "shell name: ")))))
 
 ;;; https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
+;;; TODO: turn off the things I don't like
 (use-package lsp-mode
   :ensure t
   :config
@@ -931,3 +941,19 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package lsp-java
   :ensure t)
+
+(use-package rainbow-delimiters
+  :ensure t
+  :hook (prog-mode-hook . rainbow-delimiters-mode))
+
+(let ((local-extension-file (concat (expand-file-name user-emacs-directory)
+                               "local-extension.el")))
+  (when (file-exists-p local-extension-file)
+    (load local-extension-file)))
+
+(setq debug-on-error nil)
+
+(defun display-startup-echo-area-message ()
+  (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
+    (message (format "Emacs started in %s seconds." seconds))))
+
