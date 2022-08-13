@@ -32,7 +32,7 @@
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
 	      ("v h" . global-hl-line-mode)
-              ("t m" . 'mirror-window))
+              ("t C" . 'copy-window))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
 
@@ -86,7 +86,7 @@
     (setq show-trailing-whitespace (not show-trailing-whitespace))
     (font-lock-update))
 
-  (defun mirror-window ()
+  (defun copy-window ()
     (interactive)
     (delete-other-windows)
     (split-window-right)
@@ -689,19 +689,29 @@
 (use-package ace-window
   :ensure t
   :after (evil-leader)
+  :commands (ace-copy-window ace-move-window ace-switch-buffer-other-window)
   :bind (:map evil-leader-state-map-extension
-	      ("t t" . ace-window)
-              ("t L" . aw-flip-window))
+	      ("t s" . ace-swap-window)
+	      ("t k" . ace-delete-window)
+	      ("t K" . delete-window)
+	      ("t c" . ace-copy-window)
+	      ("t m" . ace-move-window)
+              ("t ." . aw-flip-window))
   :config
-  (setq aw-dispatch-alist
-   	'((?k aw-delete-window "Kill Window")
-   	  (?m aw-move-window "Move Window")
-   	  (?s aw-swap-window "Swap Windows")
-   	  (?c aw-copy-window "Copy Window")
-   	  (?b aw-switch-buffer-other-window "Switch Buffer")
-   	  (?? aw-show-dispatch-help)))
+  (defun ace-copy-window ()
+    (interactive)
+    (aw-select #'aw-copy-window))
+
+  (defun ace-move-window ()
+    (interactive)
+    (aw-select #'aw-move-window))
+
+  (defun ace-switch-buffer-other-window ()
+    (interactive)
+    (aw-select #'aw-switch-buffer-other-window))
+  
   (setq aw-keys '(?u ?h ?e ?t))
-  (setq aw-dispatch-always t))
+  (setq aw-dispatch-always nil))
 
 (use-package yasnippet
   :ensure t
