@@ -248,7 +248,10 @@
       (previous-line)
       (next-line)))
 
-  (define-key compilation-mode-map (kbd "d") 'compile-delete-line+))
+  (defun append-to-zsh-history (&rest r)
+    (shell-command (format "echo '%s' >> ~/.zsh_history" (car r))))
+
+  (advice-add 'compile :after #'append-to-zsh-history))
 
 (use-package project
   :after (evil-leader)
