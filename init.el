@@ -623,7 +623,7 @@
 
 (use-package dired
   :commands (find-grep-dired-default-dir)
-  :hook (dired-mode . dired-hide-details-mode)
+  :hook (dired-mode-hook . dired-hide-details-mode)
   :bind (:map evil-leader-state-map-extension
 	      ("s F" . find-grep-dired)
  	      ("s f" . find-grep-dired-default-dir)
@@ -709,7 +709,7 @@
 
 (use-package visual-fill-column
   :ensure t
-  :hook (visual-line-mode . visual-fill-column-mode))
+  :hook (visual-line-mode-hook . visual-fill-column-mode))
 
 (use-package smerge-mode
   :ensure nil
@@ -805,6 +805,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package org
   :ensure nil
   :commands (open-log-file+ org-insert-timestamp+ org-open-some-buffer-link+)
+  :hook (org-mode-hook . visual-line-mode)
   :bind (:map org-mode-map
 	      ("M-n"  . org-next-visible-heading)
 	      ("M-p"  . org-previous-visible-heading)
@@ -843,8 +844,6 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (defun org-insert-timestamp+ ()
     (interactive)
     (org-time-stamp '(16) t))
-
-  (add-hook 'org-mode-hook 'visual-line-mode)
 
   (defun org-open-some-buffer-link+ ()
     (interactive)
