@@ -36,7 +36,7 @@
 (define-key evil-leader-state-map-extension (kbd "b b") 'switch-to-buffer)
 (define-key evil-leader-state-map-extension (kbd "b k") 'kill-buffer)
 (define-key evil-leader-state-map-extension (kbd "b K") 'kill-this-buffer)
-(define-key evil-leader-state-map-extension (kbd "b l") 'mode-line-other-buffer)
+(define-key evil-leader-state-map-extension (kbd "b .") 'mode-line-other-buffer)
 (define-key evil-leader-state-map-extension (kbd "b r") 'rename-buffer)
 
 ;; files
@@ -100,6 +100,7 @@
 
 ;; help
 (define-key evil-leader-state-map-extension (kbd "h f") 'describe-function)
+(define-key evil-leader-state-map-extension (kbd "h F") 'describe-face)
 (define-key evil-leader-state-map-extension (kbd "h k") 'describe-key)
 (define-key evil-leader-state-map-extension (kbd "h K") 'describe-keymap)
 (define-key evil-leader-state-map-extension (kbd "h v") 'describe-variable)
