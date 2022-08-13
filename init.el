@@ -575,6 +575,8 @@
   (evil-set-initial-state 'wdired-mode 'normal)
   (evil-set-initial-state 'nxml-mode 'normal)
   (evil-set-initial-state 'conf-colon-mode 'normal)
+  (evil-set-initial-state 'inferior-python-mode 'normal)
+  
 
   (evil-set-initial-state 'magit-log-edit-mode 'insert)
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
@@ -790,11 +792,21 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 	      ("C-c C-c" . wgrep-finish-edit)))
 
 (use-package python
+  :commands (ipython)
+  :bind (:map evil-leader-state-map-extension
+              ("o p" . run-python)
+              ("o P" . ipython))
   :config
   (evil-define-key '(normal) python-mode-map
     (kbd "<tab>") 'python-indent-shift-right)
   (evil-define-key '(normal) python-mode-map
-    (kbd "<S-tab>") 'python-indent-shift-left))
+    (kbd "<S-tab>") 'python-indent-shift-left)
+
+  (defun ipython ()
+    (interactive)
+    (let ((python-shell-interpreter "python3")
+          (python-shell-interpreter-args "-m IPython"))
+      (call-interactively #'run-python))))
 
 (use-package pyvenv
   :ensure t)
