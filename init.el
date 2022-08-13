@@ -413,6 +413,7 @@
   :bind (:map minibuffer-mode-map
          ("C-c d" . consult-dir)))
 
+;; https://karthinks.com/software/fifteen-ways-to-use-embark/
 (use-package embark
   :after (vertico)
   :ensure t
@@ -422,8 +423,8 @@
    	 :map minibuffer-mode-map
    	      ("TAB" . minibuffer-force-complete)
    	      ("SPC" . self-insert-command)
-   	      ("C-." . embark-act-quit)
-   	      ("M-." . embark-act)
+   	      ("M-." . embark-act-quit)
+   	      ("C-." . embark-act)
    	      ("C-," . embark-become)
    	      ("C-c e" . embark-export)
    	      ("C-c c" . embark-collect)
@@ -488,6 +489,10 @@
       (when (equal (line-number-at-pos (point-max))
                    (line-number-at-pos (point)))
         (previous-line)))))
+
+(use-package embark-maps
+  :after (embark)
+  :load-path my-package-dir)
 
 (use-package orderless
   :ensure t
