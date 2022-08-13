@@ -690,20 +690,15 @@
   :ensure t
   :after (evil-leader)
   :bind (:map evil-leader-state-map-extension
-	 ("t t" . ace-window))
+	      ("t t" . ace-window)
+              ("t L" . aw-flip-window))
   :config
   (setq aw-dispatch-alist
-   	'((?k aw-delete-window "Delete Window")
+   	'((?k aw-delete-window "Kill Window")
    	  (?m aw-move-window "Move Window")
-   	  (?M aw-swap-window "Swap Windows")
+   	  (?s aw-swap-window "Swap Windows")
    	  (?c aw-copy-window "Copy Window")
-   	  (?b aw-switch-buffer-in-window "Select Buffer")
-   	  (?l aw-flip-window)
-   	  (?B aw-switch-buffer-other-window "Switch Buffer Other Window")
-   	  (?= aw-split-window-fair "Split Fair Window")
-   	  (?- aw-split-window-vert "Split Vert Window")
-   	  (?| aw-split-window-horz "Split Horz Window")
-   	  (?o delete-other-windows "Delete Other Windows")
+   	  (?b aw-switch-buffer-other-window "Switch Buffer")
    	  (?? aw-show-dispatch-help)))
   (setq aw-keys '(?u ?h ?e ?t))
   (setq aw-dispatch-always t))
