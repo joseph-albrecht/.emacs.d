@@ -975,7 +975,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package rainbow-delimiters
   :ensure t
-  :hook (prog-mode-hook . rainbow-delimiters-mode))
+  :hook (prog-mode-hook . rainbow-delimiters-mode)
+  :config
+  (set-face-attribute 'rainbow-delimiters-base-face nil :bold t))
 
 (let ((local-extension-file (concat (expand-file-name user-emacs-directory)
                                "local-extension.el")))
