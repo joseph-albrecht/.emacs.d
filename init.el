@@ -951,6 +951,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (when (file-exists-p local-extension-file)
     (load local-extension-file)))
 
+(save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
+
 (setq debug-on-error nil)
 
 (defun display-startup-echo-area-message ()
