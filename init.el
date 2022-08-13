@@ -984,6 +984,11 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (when (file-exists-p local-extension-file)
     (load local-extension-file)))
 
+
+;; TODO: change xref--insert-xrefs to use a more grep-like output format
+;;       then try to use wgrep
+(use-package xref)
+
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
 (setq debug-on-error nil)
