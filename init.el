@@ -344,6 +344,7 @@
   :config
   (vertico-mode 1)
   (setq vertico-count 10)
+  (setq vertico-cycle t)
   (set-face-attribute 'vertico-group-title nil :foreground "blue"))
 
 (use-package marginalia
