@@ -28,6 +28,7 @@
 	      ("A-n" . next-history-element)
 	 :map evil-leader-state-map-extension
 	      ("e r" . eval-region+)
+	      ("e b" . eval-buffer+)
 	      ("f k" . kill-filepath)
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
@@ -158,6 +159,11 @@
       (eval-region start end)
       (message "eval-region done.")))
 
+  (defun eval-buffer+ ()
+    (interactive)
+    (eval-buffer)
+    (message "eval-buffer done."))
+  
   (setq confirm-kill-processes nil))
 
 (use-package grep
