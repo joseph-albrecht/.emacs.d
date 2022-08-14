@@ -821,7 +821,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (defun ipython ()
     (interactive)
     (let ((python-shell-interpreter "python3")
-          (python-shell-interpreter-args "-m IPython"))
+          (python-shell-interpreter-args "-m IPython --simple-prompt"))
       (call-interactively #'run-python))))
 
 (use-package pyvenv
