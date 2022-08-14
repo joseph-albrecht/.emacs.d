@@ -37,6 +37,7 @@
   ("r" rename-file)
   ("O" consult-file-externally)
   ("=" ediff-files)
+  ("$" shell-command)
   ("RET" find-file))
 
 (embark-define-keymap embark-url-map ""
