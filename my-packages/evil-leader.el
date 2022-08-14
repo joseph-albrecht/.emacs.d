@@ -29,6 +29,7 @@
 (define-key evil-leader-state-map (kbd "SPC") evil-leader-state-map-extension)
 (define-key evil-normal-state-map (kbd "SPC") evil-leader-state-map-extension)
 (define-key evil-emacs-state-map (kbd "S-SPC") evil-leader-state-map-extension)
+(define-key evil-insert-state-map (kbd "S-SPC") evil-leader-state-map-extension)
 (define-key evil-leader-state-map-extension (kbd "x") 'execute-extended-command)
 (define-key evil-leader-state-map-extension (kbd "q") 'save-buffers-kill-terminal)
 
