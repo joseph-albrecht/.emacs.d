@@ -1,0 +1,10 @@
+/local-extension.el
+/.cache
+/auto-save-list
+/eclipse.jdt.ls
+/eln-cache
+/elpa
+/transient
+/workspace
+/custom.el
+/projects
