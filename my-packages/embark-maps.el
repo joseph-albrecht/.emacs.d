@@ -24,9 +24,15 @@
   ("w" embark-copy-as-kill)
   ("o" occur))
 
+(defun embark-file-contents-as-kill (file)
+  (with-temp-buffer
+    (insert-file-contents file)
+    (kill-new (buffer-string))))
+
 (embark-define-keymap embark-file-map ""
   :parent embark-general-map
   ("<" insert-file)
+  ("," embark-file-contents-as-kill)
   ("j" embark-dired-jump)
   ("w" embark-copy-as-kill)
   ("W" embark-save-relative-path)

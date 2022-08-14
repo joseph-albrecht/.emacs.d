@@ -32,6 +32,7 @@
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
 	      ("v h" . global-hl-line-mode)
+	      ("v e" . setenv)
               ("t C" . 'copy-window))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
