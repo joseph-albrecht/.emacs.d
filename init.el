@@ -993,10 +993,10 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
-(let ((local-extension-file (concat (expand-file-name user-emacs-directory)
-                               "local-extension.el")))
-  (when (file-exists-p local-extension-file)
-    (load local-extension-file)))
+(let ((local-init-file (concat (expand-file-name user-emacs-directory)
+                               "local-init.el")))
+  (when (file-exists-p local-init-file)
+    (load local-init-file)))
 
 (defun display-startup-echo-area-message ()
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
