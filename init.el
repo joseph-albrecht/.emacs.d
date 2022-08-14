@@ -17,6 +17,8 @@
   :after (evil-leader)
   :commands (insert-time-id
              eval-region+
+             eval-buffer+
+             eval-region-and-replace
 	     toggle-show-trailing-whitespace
 	     select-from-history
              mirror-window)
@@ -29,6 +31,7 @@
 	 :map evil-leader-state-map-extension
 	      ("e r" . eval-region+)
 	      ("e b" . eval-buffer+)
+	      ("e L" . eval-expression-and-replace)
 	      ("f k" . kill-filepath)
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
@@ -163,7 +166,17 @@
     (interactive)
     (eval-buffer)
     (message "eval-buffer done."))
-  
+
+  ;;; TODO: make this work on regions as well
+  (defun eval-expression-and-replace ()
+    (interactive)
+    (let* ((start (progn (thing-at-point--beginning-of-sexp) (point)))
+           (end   (progn (thing-at-point--end-of-sexp)       (point)))
+           (exp   (read (buffer-substring start end)))
+           (value (eval exp)))
+      (delete-region start end)
+      (insert (format "%s" value))))
+
   (setq confirm-kill-processes nil))
 
 (use-package grep
@@ -815,6 +828,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 	      ("C-c C-c" . wgrep-finish-edit)))
 
 (use-package python
+  :ensure nil
   :commands (ipython)
   :bind (:map evil-leader-state-map-extension
               ("o p" . run-python)
