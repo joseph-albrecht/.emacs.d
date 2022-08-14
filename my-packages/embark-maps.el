@@ -8,6 +8,7 @@
                             ;;; (defun embark-defun-map)
                             (symbol embark-symbol-map)
                             ;;; (face embark-face-map)
+                            (function embark-function-map)
                             (command embark-command-map)
                             (variable embark-variable-map)
                             ;;; (minor-mode embark-command-map)
