@@ -980,21 +980,19 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :config
   (set-face-attribute 'rainbow-delimiters-base-face nil :bold t))
 
-(let ((local-extension-file (concat (expand-file-name user-emacs-directory)
-                               "local-extension.el")))
-  (when (file-exists-p local-extension-file)
-    (load local-extension-file)))
-
-
 ;; TODO: change xref--insert-xrefs to use a more grep-like output format
 ;;       then try to use wgrep
 (use-package xref)
 
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
-(setq debug-on-error nil)
+(let ((local-extension-file (concat (expand-file-name user-emacs-directory)
+                               "local-extension.el")))
+  (when (file-exists-p local-extension-file)
+    (load local-extension-file)))
 
 (defun display-startup-echo-area-message ()
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
     (message (format "Emacs started in %s seconds." seconds))))
 
+(setq debug-on-error nil)
