@@ -964,6 +964,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 ;;; https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
 ;;; TODO: turn off the things I don't like
+;;; TODO: try on python https://ddavis.io/posts/emacs-python-lsp/
 (use-package lsp-mode
   :ensure t
   :config
