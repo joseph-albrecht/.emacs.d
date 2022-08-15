@@ -435,6 +435,7 @@
          ("C-c d" . consult-dir)))
 
 ;; https://karthinks.com/software/fifteen-ways-to-use-embark/
+;; TODO: remove confirmation from kill-buffer
 (use-package embark
   :after (vertico)
   :ensure t
