@@ -1006,7 +1006,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package eglot
   :ensure t
   :bind (:map python-mode-map
-              ("C-c r". eglot-rename))
+              ("C-c r" . eglot-rename)
+         :map java-mode-map
+              ("C-c r" . eglot-renam))
   :config
   (setq eglot-ignored-server-capabilites '(:documentHighlightProvider))
   (setq eglot-stay-out-of '(eldoc flymake)))
