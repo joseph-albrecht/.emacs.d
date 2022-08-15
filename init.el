@@ -985,24 +985,6 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (interactive)
     (rename-buffer (concat "*shell* " (read-string "shell name: ")))))
 
-;;; https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
-;;; TODO: turn off the things I don't like
-;;; TODO: try on python https://ddavis.io/posts/emacs-python-lsp/
-(use-package lsp-mode
-  :ensure t
-  :config
-  (setq lsp-enable-symbol-highlighting nil)
-  (setq lsp-headerline-breadcrumb-enable nil)
-  (setq lsp-eldoc-enable-hover nil))
-
-(use-package lsp-pyright
-  :after (lsp-mode)
-  :ensure t)
-
-(use-package lsp-java
-  :after (lsp-mode)
-  :ensure t)
-
 (use-package rainbow-delimiters
   :ensure t
   :hook (prog-mode-hook . rainbow-delimiters-mode)
@@ -1022,6 +1004,33 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (if lsp-mode
         (call-interactively #'lsp-find-references)
       (call-interactively #'xref-find-references))))
+
+(use-package eglot
+  :ensure t
+  :bind (:map python-mode-map
+              ("C-c r". eglot-rename))
+  :config
+  (setq eglot-ignored-server-capabilites '(:documentHighlightProvider))
+  (setq eglot-stay-out-of '(eldoc flymake)))
+
+(use-package eldoc
+  :after (evil-leader)
+  :ensure nil
+  :bind (:map evil-leader-state-map-extension
+              ("s e" . eldoc)))
+
+(use-package flymake
+  :after (evil-leader)
+  :ensure nil
+  :hook (flymake-mode-hook help-at-pt-set-timer)
+  :bind (:map evil-leader-state-map-extension
+              ("m a" . flymake-show-project-diagnostics)
+              ("m n" . flymake-goto-next-error)
+              ("m p" . flymake-goto-prev-error)
+              ("m c" . consult-flymake))
+  :config
+  (setq help-at-pt-display-when-idle t)
+  (setq help-at-pt-timer-delay 1.0))
 
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
