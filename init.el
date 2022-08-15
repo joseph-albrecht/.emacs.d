@@ -988,11 +988,26 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 ;;; TODO: try on python https://ddavis.io/posts/emacs-python-lsp/
 (use-package lsp-mode
   :ensure t
+  :bind (:map evil-leader-state-map-extension
+              ("s x" . xref-find-references+))
   :config
+
+  (defun xref-find-references+ ()
+    (interactive)
+    (if lsp-mode
+        (call-interactively #'lsp-find-references)
+      (call-interactively #'xref-find-references)))
+
   (setq lsp-enable-symbol-highlighting nil)
-  (setq lsp-headerline-breadcrumb-enable nil))
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-eldoc-enable-hover nil))
+
+(use-package lsp-pyright
+  :after (lsp-mode)
+  :ensure t)
 
 (use-package lsp-java
+  :after (lsp-mode)
   :ensure t)
 
 (use-package rainbow-delimiters
