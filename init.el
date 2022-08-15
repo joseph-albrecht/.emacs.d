@@ -993,17 +993,15 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 ;; TODO: change xref--insert-xrefs to use a more grep-like output format
 ;;       then try to use wgrep
+;; TODO: can I get this to hook into compile modes next/previous-error?
 (use-package xref
   :after (evil-leader)
   :ensure nil
-  :bind (:map evil-leader-state-map-extension
-              ("s x" . xref-find-references+))
-  :config
-  (defun xref-find-references+ ()
-    (interactive)
-    (if lsp-mode
-        (call-interactively #'lsp-find-references)
-      (call-interactively #'xref-find-references))))
+  :bind (:map xref--xref-buffer-mode-map
+              ("n"   . xref-next-line-no-show)
+              ("p"   . xref-prev-line-no-show)
+              ("M-n" . xref-next-line)
+              ("M-p" . xref-previous-line)))
 
 (use-package eglot
   :ensure t

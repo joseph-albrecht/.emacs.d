@@ -234,6 +234,7 @@
 (define-key evil-motion-state-map "y" 'evil-paste-after)
 (define-key evil-motion-state-map "Y" 'evil-paste-before)
 (define-key evil-motion-state-map "gd" 'evil-goto-definition)
+(define-key evil-motion-state-map "gr" 'xref-find-references)
 (define-key evil-motion-state-map "ge" 'evil-backward-word-end)
 (define-key evil-motion-state-map "gE" 'evil-backward-WORD-end)
 (define-key evil-motion-state-map "gg" 'evil-goto-first-line)
