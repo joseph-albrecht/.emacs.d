@@ -1011,6 +1011,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq eglot-ignored-server-capabilites '(:documentHighlightProvider))
   (setq eglot-stay-out-of '(eldoc flymake)))
 
+;; TODO: how can i make the `eldoc` function echo instead of pulling up a buffer?
 (use-package eldoc
   :after (evil-leader)
   :ensure nil
