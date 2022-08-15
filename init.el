@@ -354,6 +354,7 @@
   )
 
 (use-package vertico
+  :after (evil-leader)
   :ensure t
   :demand t
   :bind (("C-M-x" . vertico-repeat)
@@ -648,6 +649,7 @@
          :map evil-leader-state-map-extension
 	      ("g g" . magit-status) 
               ("g c" . magit-clone))
+  :config
   (setq magit-save-repository-buffers 'dontask))
 
 (use-package avy
@@ -1010,6 +1012,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 ;; TODO: change xref--insert-xrefs to use a more grep-like output format
 ;;       then try to use wgrep
 (use-package xref
+  :after (evil-leader)
   :ensure nil
   :bind (:map evil-leader-state-map-extension
               ("s x" . xref-find-references+))
