@@ -383,6 +383,7 @@
 
 (use-package corfu
   :ensure t
+  :bind (("C--" . completion-at-point))
   :config
   (global-corfu-mode))
 
@@ -1017,7 +1018,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :hook ((lsp-managed-mode-hook . (lambda () (when flymake-mode (flymake-mode -1)))))
   :config
   (setq lsp-enable-symbol-highlighting nil)
-  (setq lsp-headerline-breadcrumb-enable nil))
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (evil-define-key '(normal motion) lsp-mode-map (kbd "g r") 'lsp-find-references))
 
 (use-package lsp-java
   :after (lsp)
