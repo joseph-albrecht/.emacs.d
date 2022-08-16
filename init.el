@@ -891,7 +891,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (set-face-attribute 'org-level-6 nil :background "#F0F0F0" :overline t :underline t :bold t)
   (set-face-attribute 'org-level-7 nil :background "#F0F0F0" :overline t :underline t :bold t)
 
-  (setq org-log-file (format "%s/daily-log.org" (expand-file-name "~")))
+  (setq org-log-file (concat (expand-file-name "~") "/notes/daily-log.org" ))
 
   (defun open-log-file+ ()
     (interactive)
@@ -908,6 +908,11 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
                       (when (member (org-element-property :type link) '("http" "https"))
                         link)))))
       (browse-url (completing-read "links: " links)))))
+
+(use-package org-id
+  :config
+  (setq org-agenda-files '("~/notes"))
+  (org-id-update-id-locations))
 
 ;; TODO: read through this package
 ;; (use-package ob-http
