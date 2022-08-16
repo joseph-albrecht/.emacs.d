@@ -1009,7 +1009,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package lsp-mode
   :ensure t
-  :hook (lsp-managed-mode . (lambda () (when python-mode (setq-local lsp-eldoc-enable-hover nil))))
+  :hook ((lsp-managed-mode-hook . (lambda () (when flymake-mode (flymake-mode -1)))))
   :config
   (setq lsp-enable-symbol-highlighting nil)
   (setq lsp-headerline-breadcrumb-enable nil))
