@@ -325,6 +325,7 @@
 	      ("p r" . consult-grep)
 	      ("p R" . consult-grep-case-sensitive)
 	      ("p F" . find-grep-dired-default-dir)
+	      ("C-p n" . project-dir-notes)
 	      ("C-p e" . project-dir-.emacs.d))
   :config
   (setq project-switch-commands
@@ -909,7 +910,11 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 	      ("C-c c"  . org-cycle)
 	      ("C-c l"  . org-open-some-buffer-link+)
          :map evil-leader-state-map-extension
-              ("o l" . open-log-file+))
+              ("o l" . open-log-file+)
+              ("C-p n" . project-dir-notes)
+              ("n p" . project-dir-notes)
+              ("n f" . find-file-notebox)
+              ("n d" . open-log-file+))
   :config
   (setq org-startup-folded 'showeverything)
   (setq org-property-format  "%-12s %s")
@@ -919,6 +924,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq org-hide-leading-stars nil)
   (setq org-log-into-drawer t)
   (setq org-fontify-whole-heading-line t)
+  (setq notebox "~/notes/")
 
   (setq org-babel-load-languages '((emacs-lisp . t)))
   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
@@ -931,8 +937,12 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (set-face-attribute 'org-level-6 nil :background "#F0F0F0" :overline t :underline t :bold t)
   (set-face-attribute 'org-level-7 nil :background "#F0F0F0" :overline t :underline t :bold t)
 
-  (setq org-log-file (concat (expand-file-name "~") "/notes/daily-log.org" ))
+  (setq org-log-file (concat (expand-file-name "~") notebox "daily-log.org" ))
   (evil-add-command-properties 'org-open-at-point :jump t)
+
+  (defun project-dir-notes ()
+    (interactive)
+    (project-switch-project notebox))
 
   (defun open-log-file+ ()
     (interactive)
@@ -948,11 +958,16 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
                     (lambda (link)
                       (when (member (org-element-property :type link) '("http" "https"))
                         link)))))
-      (browse-url (completing-read "links: " links)))))
+      (browse-url (completing-read "links: " links))))
+
+  (defun find-file-notebox ()
+    (interactive)
+    (let ((default-directory notebox))
+      (project-find-file))))
 
 (use-package org-id
   :config
-  (setq org-agenda-files '("~/notes"))
+  (setq org-agenda-files `(,notebox))
   (org-id-update-id-locations))
 
 (use-package markdown-mode
