@@ -918,6 +918,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq org-agenda-files '("~/notes"))
   (org-id-update-id-locations))
 
+(use-package markdown-mode
+  :ensure t)
+
 ;; TODO: read through this package
 ;; (use-package ob-http
 ;;   :ensure t
