@@ -25,10 +25,12 @@
   :bind (:map minibuffer-mode-map
 	      ("M-p" . nil)
 	      ("M-n" . nil)
+              ("C-c e" . edit-minibuffer)
 	      ("A-r" . select-from-history)
 	      ("A-p" . previous-history-element)
 	      ("A-n" . next-history-element)
 	 :map evil-leader-state-map-extension
+	      ("t x" . switch-to-minibuffer)
 	      ("e r" . eval-region+)
 	      ("e b" . eval-buffer+)
 	      ("e L" . eval-expression-and-replace)
@@ -180,7 +182,42 @@
       (delete-region start end)
       (insert (format "%s" value))))
 
-  (setq confirm-kill-processes nil))
+  (setq confirm-kill-processes nil)
+
+  (defun switch-to-minibuffer ()
+  "Switch to minibuffer window."
+  (interactive)
+  (if (active-minibuffer-window)
+      (select-window (active-minibuffer-window))
+    (error "Minibuffer is not active")))
+
+;; use current-minibuffer-command to change mode
+(defun edit-minibuffer ()
+  (interactive)
+  (ignore-errors (kill-buffer "*minibuffer contents*"))
+  (display-buffer-in-side-window (get-buffer-create "*minibuffer contents*")
+				 '((side . bottom)))
+  (let ((minibuffer (minibuffer-contents))
+	(window (get-buffer-window (get-buffer "*minibuffer contents*"))))
+    (select-window window)
+    (emacs-lisp-mode)
+    (use-local-map (copy-keymap emacs-lisp-mode-map))
+    (local-set-key (kbd "C-c e") 'edit-minibuffer-save)
+    (setq header-line-format "Press C-c e to save changes")
+    (insert minibuffer)
+    (evil-insert 0)))
+
+(defun edit-minibuffer-save ()
+  (interactive)
+  (select-window (get-buffer-window (get-buffer "*minibuffer contents*")))
+  (let ((minibuffer-contents (buffer-string)))
+    (kill-current-buffer)
+    (switch-to-minibuffer)
+    (beginning-of-line)
+    (ignore-errors (kill-line))
+    (insert minibuffer-contents)))
+
+)
 
 (use-package grep
   :after (compile)
@@ -1066,6 +1103,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 ;;   :config
 ;;   (setq help-at-pt-display-when-idle t)
 ;;   (setq help-at-pt-timer-delay 1.0))
+
 
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
