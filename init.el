@@ -895,6 +895,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (set-face-attribute 'org-level-7 nil :background "#F0F0F0" :overline t :underline t :bold t)
 
   (setq org-log-file (concat (expand-file-name "~") "/notes/daily-log.org" ))
+  (evil-add-command-properties 'org-open-at-point :jump t)
 
   (defun open-log-file+ ()
     (interactive)
