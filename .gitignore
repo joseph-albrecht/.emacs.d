@@ -8,3 +8,7 @@
 /workspace
 /custom.el
 /projects
+/elfeed.org
+/backups-and-autosaves
+/.org-id-locations
+/.lsp*
