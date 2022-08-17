@@ -362,6 +362,8 @@
   :demand t
   :bind (("C-M-x" . vertico-repeat)
 	 :map vertico-map
+	      ("C-M-n" . vertico-next-group)
+	      ("C-M-p" . vertico-previous-group)
 	      ("M-n" . vertico-next)
 	      ("M-p" . vertico-previous)
 	      ("C-<return>" . vertico-exit-input)
