@@ -25,7 +25,7 @@
   :bind (:map minibuffer-mode-map
 	      ("M-p" . nil)
 	      ("M-n" . nil)
-              ("C-c e" . edit-minibuffer)
+              ("C-c l" . edit-minibuffer)
 	      ("A-r" . select-from-history)
 	      ("A-p" . previous-history-element)
 	      ("A-n" . next-history-element)
@@ -202,8 +202,8 @@
     (select-window window)
     (emacs-lisp-mode)
     (use-local-map (copy-keymap emacs-lisp-mode-map))
-    (local-set-key (kbd "C-c e") 'edit-minibuffer-save)
-    (setq header-line-format "Press C-c e to save changes")
+    (local-set-key (kbd "C-c C-c") 'edit-minibuffer-save)
+    (setq header-line-format "Press C-c C-c to save changes")
     (insert minibuffer)
     (evil-insert 0)))
 
@@ -215,9 +215,7 @@
     (switch-to-minibuffer)
     (beginning-of-line)
     (ignore-errors (kill-line))
-    (insert minibuffer-contents)))
-
-)
+    (insert minibuffer-contents))))
 
 (use-package grep
   :after (compile)
