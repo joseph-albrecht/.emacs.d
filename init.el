@@ -922,7 +922,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq org-hide-leading-stars nil)
   (setq org-log-into-drawer t)
   (setq org-fontify-whole-heading-line t)
-  (setq notebox "~/notes/")
+  (setq notebox (expand-file-name "~/notes/"))
 
   (setq org-babel-load-languages '((emacs-lisp . t)))
   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
@@ -935,7 +935,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (set-face-attribute 'org-level-6 nil :background "#F0F0F0" :overline t :underline t :bold t)
   (set-face-attribute 'org-level-7 nil :background "#F0F0F0" :overline t :underline t :bold t)
 
-  (setq org-log-file (concat (expand-file-name "~") notebox "daily-log.org" ))
+  (setq org-log-file (concat notebox "daily-log.org" ))
   (evil-add-command-properties 'org-open-at-point :jump t)
 
   (defun project-dir-notes ()
