@@ -398,6 +398,7 @@
   :demand t
   :bind (("C-M-x" . vertico-repeat)
 	 :map vertico-map
+	      ("<S-tab>" . vertico-multiform-reverse)
 	      ("C-M-n" . vertico-next-group)
 	      ("C-M-p" . vertico-previous-group)
 	      ("M-n" . vertico-next)
@@ -408,9 +409,18 @@
          :map evil-leader-state-map-extension
               ("X" . vertico-repeat))
   :config
-  (vertico-mode 1)
   (setq vertico-count 10)
   (setq vertico-cycle nil)
+
+  (vertico-mode)
+  (vertico-multiform-mode 1)
+
+  (setq vertico-multiform-categories '((imenu buffer)
+                                       (consult-grep buffer)
+                                       (t unobtrusive)))
+
+  (setq vertico-multiform-commands '((consult-line buffer)))
+
   (set-face-attribute 'vertico-group-title nil :foreground "blue")
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save))
 
