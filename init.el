@@ -418,6 +418,7 @@
 
   (setq vertico-multiform-categories '((imenu buffer)
                                        (consult-grep buffer)
+                                       (file reverse)
                                        (t unobtrusive)))
 
   (setq vertico-multiform-commands '((consult-line buffer)
