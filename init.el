@@ -398,7 +398,7 @@
   :demand t
   :bind (("C-M-x" . vertico-repeat)
 	 :map vertico-map
-	      ("<S-tab>" . vertico-multiform-reverse)
+	      ("C-p" . vertico-up-or-reverse)
 	      ("C-M-n" . vertico-next-group)
 	      ("C-M-p" . vertico-previous-group)
 	      ("M-n" . vertico-next)
@@ -417,12 +417,21 @@
 
   (setq vertico-multiform-categories '((imenu buffer)
                                        (consult-grep buffer)
+                                       (file reverse)
                                        (t unobtrusive)))
 
-  (setq vertico-multiform-commands '((consult-line buffer)))
+  (setq vertico-multiform-commands '((consult-line buffer)
+                                     (project-find-file reverse)
+                                     (find-file-notebox reverse)))
 
   (set-face-attribute 'vertico-group-title nil :foreground "blue")
-  (add-hook 'minibuffer-setup-hook #'vertico-repeat-save))
+  (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
+
+  (defun vertico-next-or-reverse ()
+    (interactive)
+    (if vertico-unobtrusive-mode
+        (call-interactively #'vertico-multiform-reverse)
+      (call-interactively #'vertico-next))))
 
 (use-package marginalia
   :ensure t
@@ -971,7 +980,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (defun find-file-notebox ()
     (interactive)
     (let ((default-directory notebox))
-      (project-find-file))))
+      (call-interactively #'project-find-file))))
 
 (use-package org-id
   :config
