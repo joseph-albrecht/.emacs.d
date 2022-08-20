@@ -398,7 +398,7 @@
   :demand t
   :bind (("C-M-x" . vertico-repeat)
 	 :map vertico-map
-	      ("C-p" . vertico-up-or-reverse)
+	      ("C-p" . vertico-C-p-or-reverse)
 	      ("C-M-n" . vertico-next-group)
 	      ("C-M-p" . vertico-previous-group)
 	      ("M-n" . vertico-next)
@@ -406,7 +406,7 @@
 	      ("C-<return>" . vertico-exit-input)
 	      ("C-^" . vertico-directory-up)
               ("M-h" . vertico-directory-up)
-         :map evil-leader-state-map-extension
+              :map evil-leader-state-map-extension
               ("X" . vertico-repeat))
   :config
   (setq vertico-count 10)
@@ -427,11 +427,12 @@
   (set-face-attribute 'vertico-group-title nil :foreground "blue")
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
 
-  (defun vertico-next-or-reverse ()
+  (defun vertico-C-p-or-reverse ()
     (interactive)
-    (if vertico-unobtrusive-mode
-        (call-interactively #'vertico-multiform-reverse)
-      (call-interactively #'vertico-next))))
+    (cond
+     (vertico-unobtrusive-mode (call-interactively #'vertico-multiform-reverse))
+     (vertico-reverse-mode     (call-interactively #'vertico-next))
+     (t                        (call-interactively #'vertico-previous)))))
 
 (use-package marginalia
   :ensure t
