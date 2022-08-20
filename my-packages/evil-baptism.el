@@ -46,6 +46,12 @@
 (evil-define-motion evil-backward-sexp (count)
   (forward-sexp (- 0 (or count 1))))
 
+(defun evil-insert-new-line+ ()
+    (interactive)
+    (save-excursion
+      (insert "\n")))
+
+
 ;;; functions should be added to the evil jump ring
 
 (evil-add-command-properties 'isearch-forward :jump t)
@@ -130,7 +136,7 @@
 (define-key evil-normal-state-map [escape] 'evil-force-normal-state)
 (define-key evil-normal-state-map [remap cua-paste-pop] 'evil-paste-pop)
 (define-key evil-normal-state-map [remap yank-pop] 'evil-paste-pop)
-(define-key evil-normal-state-map (kbd "C-<return>") (lambda () (interactive) (insert "\n") (backward-char 1)))
+(define-key evil-normal-state-map (kbd "S-<return>") 'evil-insert-new-line+)
 
 ;; go to last change
 (define-key evil-normal-state-map "g." 'goto-last-change)
@@ -391,6 +397,7 @@
 
 ;;; Insert state
 (define-key evil-insert-state-map [escape] 'evil-normal-state)
+(define-key evil-insert-state-map (kbd "S-<return>") 'evil-insert-new-line+)
 
 ;;; Replace state
 
