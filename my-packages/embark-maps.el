@@ -1,4 +1,3 @@
-
 (setq embark-keymap-alist '((file embark-file-map)
                             ;;; (environment-variables embark-file-map)
                             (url embark-url-map)
@@ -18,87 +17,87 @@
                             ;;; (heading embark-heading-map)
                             (t embark-general-map)))
 
-(embark-define-keymap embark-general-map ""
-  :parent nil
-  ("i" embark-insert)
-  ("*" embark-act-all)
-  ("w" embark-copy-as-kill)
-  ("o" occur))
+(setq embark-general-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "i" #'embark-insert)
+    (define-key map "*" #'embark-act-all)
+    (define-key map "w" #'embark-copy-as-kill)
+    (define-key map "o" #'occur)
+    map))
 
 (defun embark-file-contents-as-kill (file)
   (with-temp-buffer
     (insert-file-contents file)
     (kill-new (buffer-string))))
 
-(embark-define-keymap embark-file-map ""
-  :parent embark-general-map
-  ("<" insert-file)
-  ("," embark-file-contents-as-kill)
-  ("j" embark-dired-jump)
-  ("w" embark-copy-as-kill)
-  ("W" embark-save-relative-path)
-  ("f" find-file)
-  ("F" find-file-other-window)
-  ("c" copy-file)
-  ("d" delete-file)
-  ("r" rename-file)
-  ("O" consult-file-externally)
-  ("=" ediff-files)
-  ("$" shell-command)
-  ("RET" find-file))
+(setq embark-file-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "<" #'insert-file)
+    (define-key map "," #'embark-file-contents-as-kill)
+    (define-key map "j" #'embark-dired-jump)
+    (define-key map "w" #'embark-copy-as-kill)
+    (define-key map "W" #'embark-save-relative-path)
+    (define-key map "f" #'find-file)
+    (define-key map "F" #'find-file-other-window)
+    (define-key map "c" #'copy-file)
+    (define-key map "d" #'delete-file)
+    (define-key map "r" #'rename-file)
+    (define-key map "O" #'consult-file-externally)
+    (define-key map "=" #'ediff-files)
+    (define-key map "$" #'shell-command)
+    (define-key map "" #'find-file)
+    (make-composed-keymap map embark-general-map)))
 
-(embark-define-keymap embark-url-map ""
-  :parent embark-general-map
-  ("d" embark-download-url)
-  ("e" eww)
-  ("RET" browse-url))
+(setq embark-url-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "d" #'embark-download-url)
+    (define-key map "e" #'eww)
+    (define-key map "" #'browse-url)
+    (make-composed-keymap map embark-general-map)))
 
-(embark-define-keymap embark-buffer-map ""
-  :parent embark-general-map
-  ("<" insert-buffer)
-  ("=" ediff-buffers)
-  ("K" embark-kill-buffer-and-window)
-  ("b" switch-to-buffer)
-  ("k" kill-buffer)
-  ("r" embark-rename-buffer)
-  ("z" embark-bury-buffer)
-  ("|" embark-shell-command-on-buffer))
+(setq embark-buffer-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "<" #'insert-buffer)
+    (define-key map "=" #'ediff-buffers)
+    (define-key map "K" #'embark-kill-buffer-and-window)
+    (define-key map "b" #'switch-to-buffer)
+    (define-key map "k" #'kill-buffer)
+    (define-key map "r" #'embark-rename-buffer)
+    (define-key map "z" #'embark-bury-buffer)
+    (define-key map "|" #'embark-shell-command-on-buffer)
+    (make-composed-keymap map embark-general-map)))
 
-(embark-define-keymap embark-symbol-map ""
-  :parent embark-general-map
-  ("a" apropos)
-  ("d" embark-find-definition)
-  ("h" describe-symbol)
-  ("f" xref-find-references))
+(setq embark-symbol-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "a" #'apropos)
+    (define-key map "d" #'embark-find-definition)
+    (define-key map "h" #'describe-symbol)
+    (define-key map "f" #'xref-find-references)
+    (make-composed-keymap map embark-general-map)))
 
-(embark-define-keymap embark-variable-map ""
-  :parent embark-symbol-map
-  ("=" set-variable)
-  ("v" embark-save-variable-value)
-  ("<" embark-insert-variable-value))
+(setq embark-variable-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "=" #'set-variable)
+    (define-key map "v" #'embark-save-variable-value)
+    (define-key map "<" #'embark-insert-variable-value)
+    (make-composed-keymap map embark-symbol-map)))
 
-(embark-define-keymap embark-function-map ""
-  :parent embark-symbol-map
-  ;; ("m" elp-instrument-function) ;; m=measure
-  ;; ("M" 'elp-restore-function) ;; quoted, not autoloaded
-  ;; ("k" debug-on-entry) ;; breaKpoint (running out of letters, really)
-  ;; ("K" cancel-debug-on-entry)
-  ;; ("t" trace-function)
-  ;; ("T" 'untrace-function)
-  )
+(setq embark-function-map
+  (let ((map (make-sparse-keymap)))
+    (make-composed-keymap map embark-symbol-map)))
 
-(embark-define-keymap embark-command-map ""
-  :parent embark-function-map
-  ("x" execute-extended-command)
-  ("I" Info-goto-emacs-command-node)
-  ("b" where-is)
-  ;; ("g" global-set-key)
-  ;; ("l" local-set-key)
-  )
+(setq embark-command-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "x" #'execute-extended-command)
+    (define-key map "I" #'Info-goto-emacs-command-node)
+    (define-key map "b" #'where-is)
+    (make-composed-keymap map embark-function-map)))
 
-(embark-define-keymap embark-kill-ring-map
-  "Keymap for `kill-ring' commands."
-  :parent embark-general-map
-  ("d" embark-kill-ring-remove))
+(setq embark-kill-ring-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "d" #'embark-kill-ring-remove)
+    (make-composed-keymap map embark-general-map)))
+
+(message "i was run!")
 
 (provide 'embark-maps)

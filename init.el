@@ -576,6 +576,7 @@
 
 (use-package embark-maps
   :after (embark)
+  :demand t
   :load-path my-package-dir)
 
 (use-package orderless
