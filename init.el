@@ -418,12 +418,13 @@
 
   (setq vertico-multiform-categories '((imenu buffer)
                                        (consult-grep buffer)
-                                       (file reverse)
+                                       ;;; (file reverse (vertico-resize . t))
                                        (t unobtrusive)))
 
   (setq vertico-multiform-commands '((consult-line buffer)
-                                     (project-find-file reverse)
-                                     (find-file-notebox reverse)))
+                                     ;;; (project-find-file reverse (vertico-resize . t))
+                                     ;; (find-file-notebox reverse (vertico-resize . t))
+                                     ))
 
   (set-face-attribute 'vertico-group-title nil :foreground "blue")
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
