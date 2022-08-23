@@ -1008,33 +1008,6 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (shell-command (concat "touch " custom-file)))
   (load-file custom-file)
 
-(use-package which-key
-  :ensure t
-  ;;; TODO: how can i get which-key to use a consistent size regardless of the number
-  ;;; of bindings? I think there is an option to write custom window creation functions
-  :config
-  (which-key-add-key-based-replacements "SPC b" "buffers")
-  (which-key-add-key-based-replacements "SPC d" "dir")
-  (which-key-add-key-based-replacements "SPC e" "eval")
-  (which-key-add-key-based-replacements "SPC o" "open")
-  (which-key-add-key-based-replacements "SPC f" "file")
-  (which-key-add-key-based-replacements "SPC p" "project")
-  (which-key-add-key-based-replacements "SPC h" "help")
-  (which-key-add-key-based-replacements "SPC s" "search")
-  (which-key-add-key-based-replacements "SPC t" "windows")
-  (which-key-add-key-based-replacements "SPC TAB" "tabs")
-  (which-key-add-key-based-replacements "SPC x" "M-x")
-  (which-key-add-key-based-replacements "SPC SPC" "C-c")
-  (which-key-add-key-based-replacements "SPC g" "git")
-  (which-key-add-key-based-replacements "SPC a" "edit")
-  (which-key-add-key-based-replacements "SPC i" "insert")
-
-  (setq embark-become-map (make-sparse-keymap))
-  (define-key embark-become-map (kbd "SPC") evil-leader-state-map-extension)
-  (setq embark-become-keymaps '(embark-become-map))
-
-  (which-key-mode))
-
 (use-package shell
   :commands (select-shell-history)
   :bind (:map minibuffer-mode-map
