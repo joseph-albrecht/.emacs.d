@@ -406,7 +406,7 @@
 	      ("C-<return>" . vertico-exit-input)
 	      ("C-^" . vertico-directory-up)
               ("M-h" . vertico-directory-up)
-              :map evil-leader-state-map-extension
+         :map evil-leader-state-map-extension
               ("X" . vertico-repeat))
   :config
   (setq vertico-count 10)
@@ -414,16 +414,6 @@
   (setq vertico-cycle nil)
 
   (vertico-mode)
-  (vertico-multiform-mode 1)
-
-  (setq vertico-multiform-categories '((imenu buffer)
-                                       (consult-grep buffer)
-                                       (t unobtrusive)))
-
-  (setq vertico-multiform-commands '((consult-line buffer)
-                                     (select-from-history reverse (vertico-resize . t))
-                                     (select-shell-history reverse (vertico-resize . t))))
-
   (set-face-attribute 'vertico-group-title nil :foreground "blue")
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
 
@@ -433,6 +423,25 @@
      (vertico-unobtrusive-mode (call-interactively #'vertico-multiform-reverse))
      (vertico-reverse-mode     (call-interactively #'vertico-next))
      (t                        (call-interactively #'vertico-previous)))))
+
+(use-package vertico-multiform
+  :ensure nil
+  :demand t
+  :config
+  (vertico-multiform-mode 1)
+  (vertico-reverse-mode 1)
+  (vertico-reverse-mode -1)
+  (define-key vertico-reverse-map (kbd "M-n") 'vertico-previous)
+  (define-key vertico-reverse-map (kbd "M-p") 'vertico-next) 
+
+  (setq vertico-multiform-categories '((imenu buffer)
+                                       (consult-grep buffer)
+                                       (t unobtrusive)))
+
+  (setq vertico-multiform-commands '((consult-line buffer)
+                                     (consult-imenu buffer)
+                                     (select-from-history reverse (vertico-resize . t))
+                                     (select-shell-history reverse (vertico-resize . t)))))
 
 (use-package marginalia
   :ensure t
