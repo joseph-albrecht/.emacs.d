@@ -54,7 +54,7 @@
     (setq exec-path (append exec-path (list "/Users/joey/Library/Python/3.8/bin"))))
 
   (setq split-width-threshold 100
-	split-height-threshold 9999)
+	split-height-threshold nil)
   (setq display-buffer-alist
 	'(("\\*Help\\*"
 	   (display-buffer-reuse-window display-buffer-in-previous-window display-buffer-pop-up-window)
