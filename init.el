@@ -1120,6 +1120,21 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 ;;   (setq help-at-pt-display-when-idle t)
 ;;   (setq help-at-pt-timer-delay 1.0))
 
+(use-package pulsar
+  :ensure t
+  :custom
+  (pulsar-pulse-functions '(recenter-top-bottom move-to-window-line-top-bottom reposition-window bookmark-jump other-window delete-window delete-other-windows forward-page backward-page scroll-up-command scroll-down-command windmove-right windmove-left windmove-up windmove-down windmove-swap-states-right windmove-swap-states-left windmove-swap-states-up windmove-swap-states-down tab-new tab-close tab-next org-next-visible-heading org-previous-visible-heading org-forward-heading-same-level org-backward-heading-same-level outline-backward-same-level outline-forward-same-level outline-next-visible-heading outline-previous-visible-heading outline-up-heading copy-window imenu switch-to-buffer magit-status open-init consult-buffer evil-goto-first-line evil-goto-line))
+  :config
+
+  (advice-add 'consult-buffer :after #'pulsar-recenter-middle)
+  (advice-add 'consult-imenu :after #'pulsar-recenter-middle)
+  
+  (setq pulsar-pulse t)
+  (setq pulsar-delay 0.04)
+  (setq pulsar-iterations 10)
+  (setq pulsar-face 'pulsar-magenta)
+  (setq pulsar-highlight-face 'pulsar-yellow)
+  (pulsar-global-mode 1))
 
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
