@@ -1133,41 +1133,20 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
               ("l I" . lsp-java-organize-imports))
   :ensure t)
 
-;; python https://github.com/python-lsp/python-lsp-server
-;; java   https://github.com/eclipse/eclipse.jdt.ls
-;;        https://github.com/joaotavora/eglot/pull/864
-;; (use-package eglot
-;;   :ensure t
-;;   :demand t
-;;   :hook (eglot-managed-mode-hook . (lambda () (when eldoc-mode   (eldoc-mode -1))
-;;                                               (when flymake-mode (flymake-mode -1))))
-;;   :config
-;;   (setq eglot-ignored-server-capabilites '(:documentHighlightProvider)))
-
-;; ;; TODO: how can i make the `eldoc` function echo instead of pulling up a buffer?
-;; (use-package eldoc
-;;   :after (evil-leader)
-;;   :ensure nil
-;;   :hook (emacs-lisp-mode-hook . eldoc-mode)
-;;   :bind (:map evil-leader-state-map-extension
-;;               ("s e" . eldoc))
-;;   :config
-;;   (global-eldoc-mode -1))
-
-;; (use-package flymake
-;;   :after (evil-leader)
-;;   :ensure nil
-;;   :hook (flymake-mode-hook . (lambda () (cond
-;;                                          (flymake-mode (help-at-pt-set-timer))
-;;                                          (t            (help-at-pt-cancel-timer)))))
-;;   :bind (:map evil-leader-state-map-extension
-;;               ("m a" . flymake-show-project-diagnostics)
-;;               ("m n" . flymake-goto-next-error)
-;;               ("m p" . flymake-goto-prev-error)
-;;               ("m c" . consult-flymake))
-;;   :config
-;;   (setq help-at-pt-display-when-idle t)
-;;   (setq help-at-pt-timer-delay 1.0))
+(use-package flymake
+  :after (evil-leader)
+  :ensure nil
+  :hook (flymake-mode-hook . (lambda () (cond
+                                         (flymake-mode (help-at-pt-set-timer))
+                                         (t            (help-at-pt-cancel-timer)))))
+  :bind (:map evil-leader-state-map-extension
+              ("m a" . flymake-show-project-diagnostics)
+              ("m n" . flymake-goto-next-error)
+              ("m p" . flymake-goto-prev-error)
+              ("m c" . consult-flymake))
+  :config
+  (setq help-at-pt-display-when-idle t)
+  (setq help-at-pt-timer-delay 1.0))
 
 (use-package pulsar
   :ensure t
