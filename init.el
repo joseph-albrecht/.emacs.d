@@ -354,6 +354,10 @@
 
   (advice-add 'compile :after #'append-to-zsh-history))
 
+(use-package ansi-color
+  :ensure nil
+  :hook (compilation-filter-hook . (lambda () (ansi-color-apply-on-region compilation-filter-start (point)))))
+
 ;;; TODO: i'd prefer to use a normal key-map here. can i write something?
 (use-package project
   :after (evil-leader)
@@ -977,7 +981,6 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 	      ("C-c l"  . org-open-some-buffer-link+)
          :map evil-leader-state-map-extension
               ("o l" . open-log-file+)
-              ("C-p n" . project-dir-notes)
               ("n p" . project-dir-notes)
               ("n f" . find-file-notebox)
               ("n d" . open-log-file+))
@@ -1166,6 +1169,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
                                "local-init.el")))
   (when (file-exists-p local-init-file)
     (load local-init-file)))
+
+
 
 (defun display-startup-echo-area-message ()
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
