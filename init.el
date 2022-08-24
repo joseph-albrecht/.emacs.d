@@ -21,8 +21,11 @@
              eval-region-and-replace
 	     toggle-show-trailing-whitespace
 	     select-from-history
-             mirror-window)
-  :bind (:map minibuffer-mode-map
+             mirror-window
+             isearch-abort+)
+  :bind (:map isearch-mode-map
+              ("C-g" . isearch-abort+)
+         :map minibuffer-mode-map
 	      ("M-p" . nil)
 	      ("M-n" . nil)
               ("C-c l" . edit-minibuffer)
@@ -215,7 +218,31 @@
       (switch-to-minibuffer)
       (beginning-of-line)
       (ignore-errors (kill-line))
-      (insert minibuffer-contents))))
+      (insert minibuffer-contents)))
+
+  (defun isearch-abort+ ()
+    (interactive)
+    (if (not defining-kbd-macro)
+        (isearch-abort)
+      (isearch-exit)
+      (if evil-mode
+          (evil-jump-backward)
+        (pop-to-mark-command))))
+
+  (defun undefined ()
+    "Beep to tell the user this binding is undefined."
+    (declare (completion ignore))
+    (interactive)
+    (ding t)
+    (message "%s is undefined" (key-description (this-single-command-keys)))
+    (force-mode-line-update)
+    ;; If this is a down-mouse event, don't reset prefix-arg;
+    ;; pass it to the command run by the up event.
+    (setq prefix-arg
+          (when (memq 'down (event-modifiers last-command-event))
+            current-prefix-arg)))
+
+  )
 
 (use-package grep
   :after (compile)
