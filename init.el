@@ -283,7 +283,7 @@
   :bind (("C-M-n" . next-error)
          ("C-M-p" . previous-error)
          :map evil-leader-state-map-extension
-              ("e M-c" . recompile+)
+              ("e C-c" . recompile+)
          :map compilation-mode-map
 	      ("n" . next-line)
 	      ("p" . previous-line)
