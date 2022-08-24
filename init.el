@@ -56,7 +56,7 @@
     (setenv "PATH" (concat (getenv "PATH") ":" "/Users/joey/Library/Python/3.8/bin"))
     (setq exec-path (append exec-path (list "/Users/joey/Library/Python/3.8/bin"))))
 
-  (setq split-width-threshold 100
+  (setq split-width-threshold 120
 	split-height-threshold 9999)
   (setq display-buffer-alist
 	'(("\\*Help\\*"
