@@ -282,6 +282,8 @@
   :commands (next-error+ previous-error+ compile-goto-error-no-select compile-delete-line+)
   :bind (("C-M-n" . next-error)
          ("C-M-p" . previous-error)
+         :map evil-leader-state-map-extension
+              ("e M-c" . recompile+)
          :map compilation-mode-map
 	      ("n" . next-line)
 	      ("p" . previous-line)
@@ -335,6 +337,18 @@
       (previous-line)
       (next-line)))
 
+  (defun recompile+ ()
+    (interactive)
+    (let* ((compile-buffers (seq-filter
+                            (lambda (buffer)
+                              (string-prefix-p "*compilation*"
+                                               (buffer-name buffer)))
+                            (buffer-list)))
+
+           (buffer (completing-read "buffer: " (seq-map #'buffer-name compile-buffers))))
+      (pop-to-buffer buffer)
+      (recompile)))
+  
   (defun append-to-zsh-history (&rest r)
     (shell-command (format "echo '%s' >> ~/.zsh_history" (car r))))
 
@@ -467,6 +481,7 @@
 
   (setq vertico-multiform-commands '((consult-line buffer)
                                      (consult-imenu buffer)
+                                     (recompile+ reverse (vertico-resize . t))
                                      (select-from-history reverse (vertico-resize . t))
                                      (select-shell-history reverse (vertico-resize . t)))))
 
