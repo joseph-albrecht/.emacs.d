@@ -50,10 +50,7 @@
 (define-key evil-leader-state-map-extension (kbd "d f") 'dired)
 
 ;; project
-(define-key evil-leader-state-map-extension (kbd "p p") 'project-switch-project)
-(define-key evil-leader-state-map-extension (kbd "p f") 'project-find-file)
-(define-key evil-leader-state-map-extension (kbd "p b") 'project-switch-to-buffer)
-(define-key evil-leader-state-map-extension (kbd "p c") 'project-compile)
+(define-key evil-leader-state-map-extension (kbd "C-p") 'project-switch-project)
 
 ;; eval
 (define-key evil-leader-state-map-extension (kbd "e l") 'eval-last-sexp)

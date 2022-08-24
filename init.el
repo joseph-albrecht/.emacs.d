@@ -354,18 +354,14 @@
 
   (advice-add 'compile :after #'append-to-zsh-history))
 
+;;; TODO: i'd prefer to use a normal key-map here. can i write something?
 (use-package project
   :after (evil-leader)
   :demand t
   :commands (project-dir-.emacs.d
 	     project-switch-current)
   :bind (:map evil-leader-state-map-extension
-	      ("p ." . project-switch-current)
-	      ("p r" . consult-grep)
-	      ("p R" . consult-grep-case-sensitive)
-	      ("p F" . find-grep-dired-default-dir)
-	      ("C-p n" . project-dir-notes)
-	      ("C-p e" . project-dir-.emacs.d))
+	      ("p" . project-switch-current))
   :config
   (setq project-switch-commands
 	'((?f "File"          project-find-file)
