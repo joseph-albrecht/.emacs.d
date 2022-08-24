@@ -1101,7 +1101,11 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package lsp-mode
   :ensure t
-  :hook ((lsp-managed-mode-hook . (lambda () (when flymake-mode (flymake-mode -1)))))
+  :bind (:map evil-leader-state-map-extension
+              ("l r" . lsp-find-references)
+              ("l l" . lsp)
+              ("l k" . lsp-shutdown-workspace)
+              ("l R" . lsp-rename))
   :config
   (setq lsp-enable-symbol-highlighting nil)
   (setq lsp-headerline-breadcrumb-enable nil)
@@ -1109,6 +1113,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package lsp-java
   :after (lsp)
+  :bind (:map evil-leader-state-map-extension
+              ("l i" . lsp-java-add-import)
+              ("l I" . lsp-java-organize-imports))
   :ensure t)
 
 ;; python https://github.com/python-lsp/python-lsp-server
