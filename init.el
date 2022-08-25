@@ -284,6 +284,7 @@
          ("C-M-p" . previous-error)
          :map evil-leader-state-map-extension
               ("e C-c" . recompile+)
+              ("e c" . compile+)
          :map compilation-mode-map
 	      ("n" . next-line)
 	      ("p" . previous-line)
@@ -348,6 +349,12 @@
            (buffer (completing-read "buffer: " (seq-map #'buffer-name compile-buffers))))
       (pop-to-buffer buffer)
       (recompile)))
+
+  (defun compile+ (current-dir)
+    (interactive "P")
+    (let ((default-directory (if current-dir default-directory (read-directory-name "directory: ")))
+          (current-prefix-arg nil))
+      (call-interactively #'compile)))
   
   (defun append-to-zsh-history (&rest r)
     (shell-command (format "echo '%s' >> ~/.zsh_history" (car r))))
