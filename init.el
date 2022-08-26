@@ -224,6 +224,7 @@
     (interactive)
     (if (not defining-kbd-macro)
         (isearch-abort)
+      (isearch-printing-char ?a) ;;; required to not enter weird "search" state
       (isearch-exit)
       (if evil-mode
           (evil-jump-backward)
