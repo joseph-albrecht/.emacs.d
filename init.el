@@ -877,10 +877,14 @@
 
 (use-package smerge-mode
   :ensure nil
-  :after (hydra)
+  :after (hydra evil-leader)
+  :bind (:map evil-leader-state-map-extension
+	      ("g s" . hydra/smerge/body))
+  ;; :hook (magit-diff-visit-file . (lambda ()
+  ;;       			   (when smerge-mode
+  ;;       			     (hydra/smerge/body))))
   :init
   (setq smerge-command-prefix "")
-
   :config
   ;; https://github.com/alphapapa/unpackaged.el#smerge-mode
   (defhydra hydra/smerge
@@ -915,13 +919,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 	    (save-buffer)
 	    (bury-buffer))
      "Save and bury buffer" :color blue)
-    ("q" nil "cancel" :color blue))
-
-  :bind (:map evil-leader-state-map-extension
-	      ("g s" . hydra/smerge/body))
-  :hook (magit-diff-visit-file . (lambda ()
-				   (when smerge-mode
-				     (hydra/smerge/body)))))
+    ("q" nil "cancel" :color blue)))
 
 (use-package winner
   :after (evil-leader)
