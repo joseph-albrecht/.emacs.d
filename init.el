@@ -126,6 +126,7 @@
   (setq mac-right-command-modifier 'meta)
   (setq mac-option-modifier 'alt)
   (setq mac-right-option-modifier 'alt)
+  (define-key input-decode-map [?\C-m] [C-m]) ;;; allow C-m in GUI emacs
 
   (setq completion-cycle-threshold nil)
   (setq tab-always-indent 'complete) ;;; TODO: maybe use a different keybinding for completion
