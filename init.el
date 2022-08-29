@@ -500,9 +500,10 @@
 
 (use-package corfu
   :ensure t
+  :demand t
   :bind (("C--" . completion-at-point))
   :config
-  (global-corfu-mode))
+  (global-corfu-mode 1))
 
 (use-package consult
   :after (evil-leader)
