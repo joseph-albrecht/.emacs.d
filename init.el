@@ -437,7 +437,7 @@
                          (cons 'vc root)
                        (list 'vc backend root)))))
 
-  (add-hook 'project-find-functions #'project-override)
+  ;; (add-hook 'project-find-functions #'project-override)
 
   )
 
