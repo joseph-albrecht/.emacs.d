@@ -85,6 +85,8 @@
 (define-key evil-normal-state-map "I" 'evil-insert-line)
 (define-key evil-normal-state-map "0" 'evil-join)
 (define-key evil-normal-state-map "M" 'evil-set-marker)
+(define-key evil-normal-state-map (kbd "<C-m>") 'evil-show-marks)
+
 (define-key evil-normal-state-map "o" 'evil-open-below)
 (define-key evil-normal-state-map "O" 'evil-open-above)
 (define-key evil-normal-state-map "y" 'evil-paste-after)
