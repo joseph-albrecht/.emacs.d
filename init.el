@@ -1123,6 +1123,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package lsp-mode
   :ensure t
+  :demand t
   :bind (:map evil-leader-state-map-extension
               ("l r" . lsp-find-references)
               ("l l" . lsp)
@@ -1133,11 +1134,18 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq lsp-headerline-breadcrumb-enable nil)
   (evil-define-key '(normal motion) lsp-mode-map (kbd "g r") 'lsp-find-references))
 
+(use-package dap-mode
+  :ensure nil
+  :after (lsp-mode evil-leader))
+
 (use-package lsp-java
-  :after (lsp)
+  :after (lsp-mode)
+  :demand t
   :bind (:map evil-leader-state-map-extension
               ("l i" . lsp-java-add-import)
-              ("l I" . lsp-java-organize-imports))
+              ("l I" . lsp-java-organize-imports)
+              ("ljm" . dap-java-run-test-method)
+              ("ljc" . dap-java-run-test-class))
   :ensure t)
 
 (use-package flymake
@@ -1158,7 +1166,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package pulsar
   :ensure t
   :custom
-  (pulsar-pulse-functions '(recenter-top-bottom move-to-window-line-top-bottom reposition-window bookmark-jump other-window delete-window delete-other-windows forward-page backward-page scroll-up-command scroll-down-command windmove-right windmove-left windmove-up windmove-down windmove-swap-states-right windmove-swap-states-left windmove-swap-states-up windmove-swap-states-down tab-new tab-close tab-next org-next-visible-heading org-previous-visible-heading org-forward-heading-same-level org-backward-heading-same-level outline-backward-same-level outline-forward-same-level outline-next-visible-heading outline-previous-visible-heading outline-up-heading copy-window imenu switch-to-buffer magit-status open-init consult-buffer evil-goto-first-line evil-goto-line))
+  (pulsar-pulse-functions '(recenter-top-bottom move-to-window-line-top-bottom reposition-window bookmark-jump other-window delete-window delete-other-windows forward-page backward-page scroll-up-command scroll-down-command windmove-right windmove-left windmove-up windmove-down windmove-swap-states-right windmove-swap-states-left windmove-swap-states-up windmove-swap-states-down tab-new tab-close tab-next org-next-visible-heading org-previous-visible-heading org-forward-heading-same-level org-backward-heading-same-level outline-backward-same-level outline-forward-same-level outline-next-visible-heading outline-previous-visible-heading outline-up-heading copy-window imenu switch-to-buffer magit-status open-init consult-buffer evil-goto-first-line evil-goto-line evil-jump-backward evil-jump-forward))
   :config
 
   (advice-add 'consult-buffer :after #'pulsar-recenter-middle)
