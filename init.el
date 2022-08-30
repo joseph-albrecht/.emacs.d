@@ -834,6 +834,7 @@
 
 (use-package dired-narrow
   :ensure t
+  :demand t
   :commands (dired-narrow-archive)
   :bind (:map dired-mode-map
   	      ("/" . dired-narrow)))
