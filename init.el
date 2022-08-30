@@ -773,7 +773,8 @@
               ("<" . magit-section-up)
          :map evil-leader-state-map-extension
 	      ("g g" . magit-status) 
-              ("g c" . magit-clone))
+              ("g c" . magit-clone)
+              ("g d" . magit-file-dispatch))
   :config
   (setq magit-save-repository-buffers 'dontask))
 
