@@ -22,6 +22,7 @@
 	     toggle-show-trailing-whitespace
 	     select-from-history
              mirror-window
+             conform-frame-to-monitor
              isearch-abort+)
   :bind (:map isearch-mode-map
               ("C-g" . isearch-abort+)
@@ -41,6 +42,7 @@
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
 	      ("v h" . global-hl-line-mode)
+	      ("v m" . conform-frame-to-monitor)
 	      ("v e" . setenv)
               ("t C" . 'copy-window))
   :config
