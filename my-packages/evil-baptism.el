@@ -255,8 +255,6 @@
 (define-key evil-motion-state-map "gm" 'evil-middle-of-visual-line)
 (define-key evil-motion-state-map "g$" 'evil-end-of-visual-line)
 (define-key evil-motion-state-map "g\C-]" 'evil-jump-to-tag)
-(define-key evil-motion-state-map "{" 'previous-blank-line)
-(define-key evil-motion-state-map "}" 'next-blank-line)
 (define-key evil-motion-state-map "#" 'evil-search-word-backward)
 (define-key evil-motion-state-map "g#" 'evil-search-unbounded-word-backward)
 (define-key evil-motion-state-map "e" 'evil-end-of-visual-line)
@@ -327,8 +325,8 @@
 (define-key evil-motion-state-map (kbd "gl") 'evil-avy-goto-line)
 (define-key evil-motion-state-map (kbd "gC") 'evil-avy-goto-char)
 (define-key evil-motion-state-map (kbd "gc") 'evil-avy-goto-char-timer)
-(define-key evil-motion-state-map (kbd "M-n") 'evil-forward-paragraph)
-(define-key evil-motion-state-map (kbd "M-p") 'evil-backward-paragraph)
+(define-key evil-motion-state-map (kbd "{") 'evil-forward-paragraph)
+(define-key evil-motion-state-map (kbd "}") 'evil-backward-paragraph)
 
 ;; text objects
 (define-key evil-outer-text-objects-map "f" 'evil-a-word)
