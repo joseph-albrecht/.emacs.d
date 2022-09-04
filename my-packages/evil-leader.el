@@ -61,7 +61,7 @@
 (define-key evil-leader-state-map-extension (kbd "e C") 'recompile)
 (define-key evil-leader-state-map-extension (kbd "e s") 'shell-command)
 (define-key evil-leader-state-map-extension (kbd "e S") 'async-shell-command)
-(define-key evil-leader-state-map-extension (kbd "e $") 'shell)
+(define-key evil-leader-state-map-extension (kbd "e $") 'shell-command-on-region)
 
 ;; edit
 (define-key evil-leader-state-map-extension (kbd "a r") 'align-regexp)

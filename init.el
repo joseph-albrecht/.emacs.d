@@ -23,6 +23,7 @@
 	     select-from-history
              mirror-window
              conform-frame-to-monitor
+             shell-command-on-region+
              isearch-abort+)
   :bind (:map isearch-mode-map
               ("C-g" . isearch-abort+)
@@ -38,6 +39,7 @@
 	      ("e r" . eval-region+)
 	      ("e b" . eval-buffer+)
 	      ("e L" . eval-expression-and-replace)
+              ("e $" . shell-command-on-region+)
 	      ("f k" . kill-filepath)
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
@@ -246,7 +248,22 @@
           (when (memq 'down (event-modifiers last-command-event))
             current-prefix-arg)))
 
-  )
+  (defun shell-command-on-region+ (start beg command &optional output)
+    (interactive (list (if (region-active-p) (region-beginning) (point-min))
+                       (if (region-active-p) (region-end)       (point-max))
+                       (read-shell-command "Shell command on region: ")
+                       (cond ((equal current-prefix-arg '(4))  'buffer)
+                             ((equal current-prefix-arg '(16)) 'echo)
+                             (t                                'replace))))
+    (let ((buffer (when (equal output 'buffer)
+                    (get-buffer-create (format "*shell-command* (%s) %s"
+                                               (buffer-name)
+                                               command)))))
+      (shell-command-on-region start beg command
+                               buffer
+                               (equal output 'replace))
+      (when (equal output 'buffer) (pop-to-buffer buffer))))
+)
 
 (use-package grep
   :after (compile)
