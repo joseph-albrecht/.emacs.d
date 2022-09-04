@@ -24,6 +24,8 @@
              mirror-window
              conform-frame-to-monitor
              shell-command-on-region+
+             keep-lines+
+             flush-lines+
              isearch-abort+)
   :bind (:map isearch-mode-map
               ("C-g" . isearch-abort+)
@@ -40,6 +42,8 @@
 	      ("e b" . eval-buffer+)
 	      ("e L" . eval-expression-and-replace)
               ("e $" . shell-command-on-region+)
+	      ("E k" . keep-lines+)
+              ("E f" . flush-lines+)
 	      ("f k" . kill-filepath)
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
@@ -263,6 +267,18 @@
                                buffer
                                (equal output 'replace))
       (when (equal output 'buffer) (pop-to-buffer buffer))))
+
+  (defun keep-lines+ (start end regexp)
+    (interactive (list (if (region-active-p) (region-beginning) (point-min))
+                       (if (region-active-p) (region-end)       (point-max))
+                       (read-string "regexp: ")))
+    (save-excursion (keep-lines regexp start end t)))
+
+  (defun flush-lines+ (start end regexp)
+    (interactive (list (if (region-active-p) (region-beginning) (point-min))
+                       (if (region-active-p) (region-end)       (point-max))
+                       (read-string "regexp: ")))
+    (save-excursion (flush-lines regexp start end t))))
 )
 
 (use-package grep
