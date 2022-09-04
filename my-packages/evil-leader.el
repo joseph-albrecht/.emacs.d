@@ -22,7 +22,6 @@
 		 (t ""))))
     (setq unread-command-events (listify-key-sequence (concat prefix "\C-c")))))
 
-(listify-key-sequence  "\C-u\C-u")
 (setq evil-default-state 'leader)
 
 (setq evil-leader-state-map-extension (make-sparse-keymap))
@@ -64,7 +63,12 @@
 (define-key evil-leader-state-map-extension (kbd "e $") 'shell-command-on-region)
 
 ;; edit
-(define-key evil-leader-state-map-extension (kbd "a r") 'align-regexp)
+(define-key evil-leader-state-map-extension (kbd "E r") 'align-regexp)
+(define-key evil-leader-state-map-extension (kbd "E k") 'keep-lines)
+(define-key evil-leader-state-map-extension (kbd "E f") 'flush-lines)
+(define-key evil-leader-state-map-extension (kbd "E q") 'query-replace)
+(define-key evil-leader-state-map-extension (kbd "E Q") 'query-replace-regexp)
+(define-key evil-leader-state-map-extension (kbd "E m") 'apply-macro-to-region-lines)
 
 ;; windows
 (define-key evil-leader-state-map-extension (kbd "t w") 'ace-window)
@@ -93,8 +97,6 @@
 ;; search
 (define-key evil-leader-state-map-extension (kbd "s s") 'isearch-forward)
 (define-key evil-leader-state-map-extension (kbd "s r") 'isearch-backward)
-(define-key evil-leader-state-map-extension (kbd "s q") 'query-replace)
-(define-key evil-leader-state-map-extension (kbd "s C-q") 'query-replace-regexp)
 
 ;; help
 (define-key evil-leader-state-map-extension (kbd "h f") 'describe-function)
