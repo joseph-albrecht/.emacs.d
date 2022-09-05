@@ -42,6 +42,7 @@
 	      ("e b" . eval-buffer+)
 	      ("e L" . eval-expression-and-replace)
               ("e $" . shell-command-on-region+)
+              ("E $" . shell-command-on-region+)
 	      ("E k" . keep-lines+)
               ("E f" . flush-lines+)
 	      ("f k" . kill-filepath)
@@ -256,9 +257,9 @@
     (interactive (list (if (region-active-p) (region-beginning) (point-min))
                        (if (region-active-p) (region-end)       (point-max))
                        (read-shell-command "Shell command on region: ")
-                       (cond ((equal current-prefix-arg '(4))  'buffer)
-                             ((equal current-prefix-arg '(16)) 'echo)
-                             (t                                'replace))))
+                       (if current-prefix-arg
+                           (completing-read "output: " '(buffer echo replace))
+                         'replace)))
     (let ((buffer (when (equal output 'buffer)
                     (get-buffer-create (format "*shell-command* (%s) %s"
                                                (buffer-name)
@@ -269,17 +270,21 @@
       (when (equal output 'buffer) (pop-to-buffer buffer))))
 
   (defun keep-lines+ (start end regexp)
-    (interactive (list (if (region-active-p) (region-beginning) (point-min))
-                       (if (region-active-p) (region-end)       (point-max))
+    (interactive (list (cond ((region-active-p) (region-beginning))
+                             (current-prefix-arg (point))
+                             (t (point-min)))
+                       (if (region-active-p) (region-end) (point-max))
                        (read-string "regexp: ")))
     (save-excursion (keep-lines regexp start end t)))
 
   (defun flush-lines+ (start end regexp)
-    (interactive (list (if (region-active-p) (region-beginning) (point-min))
+    (interactive (list (cond ((region-active-p) (region-beginning))
+                             (current-prefix-arg (point))
+                             (t (point-min)))
                        (if (region-active-p) (region-end)       (point-max))
                        (read-string "regexp: ")))
     (save-excursion (flush-lines regexp start end t))))
-)
+
 
 (use-package grep
   :after (compile)
