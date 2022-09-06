@@ -1087,6 +1087,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package org-id
   :config
   (setq org-agenda-files `(,notebox))
+  (setq org-id-ts-format "%y.%m.%d.%H.%M.%S")
+  (setq org-id-method 'ts)
   (org-id-update-id-locations))
 
 (use-package markdown-mode
