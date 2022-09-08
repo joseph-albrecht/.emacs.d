@@ -1190,7 +1190,32 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
               ("l I" . lsp-java-organize-imports)
               ("ljm" . dap-java-run-test-method)
               ("ljc" . dap-java-run-test-class))
-  :ensure t)
+  :ensure t
+  :config
+  (defun sort-java-imports-like-intellij ()
+    (interactive)
+    (let* ((beg (progn (search-forward-regexp "^package")
+                       (end-of-line)
+                       (point)))
+           (end (progn (search-forward-regexp "^\\(public\\|private\\|protected\\|class\\)")
+                       (previous-line)
+                       (end-of-line)
+                       (point)))
+           (imports (thread-last (buffer-substring beg end)
+                                 (s-split "\n")
+                                 (seq-remove #'string-empty-p)))
+           (other-imports (thread-last imports
+                                       (seq-remove (lambda (import) (string-match "^import java" import)))
+                                       (seq-sort #'string<)
+                                       (s-join "\n")))
+           (java-imports (thread-last imports
+                                      (seq-filter (lambda (import) (string-match "^import java" import)))
+                                      (seq-sort #'string<)
+                                      (s-join "\n"))))
+      (delete-region beg end)
+      (insert "\n")
+      (when (s-present? other-imports) (insert "\n" other-imports "\n"))
+      (when (s-present? java-imports) (insert "\n" java-imports "\n")))))
 
 (use-package flymake
   :after (evil-leader)
@@ -1230,7 +1255,29 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (when (file-exists-p local-init-file)
     (load local-init-file)))
 
+(use-package org-roam
+  :ensure t)
 
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory notebox)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today))
+  :config
+  (cl-defmethod org-roam-node-tagged ((node org-roam-node))
+    "Return the currently set category for the NODE."
+    (cdr (assoc-string "TAGGED" (org-roam-node-properties node))))
+
+  
+  
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tagged:30}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode))
 
 (defun display-startup-echo-area-message ()
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
