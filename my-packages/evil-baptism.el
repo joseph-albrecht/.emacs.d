@@ -325,8 +325,8 @@
 (define-key evil-motion-state-map (kbd "gl") 'evil-avy-goto-line)
 (define-key evil-motion-state-map (kbd "gC") 'evil-avy-goto-char)
 (define-key evil-motion-state-map (kbd "gc") 'evil-avy-goto-char-timer)
-(define-key evil-motion-state-map (kbd "{") 'evil-forward-paragraph)
-(define-key evil-motion-state-map (kbd "}") 'evil-backward-paragraph)
+(define-key evil-motion-state-map (kbd "{") 'evil-backward-paragraph)
+(define-key evil-motion-state-map (kbd "}") 'evil-forward-paragraph)
 
 ;; text objects
 (define-key evil-outer-text-objects-map "f" 'evil-a-word)
