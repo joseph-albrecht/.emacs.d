@@ -1255,30 +1255,6 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (when (file-exists-p local-init-file)
     (load local-init-file)))
 
-(use-package org-roam
-  :ensure t)
-
-(use-package org-roam
-  :ensure t
-  :custom
-  (org-roam-directory notebox)
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n g" . org-roam-graph)
-         ("C-c n i" . org-roam-node-insert)
-         ("C-c n c" . org-roam-capture)
-         ;; Dailies
-         ("C-c n j" . org-roam-dailies-capture-today))
-  :config
-  (cl-defmethod org-roam-node-tagged ((node org-roam-node))
-    "Return the currently set category for the NODE."
-    (cdr (assoc-string "TAGGED" (org-roam-node-properties node))))
-
-  
-  
-  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tagged:30}" 'face 'org-tag)))
-  (org-roam-db-autosync-mode))
-
 (defun display-startup-echo-area-message ()
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
     (message (format "Emacs started in %s seconds." seconds))))
