@@ -1030,6 +1030,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 	      ("C-c c"  . org-cycle)
 	      ("C-c l"  . org-open-some-buffer-link+)
          :map evil-leader-state-map-extension
+              ("E +" . org-increase-number-at-point)
+              ("E -" . org-decrease-number-at-point)
               ("o l" . open-log-file+)
               ("n p" . project-dir-notes)
               ("n f" . find-file-notebox)
