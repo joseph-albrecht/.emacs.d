@@ -1258,6 +1258,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq pulsar-highlight-face 'pulsar-yellow)
   (pulsar-global-mode 1))
 
+;; https://docs.doomemacs.org/latest/modules/lang/scala/
 (use-package scala-mode
   :ensure t)
 
