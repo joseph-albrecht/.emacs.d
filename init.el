@@ -1256,6 +1256,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq pulsar-highlight-face 'pulsar-yellow)
   (pulsar-global-mode 1))
 
+(use-package scala-mode
+  :ensure t)
+
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
 (let ((local-init-file (concat (expand-file-name user-emacs-directory)
