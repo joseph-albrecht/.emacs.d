@@ -1199,7 +1199,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
       (let* ((beg (progn (search-forward-regexp "^package")
                        (end-of-line)
                        (point)))
-           (end (progn (search-forward-regexp "^\\(public\\|private\\|protected\\|class\\|@\\)")
+           (end (progn (search-forward-regexp "^\\(public\\|private\\|protected\\|class\\|@\\|/\\)")
                        (previous-line)
                        (end-of-line)
                        (point)))
