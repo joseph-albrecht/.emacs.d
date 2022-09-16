@@ -1022,7 +1022,16 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package org
   :ensure nil
   :commands (open-log-file+ org-insert-timestamp+ org-open-some-buffer-link+)
-  :hook (org-mode-hook . visual-line-mode)
+  :hook ((org-mode-hook . visual-line-mode)
+         (org-mode-hook . (lambda ()
+                            (setq paragraph-start "[ \t]*$")
+                            (setq paragraph-separate "[ \t]*$")
+                            (setq paragraph-start "[ \t]*$")))
+         (org-mode-hook . (lambda ()
+                            (setq-local help-at-pt-display-when-idle t)
+                            (setq-local help-at-pt-timer-delay .3)
+                            (help-at-pt-set-timer)))
+         )
   :bind (:map org-mode-map
 	      ("M-n"  . org-next-visible-heading)
 	      ("M-p"  . org-previous-visible-heading)
