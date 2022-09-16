@@ -1239,6 +1239,26 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package lsp-metals
   :ensure t)
 
+(use-package burly
+  :ensure t)
+
+(use-package corkboard
+  :after (evil-leader)
+  :load-path my-package-dir
+  :bind (:map evil-leader-state-map-extension
+              ("' b b" . corkboard-select-board)
+              ("' b a" . corkboard-add-board)
+              ("' b d" . corkboard-delete-board)
+              ("' '"   . corkboard-goto-location)
+              ("' ."   . corkboard-add-location)
+              ("' d"   . corkboard-delete-location)
+              ("' l"   . corkboard-next-location)
+              ("' h"   . corkboard-previous-location))
+  :config
+  (evil-add-command-properties 'corkboard-goto-location     :jump t)
+  (evil-add-command-properties 'corkboard-next-location     :jump t)
+  (evil-add-command-properties 'corkboard-previous-location :jump t))
+
 (use-package flymake
   :after (evil-leader)
   :ensure nil
