@@ -1227,6 +1227,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
         (when (s-present? java-imports) (insert "\n" java-imports "\n"))
         (when (s-present? static-imports) (insert "\n" static-imports "\n"))))))
 
+(use-package lsp-metals
+  :ensure t)
+
 (use-package flymake
   :after (evil-leader)
   :ensure nil
