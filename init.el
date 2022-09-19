@@ -530,6 +530,7 @@
 
   (setq vertico-multiform-commands '((consult-line buffer)
                                      (consult-imenu buffer)
+                                     (org-jump+ buffer)
                                      (recompile+ reverse (vertico-resize . t))
                                      (select-from-history reverse (vertico-resize . t))
                                      (select-shell-history reverse (vertico-resize . t)))))
@@ -1039,6 +1040,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 	      ("C-c c"  . org-cycle)
 	      ("C-c l"  . org-open-some-buffer-link+)
          :map evil-leader-state-map-extension
+              ("s l" . org-jump+)
               ("E +" . org-increase-number-at-point)
               ("E -" . org-decrease-number-at-point)
               ("o l" . open-log-file+)
@@ -1093,7 +1095,48 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (defun find-file-notebox ()
     (interactive)
     (let ((default-directory notebox))
-      (call-interactively #'project-find-file))))
+      (call-interactively #'project-find-file)))
+
+  (defun org-jump+ ()
+    (interactive)
+    (let ((outline (joey/collect-outline)))
+      (goto-char (cdr (assoc (completing-read "jump to:" outline) outline))))
+    (recenter-top-bottom 0)
+    (org-show-entry))
+
+  (defun org-collect-outline+ ()
+    (interactive)
+    (save-excursion
+      (let ((ast (cddr (org-element-parse-buffer 'headline))))
+        (org-get-headline-details+ ast))))
+
+  (defun format-headline+ (headline parents)
+    (let (delimiter)
+      (setq delimiter (propertize " " 'face '(:bold t :foreground "yellow")))
+      (concat (when parents
+                (format "%s%s"
+                        parents
+                        delimiter))
+              (propertize (--> (plist-get (cadr headline) :title)
+                               (replace-regexp-in-string "\\[\\[.*?\\]\\[" "" it t t)
+                               (replace-regexp-in-string "\\]\\]" "" it t t))
+                          'face (nth (plist-get (cadr headline) :level)
+                                     org-level-faces)))))
+
+  (defun org-get-headline-details+ (ast &optional parents)
+    (cond
+     ((null ast) '())
+     (t (let* ((current-headline (car ast))
+               (formatted-headline (format-headline+ current-headline parents)))
+          (append (list (cons formatted-headline
+                              (plist-get (cadr current-headline)
+                                         :begin))) 
+                  (org-get-headline-details+ (cddr current-headline)
+                                             formatted-headline)
+                  (org-get-headline-details+ (cdr ast) parents))))))
+
+  ;;(evil-define-key '(normal) org-mode-map (kbd "SPC s l") 'org-jump+)
+  )
 
 (use-package org-id
   :config
