@@ -542,10 +542,31 @@
 
 (use-package corfu
   :ensure t
+  :commands (corfu-move-to-minibuffer)
   :demand t
-  :bind (("C--" . completion-at-point))
+  :bind (("C--" . completion-at-point)
+         :map corfu-map
+         ("M-h" . corfu-reset)
+         ("C-c c" . corfu-move-to-minibuffer))
+  :custom
+  (corfu-quit-at-boundary nil)
   :config
+  (defun corfu-move-to-minibuffer ()
+    (interactive)
+    (let ((completion-extra-properties corfu--extra)
+          completion-cycle-threshold completion-cycling)
+      (apply #'consult-completion-in-region completion-in-region--data)))
+  (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer)
   (global-corfu-mode 1))
+
+(use-package cape
+  :ensure t
+  :bind (("M--" . nil)
+         ("M-- f" . cape-file)
+         ("M-- s" . cape-symbol)
+         ("M-- l" . cape-line)) 
+  :config
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
 
 (use-package consult
   :after (evil-leader)
@@ -773,6 +794,7 @@
   (evil-set-initial-state 'nxml-mode 'normal)
   (evil-set-initial-state 'conf-colon-mode 'normal)
   (evil-set-initial-state 'inferior-python-mode 'normal)
+  (evil-set-initial-state 'inferior-emacs-lisp-mode 'normal)
   
 
   (evil-set-initial-state 'magit-log-edit-mode 'insert)
