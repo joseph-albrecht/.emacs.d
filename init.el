@@ -1088,8 +1088,11 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (interactive)
     (let* ((links (org-element-map (org-element-parse-buffer) 'link
                     (lambda (link)
-                      (when (member (org-element-property :type link) '("http" "https"))
-                        link)))))
+                      (let ((type (org-element-property :type link))
+                            (path (org-element-property :path link)))
+                        (when (member type '("http" "https"))
+                          (format "%s:%s" type path)))))))
+
       (browse-url (completing-read "links: " links))))
 
   (defun find-file-notebox ()
