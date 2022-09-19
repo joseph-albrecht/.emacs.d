@@ -1337,6 +1337,17 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package scala-mode
   :ensure t)
 
+(use-package devdocs
+  :after (embark)
+  :ensure t
+  :bind (:map evil-normal-state-map
+              ("g D" . devdocs-lookup))
+  :config
+  (defun devdocs-lookup+ ()
+    (interactive)
+    (let ((symbol (thing-at-point 'symbol)))
+      (devdocs-lookup nil symbol))))
+
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
 (let ((local-init-file (concat (expand-file-name user-emacs-directory)
