@@ -47,7 +47,11 @@
 
 (defun corkboard-add-location ()
   (interactive)
-  (let ((name (read-string "location name: ")))
+  (let* ((line (s-trim (buffer-substring (progn (beginning-of-line) (point))
+                                         (progn (end-of-line) (point)))))
+         (default (format "%s: %s" (buffer-name) line))
+         (prompt (format "location name (default %s): " default))
+         (name (read-string prompt nil nil default)))
     (corkboard--add-location name corkboard-current)))
 
 (defun corkboard-find-location-named (name corkboard)
