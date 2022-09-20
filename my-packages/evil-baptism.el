@@ -398,7 +398,7 @@
 ;; (define-key evil-operator-state-map [escape] 'keyboard-quit)
 
 ;;; Insert state
-(define-key evil-insert-state-map [escape] 'evil-normal-state)
+(define-key evil-insert-state-map [escape] nil)
 (define-key evil-insert-state-map (kbd "S-<return>") 'evil-insert-new-line+)
 
 ;;; Replace state
