@@ -3,7 +3,8 @@
 
 ;;TODO: Something about this definition for an evil-state makes C-SPC still
 ;;      activate visual-mode instead of staying more in an emacs-state
-;;      -- 2020 May 1st
+;;      It is identical to (evil-define-state emacs ...) though.
+;;      -- 2022 May 1st
 (evil-define-state leader
   "Leader state."
   :tag " <L> "
@@ -13,6 +14,7 @@
 
 (setq evil-leader-state-cursor '("black" box))
 (setq evil-emacs-state-cursor '("red" box))
+
 ;; TODO: this doesn't work with C-h to show bound keys
 (defun evil-leader-call-local-map ()
   (interactive)
@@ -62,6 +64,7 @@
 (define-key evil-leader-state-map-extension (kbd "e s") 'shell-command)
 (define-key evil-leader-state-map-extension (kbd "e S") 'async-shell-command)
 (define-key evil-leader-state-map-extension (kbd "e $") 'shell-command-on-region)
+(define-key evil-leader-state-map-extension (kbd "e e") 'eval-expression)
 
 ;; edit
 (define-key evil-leader-state-map-extension (kbd "E r") 'align-regexp)
@@ -112,6 +115,7 @@
 
 ;; open
 (define-key evil-leader-state-map-extension (kbd "o s") 'shell)
+(define-key evil-leader-state-map-extension (kbd "o e") 'ielm)
 (define-key evil-leader-state-map-extension (kbd "o b") 'bookmark-jump)
 (define-key evil-leader-state-map-extension (kbd "o +") 'bookmark-set)
 (define-key evil-leader-state-map-extension (kbd "o p") 'list-processes)
