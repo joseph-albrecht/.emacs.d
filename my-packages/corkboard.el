@@ -39,8 +39,8 @@
 
 (defun corkboard-add-board ()
   (interactive)
-  (let ((name (read-string "board name: "))
-        (board (make-corkboard-board :name name :locations nil)))
+  (let* ((name (read-string "board name: "))
+         (board (make-corkboard-board :name name :locations nil)))
     (setf corkboard-archive (cons board
                                   corkboard-archive))
     (setq corkboard-current board)))
