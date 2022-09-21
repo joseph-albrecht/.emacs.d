@@ -1079,6 +1079,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq org-log-into-drawer t)
   (setq org-fontify-whole-heading-line t)
   (setq notebox (expand-file-name "~/notes/"))
+  (setq org-directory notebox)
 
   (setq org-babel-load-languages '((emacs-lisp . t)))
   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
@@ -1158,10 +1159,13 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
                                          :begin))) 
                   (org-get-headline-details+ (cddr current-headline)
                                              formatted-headline)
-                  (org-get-headline-details+ (cdr ast) parents))))))
+                  (org-get-headline-details+ (cdr ast) parents)))))))
 
-  ;;(evil-define-key '(normal) org-mode-map (kbd "SPC s l") 'org-jump+)
-  )
+(use-package org-agenda
+  :ensure nil
+  :after (org)
+  :bind (:map evil-leader-state-map-extension
+              ("n a" . org-agenda)))
 
 (use-package org-id
   :config
@@ -1169,6 +1173,19 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq org-id-ts-format "%y.%m.%d.%H.%M.%S")
   (setq org-id-method 'ts)
   (org-id-update-id-locations))
+
+(use-package org-ql
+  :ensure t
+  :commands (org-ql-search-buffer+)
+  :bind (:map evil-leader-state-map-extension
+              ("n q b" . org-ql-search-buffer+)
+              ("n q s" . org-ql-search)
+              ("n q v" . org-ql-view))
+  :config
+  (defun org-ql-search-buffer+ ()
+    (interactive)
+    (let ((query (read-string "Query: ")))
+      (org-ql-search (list (current-buffer)) query))))
 
 (use-package markdown-mode
   :ensure t)
