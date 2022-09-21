@@ -67,12 +67,12 @@
 (define-key evil-leader-state-map-extension (kbd "e e") 'eval-expression)
 
 ;; edit
-(define-key evil-leader-state-map-extension (kbd "E r") 'align-regexp)
-(define-key evil-leader-state-map-extension (kbd "E k") 'keep-lines)
-(define-key evil-leader-state-map-extension (kbd "E f") 'flush-lines)
-(define-key evil-leader-state-map-extension (kbd "E q") 'query-replace)
-(define-key evil-leader-state-map-extension (kbd "E Q") 'query-replace-regexp)
-(define-key evil-leader-state-map-extension (kbd "E m") 'apply-macro-to-region-lines)
+(define-key evil-leader-state-map-extension (kbd "c r") 'align-regexp)
+(define-key evil-leader-state-map-extension (kbd "c k") 'keep-lines)
+(define-key evil-leader-state-map-extension (kbd "c f") 'flush-lines)
+(define-key evil-leader-state-map-extension (kbd "c q") 'query-replace)
+(define-key evil-leader-state-map-extension (kbd "c Q") 'query-replace-regexp)
+(define-key evil-leader-state-map-extension (kbd "c m") 'apply-macro-to-region-lines)
 
 ;; windows
 (define-key evil-leader-state-map-extension (kbd "t w") 'ace-window)
