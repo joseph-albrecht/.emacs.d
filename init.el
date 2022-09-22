@@ -1125,7 +1125,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
   (defun org-jump+ ()
     (interactive)
-    (let ((outline (joey/collect-outline)))
+    (let ((outline (org-collect-outline+)))
       (goto-char (cdr (assoc (completing-read "jump to:" outline) outline))))
     (recenter-top-bottom 0)
     (org-show-entry))
@@ -1137,17 +1137,12 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
         (org-get-headline-details+ ast))))
 
   (defun format-headline+ (headline parents)
-    (let (delimiter)
-      (setq delimiter (propertize " " 'face '(:bold t :foreground "yellow")))
-      (concat (when parents
-                (format "%s%s"
-                        parents
-                        delimiter))
+    (concat (when parents (concat "%s" parents))
               (propertize (--> (plist-get (cadr headline) :title)
                                (replace-regexp-in-string "\\[\\[.*?\\]\\[" "" it t t)
                                (replace-regexp-in-string "\\]\\]" "" it t t))
                           'face (nth (plist-get (cadr headline) :level)
-                                     org-level-faces)))))
+                                     org-level-faces))))
 
   (defun org-get-headline-details+ (ast &optional parents)
     (cond
@@ -1159,7 +1154,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
                                          :begin))) 
                   (org-get-headline-details+ (cddr current-headline)
                                              formatted-headline)
-                  (org-get-headline-details+ (cdr ast) parents)))))))
+                  (org-get-headline-details+ (cdr ast) parents))))))
+  (setq org-use-fast-todo-selection 'expert)
+  (setq org-tags-exclude-from-inheritance (list "project")))
 
 (use-package org-agenda
   :ensure nil
@@ -1182,10 +1179,15 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
               ("n q s" . org-ql-search)
               ("n q v" . org-ql-view))
   :config
+  (defun org-ql-search-all ()
+    (interactive)
+    (let ((query (read-string "Query: ")))
+      (org-ql-search (org-ql-view--expand-buffers-files "all") query)))
+  
   (defun org-ql-search-buffer+ ()
     (interactive)
     (let ((query (read-string "Query: ")))
-      (org-ql-search (list (current-buffer)) query))))
+      (org-ql-search (org-ql-view--expand-buffers-files "buffer") query))))
 
 (use-package markdown-mode
   :ensure t)
