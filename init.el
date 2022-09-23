@@ -1404,6 +1404,19 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (let ((symbol (thing-at-point 'symbol)))
       (devdocs-lookup nil symbol))))
 
+;; TODO: would be nice to get this working properly with evil for normal/insert states
+;; https://github.com/emacs-evil/evil-collection/blob/master/modes/vterm/evil-collection-vterm.el
+
+;; To compile vterm-module you need to run this first:
+;; `brew install cmake; brew install libvterm;`
+(use-package vterm
+  :after (evil)
+  :ensure t
+  :bind (:map vterm-mode-map
+              ("S-SPC" . nil))
+  :config
+  (evil-set-initial-state 'vterm-mode 'emacs))
+
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
 (let ((local-init-file (concat (expand-file-name user-emacs-directory)
