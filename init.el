@@ -938,9 +938,9 @@
   :config
   (yas-global-mode 1))
 
-(use-package visual-fill-column
-  :ensure t
-  :hook (visual-line-mode-hook . visual-fill-column-mode))
+;; (use-package visual-fill-column
+;;   :ensure t
+;;   (visual-line-mode-hook . visual-fill-column-mode))
 
 (use-package smerge-mode
   :ensure nil
