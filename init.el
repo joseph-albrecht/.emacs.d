@@ -1415,7 +1415,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :after (evil)
   :ensure t
   :bind (:map vterm-mode-map
-              ("S-SPC" . nil))
+              ("S-SPC" . nil)
+         :map evil-leader-state-map-extension
+              ("o v" . vterm))
   :config
   (evil-set-initial-state 'vterm-mode 'emacs))
 
