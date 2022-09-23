@@ -1417,8 +1417,15 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :bind (:map vterm-mode-map
               ("S-SPC" . nil)
          :map evil-leader-state-map-extension
-              ("o v" . vterm))
+              ("o V" . vterm)
+              ("o v" . vterm+))
   :config
+  (defun vterm+ (current-dir)
+    (interactive "P")
+    (let ((default-directory (if current-dir default-directory (read-directory-name "directory: ")))
+          (current-prefix-arg nil))
+      (call-interactively #'vterm)))
+
   (evil-set-initial-state 'vterm-mode 'emacs))
 
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
