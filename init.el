@@ -1062,6 +1062,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 	      ("C-c c"  . org-cycle)
 	      ("C-c l"  . org-open-some-buffer-link+)
 	      ("C-c r"  . org-refile)
+	      ("TAB"  . org-cycle)
+	      ("S-TAB"  . org-shifttab)
          :map evil-leader-state-map-extension
               ("s l" . org-jump+)
               ("E +" . org-increase-number-at-point)
