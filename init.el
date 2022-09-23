@@ -1061,6 +1061,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 	      ("C-c ."  . org-insert-timestamp+)
 	      ("C-c c"  . org-cycle)
 	      ("C-c l"  . org-open-some-buffer-link+)
+	      ("C-c r"  . org-refile)
          :map evil-leader-state-map-extension
               ("s l" . org-jump+)
               ("E +" . org-increase-number-at-point)
@@ -1068,6 +1069,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
               ("o l" . open-log-file+)
               ("n p" . project-dir-notes)
               ("n f" . find-file-notebox)
+              ("n c" . org-capture)
               ("n d" . open-log-file+))
   :config
   (setq org-startup-folded 'showeverything)
@@ -1156,7 +1158,17 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
                                              formatted-headline)
                   (org-get-headline-details+ (cdr ast) parents))))))
   (setq org-use-fast-todo-selection 'expert)
-  (setq org-tags-exclude-from-inheritance (list "project")))
+  (setq org-tags-exclude-from-inheritance (list "project"))
+  (setq org-capture-templates
+        '(("i" "idea" entry (file org-log-file)
+           "* IDEA %?")
+          ("t" "todo" entry (file org-log-file)
+           "* TODO %?")
+          ("m" "meeting" entry (file org-log-file)
+           "* DONE %? :meeting:")))
+  (setq org-refile-targets '((nil :maxlevel . 10)
+                             (org-agenda-files :maxlevel . 9)))
+  (setq org-refile-use-outline-path t))
 
 (use-package org-agenda
   :ensure nil
