@@ -368,12 +368,6 @@
 (define-key evil-inner-text-objects-map "t" 'evil-inner-tag)
 (define-key evil-inner-text-objects-map "o" 'evil-inner-symbol)
 
-(when evil-want-C-i-jump
-  (define-key evil-motion-state-map (kbd "C-i") 'evil-jump-forward))
-
-(when evil-want-C-g-bindings
-  (define-key evil-motion-state-map "g\C-g" 'count-words))
-
 ;;; Visual state
 
 (define-key evil-visual-state-map "d" 'evil-append)
