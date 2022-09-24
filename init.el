@@ -566,7 +566,7 @@
          ("M-- s" . cape-symbol)
          ("M-- l" . cape-line)) 
   :config
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
+  (add-to-list 'completion-at-point-functions 'cape-dabbrev))
 
 (use-package consult
   :after (evil-leader)
