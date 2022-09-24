@@ -1617,8 +1617,15 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
               ("C-c SPC" . ein:worksheet-clear-output-km)
               ("C-c M-SPC" . ein:worksheet-clear-all-output-km)
               ("C-c c" . ein:worksheet-change-cell-type)
-              ("C-c k" . ein:worksheet-kill-cell))
+              ("C-c k" . ein:worksheet-kill-cell)
+         :map evil-leader-state-map-extension
+              ("f s" . save+))
   :config
+  (defun save+ ()
+    (interactive)
+    (cond
+     (ein:notebook-mode (ein:notebook-save-notebook-command-km))
+     (t (save-buffer))))
 
   (defun ein:worksheet-goto-prev-input-km+ ()
       (interactive)
