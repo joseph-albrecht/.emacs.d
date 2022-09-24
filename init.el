@@ -1608,6 +1608,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
               ("C-c e <" . ein:worksheet-execute-all-cells-above)
               ("C-c e >" . ein:worksheet-execute-all-cells-below)
               ("C-c e <return>" . ein:worksheet-execute-all-cells-below)
+              ("C-c r" . ein:notebook-rename-command)
               ("M-p" . ein:worksheet-goto-prev-input-km+)
               ("M-n" . ein:worksheet-goto-next-input-km+)
               ("C-c i p" . ein:worksheet-insert-cell-above-km)
