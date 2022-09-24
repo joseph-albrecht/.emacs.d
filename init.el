@@ -1642,6 +1642,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
       (ein:worksheet-goto-next-input-km)
       (evil-change-state state))))
 
+;; TODO: ibuffer-filter-by-filename filter should use f-short too
 (use-package ibuffer
   :ensure nil
   :config
