@@ -1642,6 +1642,18 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
       (ein:worksheet-goto-next-input-km)
       (evil-change-state state))))
 
+(use-package ibuffer
+  :ensure nil
+  :config
+  (defun ibuffer-buffer-file-name ()
+    (cond
+     ((buffer-file-name) (f-short (buffer-file-name)))
+     ((bound-and-true-p list-buffers-directory) (f-short list-buffers-directory))
+     ((let ((dirname (and (boundp 'dired-directory)
+                          (if (stringp dired-directory)
+                              dired-directory
+                            (car dired-directory)))))
+	(and dirname (f-short (expand-file-name dirname))))))))
 
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
