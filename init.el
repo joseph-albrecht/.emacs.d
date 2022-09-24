@@ -1574,6 +1574,8 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
     (evil-vterm-delete-line beg end type register yank-handler)
     (evil-vterm-insert))
 
+  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-p")   #'previous-line)
+  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-n")   #'next-line)
   (evil-define-key '(normal visual) vterm-mode-map (kbd "C-a")   #'move-beginning-of-line)
   (evil-define-key '(normal visual) vterm-mode-map (kbd "C-e")   #'move-end-of-line)
   (evil-define-key '(normal visual) vterm-mode-map (kbd "^")   #'evil-vterm-first-non-blank-of-visual-line-or-prompt-start)
