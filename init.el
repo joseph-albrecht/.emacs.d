@@ -795,7 +795,8 @@
   (evil-set-initial-state 'conf-colon-mode 'normal)
   (evil-set-initial-state 'inferior-python-mode 'normal)
   (evil-set-initial-state 'inferior-emacs-lisp-mode 'normal)
-  
+  (evil-set-initial-state 'ein-notebook-mode 'normal)
+  (evil-set-initial-state 'vterm-mode 'insert)
 
   (evil-set-initial-state 'magit-log-edit-mode 'insert)
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
@@ -1409,27 +1410,228 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (let ((symbol (thing-at-point 'symbol)))
       (devdocs-lookup nil symbol))))
 
-;; TODO: would be nice to get this working properly with evil for normal/insert states
-;; https://github.com/emacs-evil/evil-collection/blob/master/modes/vterm/evil-collection-vterm.el
-
+;; TODO: figure out evil-replace
 ;; To compile vterm-module you need to run this first:
 ;; `brew install cmake; brew install libvterm;`
 (use-package vterm
   :after (evil)
   :ensure t
+  :commands (vterm-fix-evil-cursor)
   :bind (:map vterm-mode-map
               ("S-SPC" . nil)
          :map evil-leader-state-map-extension
               ("o V" . vterm)
               ("o v" . vterm+))
   :config
+  (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
+
+  (defun vterm-fix-evil-cursor ()
+    (interactive)
+    (remove-hook 'post-self-insert-hook 'evil-refresh-cursor))
   (defun vterm+ (current-dir)
     (interactive "P")
     (let ((default-directory (if current-dir default-directory (read-directory-name "directory: ")))
           (current-prefix-arg nil))
-      (call-interactively #'vterm)))
+      (funcall #'vterm t)))
+
+  (defun evil-vterm-insert ()
+    "Insert character before cursor."
+    (interactive)
+    (vterm-goto-char (point))
+    (call-interactively #'evil-insert))
+
+  (defun vterm-on-prompt-p ()
+    (interactive)
+    (save-excursion
+      (let* ((start (point))
+             (bol (save-excursion (goto-char start) (beginning-of-line) (point)))
+             (eol (save-excursion (goto-char start) (end-of-line) (point)))
+             (line (buffer-substring-no-properties bol eol)))
+        (string-match "^.*@.*%.*$" line))))
+
+  (defun evil-vterm-first-non-blank-of-visual-line-or-prompt-start ()
+    (interactive)
+    (if (vterm-on-prompt-p)
+        (vterm-goto-char (vterm--get-prompt-point))
+      (evil-first-non-blank-of-visual-line)))
+  
+  (defun evil-vterm-insert-line ()
+    "Insert character at beginning of prompt."
+    (interactive)
+    (vterm-goto-char (vterm--get-prompt-point))
+    (call-interactively #'evil-insert))
+
+  (defun evil-vterm-append ()
+    "Append character after cursor."
+    (interactive)
+    (vterm-goto-char (point))
+    (call-interactively #'evil-append))
+
+  (defun evil-vterm-append-line ()
+    "Append character at end-of-line."
+    (interactive)
+    (vterm-goto-char (vterm--get-end-of-line))
+    (call-interactively #'evil-append))
+
+  (defun evil-vterm-paste-after (&optional arg)
+    (interactive "P")
+    (vterm-goto-char (+ 1 (point)))
+    (call-interactively #'vterm-yank arg))
+
+  (evil-define-operator evil-vterm-delete (beg end type register yank-handler)
+    "Modification of evil-delete to work in vterm buffer.
+Delete text from BEG to END with TYPE.
+Save in REGISTER or in the kill-ring with YANK-HANDLER."
+    (interactive "<R><x><y>")
+    (let* ((beg (max (or beg (point)) (vterm--get-prompt-point)))
+           (end (min (or end beg) (vterm--get-end-of-line))))
+      (unless register
+        (let ((text (filter-buffer-substring beg end)))
+          (unless (string-match-p "\n" text)
+            ;; set the small delete register
+            (evil-set-register ?- text))))
+      (let ((evil-was-yanked-without-register nil))
+        (evil-yank beg end type register yank-handler))
+      (cond
+       ((eq type 'block)
+        (evil-apply-on-block #'vterm-delete-region beg end nil))
+       ((and (eq type 'line)
+             (= end (point-max))
+             (or (= beg end)
+                 (/= (char-before end) ?\n))
+             (/= beg (point-min))
+             (=  (char-before beg) ?\n))
+        (vterm-delete-region (1- beg) end))
+       (t
+        (vterm-delete-region beg end)))
+      ;; place cursor on beginning of line
+      (when (and (called-interactively-p 'any)
+                 (eq type 'line))
+        (vterm-reset-cursor-point))))
+
+  (evil-define-operator evil-vterm-delete-backward-char (beg end type register)
+    "Delete previous character."
+    :motion evil-backward-char
+    (interactive "<R><x>")
+    (evil-vterm-delete beg end type register))
+
+  (evil-define-operator evil-vterm-delete-char (beg end type register)
+    "Delete current character."
+    :motion evil-delete-char
+    (interactive "<R><x>")
+    (evil-vterm-delete beg end type register))
+
+  (evil-define-operator evil-vterm-delete-line (beg end type register yank-handler)
+    "Modification of evil-delete line to work in vterm bufer. Delete to end of line."
+    :motion nil
+    :keep-visual t
+    (interactive "<R><x>")
+    ;; act linewise in Visual state
+    (let* ((beg (or beg (point)))
+           (end (or end beg))
+           (visual-line-mode (and evil-respect-visual-line-mode
+                                  visual-line-mode))
+           (line-end (if visual-line-mode
+                         (save-excursion
+                           (end-of-visual-line)
+                           (point))
+                       (line-end-position))))
+      (when (evil-visual-state-p)
+        (unless (memq type '(line screen-line block))
+          (let ((range (evil-expand beg end
+                                    (if visual-line-mode
+                                        'screen-line
+                                      'line))))
+            (setq beg (evil-range-beginning range)
+                  end (evil-range-end range)
+                  type (evil-type range))))
+        (evil-exit-visual-state))
+      (cond
+       ((eq type 'block)
+        ;; equivalent to $d, i.e., we use the block-to-eol selection and
+        ;; call `evil-collection-vterm-delete'. In this case we fake the call to
+        ;; `evil-end-of-line' by setting `temporary-goal-column' and
+        ;; `last-command' appropriately as `evil-end-of-line' would do.
+        (let ((temporary-goal-column most-positive-fixnum)
+              (last-command 'next-line))
+          (evil-collection-vterm-delete beg end 'block register yank-handler)))
+       ((memq type '(line screen-line))
+        (evil-vterm-delete beg end type register yank-handler))
+       (t
+        (evil-vterm-delete beg line-end type register yank-handler)))))
+
+  (evil-define-operator evil-vterm-change (beg end type register yank-handler)
+    (evil-vterm-delete beg end type register yank-handler)
+    (evil-vterm-insert))
+
+  (evil-define-operator evil-vterm-change-line (beg end type register yank-handler)
+    :motion evil-end-of-line-or-visual-line
+    (evil-vterm-delete-line beg end type register yank-handler)
+    (evil-vterm-insert))
+
+  (evil-define-operator evil-vterm-change-line (beg end type register yank-handler)
+    :motion evil-end-of-line-or-visual-line
+    (evil-vterm-delete-line beg end type register yank-handler)
+    (evil-vterm-insert))
+
+  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-a")   #'move-beginning-of-line)
+  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-e")   #'move-end-of-line)
+  (evil-define-key '(normal visual) vterm-mode-map (kbd "^")   #'evil-vterm-first-non-blank-of-visual-line-or-prompt-start)
+  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-r") #'isearch-forward)
+  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-s") #'isearch-backward)
+  (evil-define-key '(normal visual) vterm-mode-map (kbd "k")   #'evil-vterm-delete)
+  (evil-define-key '(normal visual) vterm-mode-map (kbd "c")   #'evil-vterm-change)
+  (evil-define-key '(normal)        vterm-mode-map (kbd "C-k")   #'evil-vterm-delete-line)
+  (evil-define-key '(normal)        vterm-mode-map (kbd "C")   #'evil-vterm-change-line)
+  (evil-define-key '(normal)        vterm-mode-map (kbd "i")   #'evil-vterm-insert)
+  (evil-define-key '(normal)        vterm-mode-map (kbd "d")   #'evil-vterm-append)
+  (evil-define-key '(normal)        vterm-mode-map (kbd "I")   #'evil-vterm-insert-line)
+  (evil-define-key '(normal)        vterm-mode-map (kbd "I")   #'evil-vterm-insert-line)
 
   (evil-set-initial-state 'vterm-mode 'emacs))
+
+(use-package ein
+  :ensure t
+  :config
+  (setq ein:worksheet-enable-undo t)
+  (setq ein:output-area-inlined-images t))
+
+(use-package ein-notebook
+  :after (ein)
+  :demand t
+  :commands (ein:worksheet-goto-next-input-km+ ein:worksheet-goto-prev-input-km+)
+  :ensure nil
+  :bind (:map ein:notebook-mode-map
+              ("C-<return>" . ein:worksheet-execute-cell)
+              ("M-<return>" . ein:worksheet-execute-cell-and-goto-next-km)
+              ("C-c e ." . ein:worksheet-execute-cell)
+              ("C-c e <" . ein:worksheet-execute-all-cells-above)
+              ("C-c e >" . ein:worksheet-execute-all-cells-below)
+              ("C-c e <return>" . ein:worksheet-execute-all-cells-below)
+              ("M-p" . ein:worksheet-goto-prev-input-km+)
+              ("M-n" . ein:worksheet-goto-next-input-km+)
+              ("C-c i p" . ein:worksheet-insert-cell-above-km)
+              ("C-c i n" . ein:worksheet-insert-cell-below-km)
+              ("M-P" . ein:worksheet-move-cell-up-km)
+              ("M-N" . ein:worksheet-move-cell-down-km)
+              ("C-c SPC" . ein:worksheet-clear-output-km)
+              ("C-c M-SPC" . ein:worksheet-clear-all-output-km)
+              ("C-c c" . ein:worksheet-change-cell-type)
+              ("C-c k" . ein:worksheet-kill-cell))
+  :config
+
+  (defun ein:worksheet-goto-prev-input-km+ ()
+      (interactive)
+    (let ((state evil-state))
+      (ein:worksheet-goto-prev-input-km)
+      (evil-change-state state)))
+
+  (defun ein:worksheet-goto-next-input-km+ ()
+      (interactive)
+    (let ((state evil-state))
+      (ein:worksheet-goto-next-input-km)
+      (evil-change-state state))))
+
 
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
