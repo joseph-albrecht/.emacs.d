@@ -1172,6 +1172,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
                              (org-agenda-files :maxlevel . 9)))
   (setq org-refile-use-outline-path t))
 
+(use-package ob-async
+  :ensure t)
+
 (use-package org-agenda
   :ensure nil
   :after (org)
