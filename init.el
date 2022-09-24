@@ -559,14 +559,22 @@
   (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer)
   (global-corfu-mode 1))
 
+
 (use-package cape
   :ensure t
   :bind (("M--" . nil)
          ("M-- f" . cape-file)
          ("M-- s" . cape-symbol)
          ("M-- l" . cape-line)) 
-  :config
-  (add-to-list 'completion-at-point-functions 'cape-dabbrev))
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
+
+(use-package elisp-mode
+  :after (cape)
+  :ensure nil
+  :hook (emacs-lisp-mode-hook . (lambda ()
+                                  (add-to-list 'completion-at-point-functions
+                                                        #'cape-dabbrev))))
 
 (use-package consult
   :after (evil-leader)
