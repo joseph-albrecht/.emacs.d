@@ -584,6 +584,7 @@
          :map evil-leader-state-map-extension
    	      ("b b"   . consult-buffer)
    	      ("b B"   . switch-to-buffer)
+   	      ("b C-B"   . ibuffer)
    	      ("s l"   . consult-outline)
    	      ("s s"   . consult-line)
    	      ("s r"   . consult-grep-dir)
