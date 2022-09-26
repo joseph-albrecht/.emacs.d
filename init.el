@@ -1637,7 +1637,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
     (interactive)
     (cond
      (ein:notebook-mode (ein:notebook-save-notebook-command-km))
-     (t (save-buffer))))
+     (t (funcall-interactively #'save-buffer))))
 
   (defun ein:worksheet-goto-prev-input-km+ ()
       (interactive)
