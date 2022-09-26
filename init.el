@@ -1099,7 +1099,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq notebox (expand-file-name "~/notes/"))
   (setq org-directory notebox)
 
-  (setq org-babel-load-languages '((emacs-lisp . t)))
+  (setq org-babel-load-languages '((emacs-lisp . t) (shell . t)))
   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
   (set-face-attribute 'org-level-1 nil :background "#F0F0F0" :overline t :underline t :bold t)
