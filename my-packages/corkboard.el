@@ -20,6 +20,7 @@
                       (equal name (corkboard-board-name board)))
                     corkboard-archive)))
 
+;; TODO: how do I make sure this opens in the same window i'm currently in?... or that i can do that when i want to.
 (defun corkboard--goto-location (location)
   (burly-open-url (corkboard-location-location location))
   (corkboard-update-index location)
