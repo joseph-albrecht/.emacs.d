@@ -252,7 +252,7 @@
     (setq prefix-arg
           (when (memq 'down (event-modifiers last-command-event))
             current-prefix-arg)))
-hello
+
   (defun shell-command-on-region+ (start beg command &optional output)
     (interactive (list (if (region-active-p) (region-beginning) (point-min))
                        (if (region-active-p) (region-end)       (point-max))
