@@ -1605,9 +1605,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (evil-define-key '(normal)        vterm-mode-map (kbd "i")   #'evil-vterm-insert)
   (evil-define-key '(normal)        vterm-mode-map (kbd "d")   #'evil-vterm-append)
   (evil-define-key '(normal)        vterm-mode-map (kbd "I")   #'evil-vterm-insert-line)
-  (evil-define-key '(normal)        vterm-mode-map (kbd "I")   #'evil-vterm-insert-line)
-
-  (evil-set-initial-state 'vterm-mode 'emacs))
+  (evil-define-key '(normal)        vterm-mode-map (kbd "I")   #'evil-vterm-insert-line))
 
 (use-package ein
   :ensure t
