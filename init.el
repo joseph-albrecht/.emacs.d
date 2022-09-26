@@ -1419,9 +1419,13 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (let ((symbol (thing-at-point 'symbol)))
       (devdocs-lookup nil symbol))))
 
+(unless (require 'vterm-module nil t)
+  (message "Running: brew install cmake")
+  (shell-command "brew install cmake")
+  (message "Running: brew install libvterm")
+  (shell-command "brew install libvterm"))
+
 ;; TODO: figure out evil-replace
-;; To compile vterm-module you need to run this first:
-;; `brew install cmake; brew install libvterm;`
 (use-package vterm
   :after (evil)
   :ensure t
