@@ -1615,6 +1615,20 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (setq ein:worksheet-enable-undo t)
   (setq ein:output-area-inlined-images t))
 
+(use-package ein-notebooklist
+  :after (ein)
+  :ensure nil
+  :demand t)
+
+(use-package ein-cell
+  :after (ein)
+  :ensure nil
+  :demand t
+  :config
+  (set-face-attribute 'ein:basecell-input-prompt-face nil :underline t :overline t)
+  (set-face-attribute 'ein:basecell-input-area-face nil :background "mint cream")
+  (set-face-attribute 'ein:cell-output-area nil :background "floral white"))
+
 (use-package ein-notebook
   :after (ein)
   :demand t
