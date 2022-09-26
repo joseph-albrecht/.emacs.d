@@ -252,18 +252,22 @@
     (setq prefix-arg
           (when (memq 'down (event-modifiers last-command-event))
             current-prefix-arg)))
-
+hello
   (defun shell-command-on-region+ (start beg command &optional output)
     (interactive (list (if (region-active-p) (region-beginning) (point-min))
                        (if (region-active-p) (region-end)       (point-max))
                        (read-shell-command "Shell command on region: ")
                        (if current-prefix-arg
-                           (completing-read "output: " '(buffer echo replace))
+                           (intern (completing-read "output: " '(buffer echo replace)))
                          'replace)))
     (let ((buffer (when (equal output 'buffer)
                     (get-buffer-create (format "*shell-command* (%s) %s"
                                                (buffer-name)
                                                command)))))
+      (message "%S" (list start beg command output))
+      (message "%S" (list 'shell-command-on-region start beg command
+                          buffer
+                          (equal output 'replace)))
       (shell-command-on-region start beg command
                                buffer
                                (equal output 'replace))
