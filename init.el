@@ -1061,8 +1061,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :hook ((org-mode-hook . visual-line-mode)
          (org-mode-hook . (lambda ()
                             (setq paragraph-start "[ \t]*$")
-                            (setq paragraph-separate "[ \t]*$")
-                            (setq paragraph-start "[ \t]*$")))
+                            (setq paragraph-separate "[ \t]*$")))
          (org-mode-hook . (lambda ()
                             (setq-local help-at-pt-display-when-idle t)
                             (setq-local help-at-pt-timer-delay .3)
@@ -1220,7 +1219,10 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
       (org-ql-search (org-ql-view--expand-buffers-files "buffer") query))))
 
 (use-package markdown-mode
-  :ensure t)
+  :ensure t
+  :hook (markdown-mode-hook . (lambda ()
+                                (setq paragraph-start "[ \t]*$")
+                                (setq paragraph-separate "[ \t]*$"))))
 
 ;; TODO: read through this package
 ;; (use-package ob-http
@@ -1411,7 +1413,11 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 ;; https://docs.doomemacs.org/latest/modules/lang/scala/
 (use-package scala-mode
-  :ensure t)
+  :ensure t
+  :config
+  :bind (scala-mode-hook . (lambda ()
+                             (setq paragraph-start "[ \t]*$")
+                             (setq paragraph-separate "[ \t]*$"))))
 
 (use-package devdocs
   :after (embark)
