@@ -286,7 +286,11 @@
                              (t (point-min)))
                        (if (region-active-p) (region-end)       (point-max))
                        (read-string "regexp: ")))
-    (save-excursion (flush-lines regexp start end t))))
+    (save-excursion (flush-lines regexp start end t)))
+
+  (defadvice align-regexp (around align-regexp-with-spaces activate)
+    (let ((indent-tabs-mode nil))
+      ad-do-it)))
 
 
 (use-package grep
