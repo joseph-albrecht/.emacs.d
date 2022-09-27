@@ -843,6 +843,15 @@
   (define-key evil-leader-state-map-extension (kbd "i t") 'insert-time-id)
   (global-set-key (kbd "C-M-SPC") evil-leader-state-map-extension))
 
+(use-package evil-surround
+  :after evil
+  :ensure t
+  :config
+  (define-key evil-operator-state-map (kbd "!") #'evil-surround-edit)
+  (define-key evil-operator-state-map (kbd "C-!") #'evil-Surround-edit)
+  (define-key evil-visual-state-map (kbd "!") #'evil-surround-region)
+  (define-key evil-visual-state-map (kbd "C-!") #'evil-Surround-region))
+
 (use-package magit
   :ensure t
   :bind (:map magit-status-mode-map
