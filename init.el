@@ -1415,7 +1415,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package scala-mode
   :ensure t
   :config
-  :bind (scala-mode-hook . (lambda ()
+  :hook (scala-mode-hook . (lambda ()
+                         
                              (setq paragraph-start "[ \t]*$")
                              (setq paragraph-separate "[ \t]*$"))))
 
