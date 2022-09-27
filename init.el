@@ -642,8 +642,8 @@
    	 :map minibuffer-mode-map
    	      ("TAB" . minibuffer-force-complete)
    	      ("SPC" . self-insert-command)
-   	      ("M-." . embark-act-quit)
-   	      ("C-." . embark-act)
+   	      ("C-." . embark-act-quit)
+   	      ("M-." . embark-act)
    	      ("C-," . embark-become)
    	      ("C-c e" . embark-export)
    	      ("C-c c" . embark-collect)
