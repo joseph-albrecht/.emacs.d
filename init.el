@@ -1702,6 +1702,12 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (auth-source-pass-enable)
   (setq epa-pinentry-mode 'loopback))
 
+(use-package password-store
+  :ensure t
+  :bind (:map evil-leader-state-map-extension
+              ("w w" . password-store-copy)
+              ("w SPC" . password-store-clear)))
+
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
 (let ((local-init-file (concat (expand-file-name user-emacs-directory)
