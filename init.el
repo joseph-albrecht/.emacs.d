@@ -37,7 +37,6 @@
 	      ("A-p" . previous-history-element)
 	      ("A-n" . next-history-element)
 	 :map evil-leader-state-map-extension
-	      ("t x" . switch-to-minibuffer)
 	      ("e r" . eval-region+)
 	      ("e b" . eval-buffer+)
 	      ("e L" . eval-expression-and-replace)

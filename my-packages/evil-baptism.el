@@ -520,6 +520,9 @@
 (define-key evil-ex-completion-map [return] 'exit-minibuffer)
 (define-key evil-ex-completion-map (kbd "RET") 'exit-minibuffer)
 
+(global-set-key (kbd "C-S-v") #'evil-scroll-line-down)
+(global-set-key (kbd "M-V") #'evil-scroll-line-up)
+
 ;; command line window
 (evil-define-key 'normal
   evil-command-window-mode-map (kbd "RET") 'evil-command-window-execute)

@@ -11,7 +11,7 @@
                             (command embark-command-map)
                             (variable embark-variable-map)
                             ;;; (minor-mode embark-command-map)
-                            ;;; (package embark-package-map)
+                            (package embark-package-map)
                             ;;; (bookmark embark-bookmark-map)
                             (kill-ring embark-kill-ring-map)
                             ;;; (heading embark-heading-map)
@@ -97,6 +97,11 @@
   (let ((map (make-sparse-keymap)))
     (define-key map "d" #'embark-kill-ring-remove)
     (make-composed-keymap map embark-general-map)))
+
+(setq embark-package-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "u" #'embark-browse-package-url)
+    (make-composed-keymap map embark-symbol-map)))
 
 (message "i was run!")
 
