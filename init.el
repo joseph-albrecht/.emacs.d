@@ -1686,6 +1686,16 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
                             (car dired-directory)))))
 	(and dirname (f-short (expand-file-name dirname))))))))
 
+
+(use-package auth-source
+  :ensure nil)
+
+(use-package auth-source-pass
+  :ensure nil
+  :config
+  (auth-source-pass-enable)
+  (setq epa-pinentry-mode 'loopback))
+
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
 (let ((local-init-file (concat (expand-file-name user-emacs-directory)
