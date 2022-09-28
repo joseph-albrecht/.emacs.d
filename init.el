@@ -149,6 +149,9 @@
  	`((".*" "~/.emacs.d/backups-and-autosaves/" t)))
   (setq create-lockfiles nil)
 
+  (setq confirm-kill-processes nil)
+  (setq kill-buffer-query-functions nil)
+  
   (defun clear-line ()
     (move-beginning-of-line 1)
     (ignore-errors (kill-line)
