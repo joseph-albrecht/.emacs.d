@@ -1648,8 +1648,8 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   :demand t
   :config
   (set-face-attribute 'ein:basecell-input-prompt-face nil :underline t :overline t)
-  (set-face-attribute 'ein:basecell-input-area-face nil :background "mint cream")
-  (set-face-attribute 'ein:cell-output-area nil :background "floral white"))
+  (set-face-attribute 'ein:basecell-input-area-face nil :background "mint cream" :extend t)
+  (set-face-attribute 'ein:cell-output-area nil :background "floral white" :extend t))
 
 (use-package ein-notebook
   :after (ein)
@@ -1731,7 +1731,8 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
 
 (use-package highlight-indentation
   :ensure t
-  :hook (python-mode-hook . highlight-indentation-current-column-mode)
+  :hook ((python-mode-hook . highlight-indentation-current-column-mode)
+         (python-mode-hook . highlight-indentation-mode))
   :config
   (set-face-background 'highlight-indentation-current-column-face "#c3b3b3"))
 
