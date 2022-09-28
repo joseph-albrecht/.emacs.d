@@ -1726,6 +1726,15 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
               ("w w" . password-store-copy)
               ("w SPC" . password-store-clear)))
 
+;; (use-package indent-guide
+;;   :ensure t)
+
+(use-package highlight-indentation
+  :ensure t
+  :hook (python-mode-hook . highlight-indentation-current-column-mode)
+  :config
+  (set-face-background 'highlight-indentation-current-column-face "#c3b3b3"))
+
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
 (let ((local-init-file (concat (expand-file-name user-emacs-directory)
