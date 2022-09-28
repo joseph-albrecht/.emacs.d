@@ -1654,6 +1654,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   :commands (ein:worksheet-goto-next-input-km+ ein:worksheet-goto-prev-input-km+)
   :ensure nil
   :bind (:map ein:notebook-mode-map
+              ("C-c C-c" . ein:notebook-kernel-interrupt-command)
               ("C-<return>" . ein:worksheet-execute-cell)
               ("M-<return>" . ein:worksheet-execute-cell-and-goto-next-km)
               ("C-c e ." . ein:worksheet-execute-cell)
