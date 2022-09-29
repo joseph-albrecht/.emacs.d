@@ -698,6 +698,7 @@
    	      ("SPC" . self-insert-command)
    	      ("C-." . embark-act-quit)
    	      ("M-." . embark-act)
+   	      ("C-M-." . embark-act-all)
    	      ("C-," . embark-become)
    	      ("C-c e" . embark-export)
    	      ("C-c c" . embark-collect)
