@@ -647,29 +647,31 @@
 	(consult-grep default-directory)
         (consult-grep t))))
 
-  (setq minibuffer-default-text "")
-
-  (defun minibuffer-insert-default-text+ ()
+  ;; add initial option
+  (defun consult-buffer (&optional sources initial)
     (interactive)
-    (insert minibuffer-default-text)
-    (setq minibuffer-default-text ""))
-
-  (add-hook 'minibuffer-setup-hook #'minibuffer-insert-default-text+)
+    (let ((selected (consult--multi (or sources consult-buffer-sources)
+                                    :require-match
+                                    (confirm-nonexistent-file-or-buffer)
+                                    :prompt "Switch to: "
+                                    :initial initial
+                                    :history 'consult--buffer-history
+                                    :sort nil)))
+      ;; For non-matching candidates, fall back to buffer creation.
+      (unless (plist-get (cdr selected) :match)
+        (consult--buffer-action (car selected)))))
 
   (defun consult-buffer-terminal ()
     (interactive)
-    (setq minibuffer-default-text "*vterm* ")
-    (call-interactively #'consult-buffer))
+    (consult-buffer nil "*vterm* "))
 
   (defun consult-buffer-ein ()
     (interactive)
-    (setq minibuffer-default-text "*ein ")
-    (call-interactively #'consult-buffer))
+    (consult-buffer nil "*ein "))
 
   (defun consult-buffer-compilation ()
     (interactive)
-    (setq minibuffer-default-text "*compilation* ")
-    (call-interactively #'consult-buffer))
+    (consult-buffer nil "*compilation* "))
 
   (evil-add-command-properties 'consult-line :jump t)
   (evil-add-command-properties 'consult-imenu :jump t))
