@@ -37,6 +37,7 @@
 	      ("A-p" . previous-history-element)
 	      ("A-n" . next-history-element)
 	 :map evil-leader-state-map-extension
+	      ("C-c" . server-edit)
 	      ("e r" . eval-region+)
 	      ("e b" . eval-buffer+)
 	      ("e L" . eval-expression-and-replace)
@@ -346,6 +347,8 @@
 	      ("d" . compile-delete-line+)
               ("D" . compile-delete-line-no-select+))
   :config
+  (setq compilation-environment '("TERM=tmux-256color" "INSIDE_EMACS=28.1,epg" "pinentry-mode=loopback"))
+  
   (defun compile-goto-error-no-select ()
     (interactive)
     (let ((window (selected-window)))
@@ -588,12 +591,17 @@
 
 (use-package consult
   :after (evil-leader)
-  :commands (consult-grep-dir consult-grep-dir-case-sensitive)
+  :commands (consult-grep-dir
+   	     consult-buffer-terminal
+             consult-buffer-ein
+             consult-grep-dir-case-sensitive)
   :ensure t
   :bind (("C-M-y" . consult-yank-from-kill-ring)
          :map evil-leader-state-map-extension
    	      ("b b"   . consult-buffer)
    	      ("b B"   . switch-to-buffer)
+   	      ("b v"   . consult-buffer-terminal)
+   	      ("b e"   . consult-buffer-ein)
    	      ("b C-B"   . ibuffer)
    	      ("s l"   . consult-outline)
    	      ("s s"   . consult-line)
@@ -618,12 +626,30 @@
 
   (defun consult-grep-dir-case-sensitive (&optional dir)
     (interactive "P")
-    (let ((consult-grep-args "grep --null --line-buffered --color=never --line-number -I -r ."
-                             ))
+    (let ((consult-grep-args "grep --null --line-buffered --color=never --line-number -I -r ."))
       (if dir
 	(consult-grep default-directory)
-      (consult-grep t))))
-  
+        (consult-grep t))))
+
+  (setq minibuffer-default-text "")
+
+  (defun minibuffer-insert-default-text+ ()
+    (interactive)
+    (insert minibuffer-default-text)
+    (setq minibuffer-default-text ""))
+
+  (add-hook 'minibuffer-setup-hook #'minibuffer-insert-default-text+)
+
+  (defun consult-buffer-terminal ()
+    (interactive)
+    (setq minibuffer-default-text "*vterm* ")
+    (call-interactively #'consult-buffer))
+
+  (defun consult-buffer-ein ()
+    (interactive)
+    (setq minibuffer-default-text "*ein ")
+    (call-interactively #'consult-buffer))
+
   (evil-add-command-properties 'consult-line :jump t)
   (evil-add-command-properties 'consult-imenu :jump t))
 
