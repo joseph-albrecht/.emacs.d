@@ -843,6 +843,7 @@
   (setq evil-operator-state-modes nil)
   (setq evil-replace-state-modes nil)
 
+  (evil-set-initial-state 'text-mode 'normal)
   (evil-set-initial-state 'org-mode 'normal)
   (evil-set-initial-state 'prog-mode 'normal)
   (evil-set-initial-state 'javascript-mode 'normal)
