@@ -1783,8 +1783,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
 
 (use-package highlight-indentation
   :ensure t
-  :hook ((python-mode-hook . highlight-indentation-current-column-mode)
-         (python-mode-hook . highlight-indentation-mode))
+  :hook ((python-mode-hook . highlight-indentation-mode))
   :config
   (set-face-background 'highlight-indentation-current-column-face "#c3b3b3"))
 
