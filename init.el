@@ -761,7 +761,11 @@
       (delete-char 1)
       (when (equal (line-number-at-pos (point-max))
                    (line-number-at-pos (point)))
-        (previous-line)))))
+        (previous-line))))
+  
+  (cl-defun embark--confirm (&key action target &allow-other-keys)
+    "Ask for confirmation before running the ACTION on the TARGET."
+    t))
 
 (use-package embark-maps
   :after (embark)
