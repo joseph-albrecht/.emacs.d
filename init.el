@@ -504,8 +504,8 @@
 	      ("C-p" . vertico-C-p-or-reverse)
 	      ("C-M-n" . vertico-next-group)
 	      ("C-M-p" . vertico-previous-group)
-	      ("M-n" . vertico-next)
-	      ("M-p" . vertico-previous)
+	      ("M-n" . vertico-next+)
+	      ("M-p" . vertico-previous+)
 	      ("C-<return>" . vertico-exit-input)
 	      ("C-^" . vertico-directory-up)
               ("M-h" . vertico-directory-up)
@@ -516,9 +516,23 @@
   (setq vertico-resize nil)
   (setq vertico-cycle nil)
 
+  (setq vertico-multiline '(#("⤶" 0 1 (face vertico-multiline)) . #("…" 0 1 (face vertico-multiline))))
+
   (vertico-mode)
   (set-face-attribute 'vertico-group-title nil :foreground "blue")
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
+
+  (defun vertico-next+ ()
+    (interactive)
+    (cond
+     (vertico-unobtrusive-mode (vertico-previous))
+     (t                        (vertico-next))))
+
+  (defun vertico-previous+ ()
+    (interactive)
+    (cond
+     (vertico-unobtrusive-mode (vertico-next))
+     (t                        (vertico-previous))))
 
   (defun vertico-C-p-or-reverse ()
     (interactive)
@@ -594,6 +608,7 @@
   :commands (consult-grep-dir
    	     consult-buffer-terminal
              consult-buffer-ein
+             consult-buffer-compilation
              consult-grep-dir-case-sensitive)
   :ensure t
   :bind (("C-M-y" . consult-yank-from-kill-ring)
@@ -602,6 +617,7 @@
    	      ("b B"   . switch-to-buffer)
    	      ("b v"   . consult-buffer-terminal)
    	      ("b e"   . consult-buffer-ein)
+   	      ("b c"   . consult-buffer-compilation)
    	      ("b C-B"   . ibuffer)
    	      ("s l"   . consult-outline)
    	      ("s s"   . consult-line)
@@ -648,6 +664,11 @@
   (defun consult-buffer-ein ()
     (interactive)
     (setq minibuffer-default-text "*ein ")
+    (call-interactively #'consult-buffer))
+
+  (defun consult-buffer-compilation ()
+    (interactive)
+    (setq minibuffer-default-text "*compilation* ")
     (call-interactively #'consult-buffer))
 
   (evil-add-command-properties 'consult-line :jump t)
