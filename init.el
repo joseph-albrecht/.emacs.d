@@ -347,7 +347,7 @@
 	      ("d" . compile-delete-line+)
               ("D" . compile-delete-line-no-select+))
   :config
-  (setq compilation-environment '("TERM=tmux-256color" "INSIDE_EMACS=28.1,epg" "pinentry-mode=loopback"))
+  (setq compilation-environment '("TERM=tmux-256color"))
   
   (defun compile-goto-error-no-select ()
     (interactive)
