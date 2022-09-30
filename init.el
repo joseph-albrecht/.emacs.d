@@ -615,7 +615,7 @@
          :map evil-leader-state-map-extension
    	      ("b b"   . consult-buffer)
    	      ("b B"   . switch-to-buffer)
-   	      ("b v"   . consult-buffer-terminal)
+   	      ("b t"   . consult-buffer-terminal)
    	      ("b e"   . consult-buffer-ein)
    	      ("b c"   . consult-buffer-compilation)
    	      ("b C-B"   . ibuffer)
@@ -663,15 +663,18 @@
 
   (defun consult-buffer-terminal ()
     (interactive)
-    (funcall-interactively #'consult-buffer nil "*vterm* "))
+    (let ((consult-preview-key 'any))
+      (funcall-interactively #'consult-buffer nil "*vterm* ")))
 
   (defun consult-buffer-ein ()
     (interactive)
-    (funcall-interactively #'consult-buffer nil "*ein "))
+    (let ((consult-preview-key 'any))
+      (funcall-interactively #'consult-buffer nil "*ein ")))
 
   (defun consult-buffer-compilation ()
     (interactive)
-    (funcall-interactively #'consult-buffer nil "*compilation* "))
+    (let ((consult-preview-key 'any))
+      (funcall-interactively #'consult-buffer nil "*compilation* ")))
 
   (evil-add-command-properties 'consult-line :jump t)
   (evil-add-command-properties 'consult-imenu :jump t))
