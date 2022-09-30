@@ -1760,6 +1760,20 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (setq ein:worksheet-enable-undo t)
   (setq ein:output-area-inlined-images t))
 
+(use-package ein-jupyter
+  :after (ein)
+  :bind (:map evil-leader-state-map-extension
+              ("o n" . ein:jupyter-server-start)
+              ("o k n" . ein:stop))
+  :config
+  (defconst *ein:jupyter-server-buffer-name*
+    (format " *%s*" *ein:jupyter-server-process-name*)))
+
+(use-package ein-log
+  :after (ein)
+  :config
+  (setq ein:log-all-buffer-name " *ein:log-all*"))
+
 (use-package ein-notebooklist
   :after (ein)
   :ensure nil
