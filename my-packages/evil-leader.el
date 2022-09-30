@@ -98,6 +98,8 @@
 (define-key evil-leader-state-map-extension (kbd "TAB d") 'tab-bar-close-tab-by-name)
 (define-key evil-leader-state-map-extension (kbd "TAB D") 'tab-bar-close-tab)
 (define-key evil-leader-state-map-extension (kbd "TAB o") 'tab-bar-close-other-tabs)
+(define-key evil-leader-state-map-extension (kbd "TAB l") 'tab-bar-switch-to-next-tab)
+(define-key evil-leader-state-map-extension (kbd "TAB h") 'tab-bar-switch-to-prev-tab)
 
 ;; search
 (define-key evil-leader-state-map-extension (kbd "s s") 'isearch-forward)

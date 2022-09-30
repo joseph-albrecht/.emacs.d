@@ -1134,8 +1134,23 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package tab-bar
   :ensure nil
   :config
-  (setq tab-bar-mode t)
-  (setq tab-bar-show nil))
+  (setq tab-bar-mode nil)
+  (setq tab-bar-show nil)
+
+  (defun tab-bar-switch-to-tab (name)
+  "Switch to the tab by NAME.
+Default values are tab names sorted by recency, so you can use \
+\\<minibuffer-local-map>\\[next-history-element]
+to get the name of the most recently visited tab, the second
+most recent, and so on."
+  (interactive
+   (let* ((recent-tabs (mapcar (lambda (tab)
+                                 (alist-get 'name tab))
+                               (funcall tab-bar-tabs-function nil))))
+     (list (completing-read (format-prompt "Switch to tab by name"
+                                           (car recent-tabs))
+                            recent-tabs nil nil nil nil recent-tabs))))
+  (tab-bar-select-tab (1+ (or (tab-bar--tab-index-by-name name) 0)))))
 
 (use-package dumb-jump
   :ensure t
