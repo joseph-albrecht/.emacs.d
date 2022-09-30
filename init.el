@@ -663,15 +663,15 @@
 
   (defun consult-buffer-terminal ()
     (interactive)
-    (consult-buffer nil "*vterm* "))
+    (funcall-interactively #'consult-buffer nil "*vterm* "))
 
   (defun consult-buffer-ein ()
     (interactive)
-    (consult-buffer nil "*ein "))
+    (funcall-interactively #'consult-buffer nil "*ein "))
 
   (defun consult-buffer-compilation ()
     (interactive)
-    (consult-buffer nil "*compilation* "))
+    (funcall-interactively #'consult-buffer nil "*compilation* "))
 
   (evil-add-command-properties 'consult-line :jump t)
   (evil-add-command-properties 'consult-imenu :jump t))
