@@ -522,6 +522,24 @@
   (set-face-attribute 'vertico-group-title nil :foreground "blue")
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
 
+  (defun vertico--exhibit ()
+    "Exhibit completion UI."
+    (let* ((buffer-undo-list t) ;; Overlays affect point position and undo list!
+           (pt (max 0 (- (point) (minibuffer-prompt-end))))
+           (content (minibuffer-contents-no-properties)))
+      (unless (or (input-pending-p) (equal vertico--input (cons content pt)))
+        (vertico--update-candidates pt content))
+      (vertico--prompt-selection)
+      (vertico--display-count)
+      (vertico--display-candidates (vertico--arrange-candidates))
+      (when (> last-vertico--index 0)
+        (dotimes (1- last-vertico--index)
+          (message "...")
+          (vertico-next 1))
+        (setq last-vertico--index -1)
+        (vertico--update-scroll)
+        (vertico--exhibit))))
+  
   (defun vertico-next+ ()
     (interactive)
     (cond
@@ -771,7 +789,38 @@
   
   (cl-defun embark--confirm (&key action target &allow-other-keys)
     "Ask for confirmation before running the ACTION on the TARGET."
-    t))
+    t)
+
+  (defun record-vertico-details ()
+    (interactive)
+    (setq last-vertico--index vertico--index)
+    (setq was-vertico-multiform-unobtrusive? vertico-unobtrusive-mode)
+    (setq was-vertico-multiform-reverse? vertico-reverse-mode))
+
+  (add-hook 'minibuffer-setup-hook #'reset-vertico-details)
+
+  ;; how can i get this to reset to the correct candidate index?
+  (defun reset-vertico-details ()
+    (interactive)
+    (when (bound-and-true-p was-vertico-multiform-unobtrusive?)
+      (call-interactively #'vertico-multiform-unobtrusive)
+      (setq was-vertico-multiform-unobtrusive? nil))
+    (when (bound-and-true-p was-vertico-multiform-reverse?)
+      (call-interactively #'vertico-multiform-reverse)
+      (setq was-vertico-multiform-reverse? nil))
+    (when (> last-vertico--index 1)
+      (dotimes (1- last-vertico--index)
+        (vertico-next)))
+    (setq last-vertico--index -1))
+
+  (defun embark--restart (&rest _)
+    "Restart current command with current input.
+Use this to refresh the list of candidates for commands that do
+not handle that themselves."
+    (when (minibufferp)
+      (record-vertico-details)
+      (embark--become-command embark--command (minibuffer-contents))))
+  )
 
 (use-package embark-maps
   :after (embark)
