@@ -111,6 +111,7 @@
 (define-key evil-leader-state-map-extension (kbd "h v") 'describe-variable)
 (define-key evil-leader-state-map-extension (kbd "h m") 'describe-mode)
 (define-key evil-leader-state-map-extension (kbd "h s") 'describe-symbol)
+(define-key evil-leader-state-map-extension (kbd "h p") 'describe-package)
 (define-key evil-leader-state-map-extension (kbd "h l") 'view-lossage)
 (define-key evil-leader-state-map-extension (kbd "h e") 'view-echo-area-messages)
 
