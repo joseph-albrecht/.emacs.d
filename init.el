@@ -532,7 +532,8 @@
       (vertico--prompt-selection)
       (vertico--display-count)
       (vertico--display-candidates (vertico--arrange-candidates))
-      (when (> last-vertico--index 0)
+      (when (and (bound-and-true-p last-vertico--index)
+                 (> last-vertico--index 0))
         (dotimes (1- last-vertico--index)
           (message "...")
           (vertico-next 1))
@@ -810,11 +811,7 @@
       (setq was-vertico-multiform-unobtrusive? nil))
     (when (bound-and-true-p was-vertico-multiform-reverse?)
       (call-interactively #'vertico-multiform-reverse)
-      (setq was-vertico-multiform-reverse? nil))
-    (when (> last-vertico--index 1)
-      (dotimes (1- last-vertico--index)
-        (vertico-next)))
-    (setq last-vertico--index -1))
+      (setq was-vertico-multiform-reverse? nil)))
 
   (defun embark--restart (&rest _)
     "Restart current command with current input.
