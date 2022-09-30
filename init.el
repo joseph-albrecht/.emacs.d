@@ -687,7 +687,7 @@
   (defun consult-buffer-ein ()
     (interactive)
     (let ((consult-preview-key 'any))
-      (funcall-interactively #'consult-buffer nil "*ein ")))
+      (funcall-interactively #'consult-buffer nil "*ein* ")))
 
   (defun consult-buffer-compilation ()
     (interactive)
@@ -1786,6 +1786,8 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
          :map evil-leader-state-map-extension
               ("f s" . save+))
   :config
+  (setq ein:notebooklist-buffer-name-template "*ein* (notebooklist) %s")
+
   (defun save+ ()
     (interactive)
     (cond
@@ -1793,16 +1795,33 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
      (t (funcall-interactively #'save-buffer))))
 
   (defun ein:worksheet-goto-prev-input-km+ ()
-      (interactive)
+    (interactive)
     (let ((state evil-state))
       (ein:worksheet-goto-prev-input-km)
       (evil-change-state state)))
 
   (defun ein:worksheet-goto-next-input-km+ ()
-      (interactive)
+    (interactive)
     (let ((state evil-state))
       (ein:worksheet-goto-next-input-km)
       (evil-change-state state))))
+
+(use-package ein-worksheet
+  :after (ein)
+  :config
+  (defun ein:format-url (url)
+    (let* ((parts (s-match "\\(https?://\\)\\(.*\\):\\([[:digit:]]+\\).*" url))
+           (protocol (cadr parts))
+           (path     (if (s-match "127.0.0.1" (caddr parts))
+                         "localhost"
+                       (caddr parts)))
+           (port     (cadddr parts)))
+      (concat protocol path ":" port)))
+
+  (cl-defmethod ein:worksheet--buffer-name ((ws ein:worksheet))
+    (format "*ein* (worksheet) %s @ %s "
+            (ein:worksheet-notebook-path ws)
+            (ein:format-url (ein:worksheet-url-or-port ws)))))
 
 ;; TODO: ibuffer-filter-by-filename filter should use f-short too
 (use-package ibuffer
