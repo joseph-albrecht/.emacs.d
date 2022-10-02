@@ -1203,8 +1203,7 @@ most recent, and so on."
          (org-mode-hook . (lambda ()
                             (setq-local help-at-pt-display-when-idle t)
                             (setq-local help-at-pt-timer-delay .3)
-                            (help-at-pt-set-timer)))
-         )
+                            (help-at-pt-set-timer))))
   :bind (:map org-mode-map
 	      ("M-n"  . org-next-visible-heading)
 	      ("M-p"  . org-previous-visible-heading)
@@ -1215,6 +1214,7 @@ most recent, and so on."
 	      ("TAB"  . org-cycle)
 	      ("S-TAB"  . org-shifttab)
          :map evil-leader-state-map-extension
+              ("i t" . org-insert-time-id+)
               ("s l" . org-jump+)
               ("c +" . org-increase-number-at-point)
               ("c -" . org-decrease-number-at-point)
@@ -1320,7 +1320,20 @@ most recent, and so on."
            "* DONE %? :meeting:")))
   (setq org-refile-targets '((nil :maxlevel . 10)
                              (org-agenda-files :maxlevel . 9)))
-  (setq org-refile-use-outline-path t))
+  (setq org-refile-use-outline-path t)
+
+  (defun org-time-id+ ()
+    (let* ((alphabet "abcdefghijklmnopqrstuvwxyz")
+ 	   (time     (format-time-string "%y.%m%d.%H%M%S"))
+ 	   (seconds  (string-to-number (substring time 12 14)))
+ 	   (index    (floor (* (/ seconds 60.0) 26)))
+ 	   (letter   (substring alphabet index (1+ index) ))
+ 	   (time-id  (format "%s%s" (substring time 0 12) letter)))
+      (insert time-id)))
+
+  (defun org-insert-time-id+ ()
+    (interactive)
+    (insert (org-time-id+))))
 
 (use-package ob-async
   :ensure t)
