@@ -1904,6 +1904,13 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   :config
   (set-face-background 'highlight-indentation-current-column-face "#c3b3b3"))
 
+
+(use-package diff-hl
+  :ensure t
+  :config
+  (global-diff-hl-mode)
+  (diff-hl-margin-mode))
+
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
 (let ((local-init-file (concat (expand-file-name user-emacs-directory)
@@ -1911,11 +1918,6 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (when (file-exists-p local-init-file)
     (load local-init-file)))
 
-(use-package diff-hl
-  :ensure t
-  :config
-  (global-diff-hl-mode)
-  (diff-hl-margin-mode))
 
 (defun display-startup-echo-area-message ()
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
