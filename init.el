@@ -1907,6 +1907,8 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
 
 (use-package diff-hl
   :ensure t
+  :hook ((magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
+         (magit-post-refresh-hook . diff-hl-magit-post-refresh))
   :config
   (global-diff-hl-mode)
   (diff-hl-margin-mode))
