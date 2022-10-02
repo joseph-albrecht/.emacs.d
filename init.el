@@ -1329,7 +1329,7 @@ most recent, and so on."
  	   (index    (floor (* (/ seconds 60.0) 26)))
  	   (letter   (substring alphabet index (1+ index) ))
  	   (time-id  (format "%s%s" (substring time 0 12) letter)))
-      (insert time-id)))
+      time-id))
 
   (defun org-insert-time-id+ ()
     (interactive)
