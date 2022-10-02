@@ -1911,6 +1911,12 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (when (file-exists-p local-init-file)
     (load local-init-file)))
 
+(use-package diff-hl
+  :ensure t
+  :config
+  (global-diff-hl-mode)
+  (diff-hl-margin-mode))
+
 (defun display-startup-echo-area-message ()
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
     (message (format "Emacs started in %s seconds." seconds))))
