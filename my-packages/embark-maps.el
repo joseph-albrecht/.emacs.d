@@ -2,7 +2,7 @@
                             ;;; (environment-variables embark-file-map)
                             (url embark-url-map)
                             (buffer embark-buffer-map)
-                            ;;; (tab embark-tab-map)
+                            (tab embark-tab-map)
                             ;;; (identifier embark-identifier-map)
                             ;;; (defun embark-defun-map)
                             (symbol embark-symbol-map)
