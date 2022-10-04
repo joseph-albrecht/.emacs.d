@@ -1603,8 +1603,8 @@ most recent, and so on."
   :bind (:map vterm-mode-map
               ("S-SPC" . nil)
          :map evil-leader-state-map-extension
-              ("o V" . vterm)
-              ("o v" . vterm+))
+              ("o T" . vterm)
+              ("o t" . vterm+))
   :config
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
 
