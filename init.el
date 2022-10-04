@@ -1839,7 +1839,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (defun save+ ()
     (interactive)
     (cond
-     (ein:notebook-mode (ein:notebook-save-notebook-command-km))
+     (ein:notebook-mode (ein:notebook-save-notebook-command))
      (t (funcall-interactively #'save-buffer))))
 
   (defun ein:worksheet-goto-prev-input-km+ ()
