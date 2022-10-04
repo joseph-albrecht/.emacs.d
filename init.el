@@ -498,6 +498,7 @@
 (use-package vertico
   :after (evil-leader)
   :ensure t
+  :commands (vertico-clear+)
   :demand t
   :bind (("C-M-x" . vertico-repeat)
 	 :map vertico-map
@@ -509,6 +510,7 @@
 	      ("C-<return>" . vertico-exit-input)
 	      ("C-^" . vertico-directory-up)
               ("M-h" . vertico-directory-up)
+              ("C-c SPC" . vertico-clear+)
          :map evil-leader-state-map-extension
               ("X" . vertico-repeat))
   :config
@@ -558,7 +560,12 @@
     (cond
      (vertico-unobtrusive-mode (call-interactively #'vertico-multiform-reverse))
      (vertico-reverse-mode     (call-interactively #'vertico-next))
-     (t                        (call-interactively #'vertico-previous)))))
+     (t                        (call-interactively #'vertico-previous))))
+
+  (defun vertico-clear+ ()
+    (interactive)
+    (delete-region (progn (move-beginning-of-line 1) (point))
+                   (progn (move-end-of-line 1) (point)))))
 
 (use-package vertico-multiform
   :ensure nil
@@ -1133,14 +1140,31 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package tab-bar
   :ensure nil
+  :commands (tab-bar-goto-misc+)
   :bind (("C-M-l" . tab-bar-switch-to-next-tab)
-         ("C-M-h" . tab-bar-switch-to-prev-tab))
+         ("C-M-h" . tab-bar-switch-to-prev-tab)
+
+         :map evil-leader-state-map-extension
+         ("TAB m" . tab-bar-goto-misc+)
+         ("TAB 1" . tab-bar-switch-to-tab-1+)
+         ("TAB 2" . tab-bar-switch-to-tab-2+)
+         ("TAB 3" . tab-bar-switch-to-tab-3+)
+         ("TAB 4" . tab-bar-switch-to-tab-4+)
+         ("TAB 5" . tab-bar-switch-to-tab-5+)
+         ("TAB 6" . tab-bar-switch-to-tab-6+)
+         ("TAB 7" . tab-bar-switch-to-tab-7+)
+         ("TAB 8" . tab-bar-switch-to-tab-8+)
+         ("TAB 9" . tab-bar-switch-to-tab-9+)
+
+
+         )
   :config
   (setq tab-bar-mode t)
-  (setq tab-bar-show t)
+  (setq tab-bar-show 0)
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-separator "  ")
   (setq tab-bar-new-button nil)
+  (setq tab-bar-tab-hints t)
   (set-face-attribute 'tab-bar-tab nil :background "red" :overline nil :underline nil :bold t)
   (set-face-attribute 'tab-bar-tab-inactive nil :bold t)
   (defun tab-bar-switch-to-tab (name)
@@ -1156,7 +1180,53 @@ most recent, and so on."
      (list (completing-read (format-prompt "Switch to tab by name"
                                            (car recent-tabs))
                             recent-tabs nil nil nil nil recent-tabs))))
-  (tab-bar-select-tab (1+ (or (tab-bar--tab-index-by-name name) 0)))))
+  (tab-bar-select-tab (1+ (or (tab-bar--tab-index-by-name name) 0))))
+
+  (tab-bar-rename-tab "misc.")
+
+  (defun tab-bar-goto-misc+ ()
+    (interactive)
+    (tab-bar-switch-to-tab "misc."))
+
+  (defun tab-bar-switch-to-tab-1+  () (interactive) (tab-bar-select-tab 1))
+  (defun tab-bar-switch-to-tab-2+  () (interactive) (tab-bar-select-tab 2))
+  (defun tab-bar-switch-to-tab-3+  () (interactive) (tab-bar-select-tab 3))
+  (defun tab-bar-switch-to-tab-4+  () (interactive) (tab-bar-select-tab 4))
+  (defun tab-bar-switch-to-tab-5+  () (interactive) (tab-bar-select-tab 5))
+  (defun tab-bar-switch-to-tab-6+  () (interactive) (tab-bar-select-tab 6))
+  (defun tab-bar-switch-to-tab-7+  () (interactive) (tab-bar-select-tab 7))
+  (defun tab-bar-switch-to-tab-8+  () (interactive) (tab-bar-select-tab 8))
+  (defun tab-bar-switch-to-tab-9+  () (interactive) (tab-bar-select-tab 9))
+
+  ;; https://christiantietze.de/posts/2022/02/emacs-tab-bar-numbered-tabs/
+  (defun tab-bar-tab-name-format-default (tab i)
+    (let ((current-p (eq (car tab) 'current-tab))
+          (tab-num (if (and tab-bar-tab-hints (< i 10))
+                       (alist-get i circle-numbers-alist) "")))
+      (propertize
+       (concat tab-num
+               " "
+               (alist-get 'name tab)
+               (or (and tab-bar-close-button-show
+                        (not (eq tab-bar-close-button-show
+                                 (if current-p 'non-selected 'selected)))
+                        tab-bar-close-button)
+                   "")
+               " ")
+       'face (funcall tab-bar-tab-face-function tab))))
+  (defvar circle-numbers-alist
+    '((0 . "⓪")
+      (1 . "①")
+      (2 . "②")
+      (3 . "③")
+      (4 . "④")
+      (5 . "⑤")
+      (6 . "⑥")
+      (7 . "⑦")
+      (8 . "⑧")
+      (9 . "⑨"))
+    "Alist of integers to strings of circled unicode numbers.")
+  (setq tab-bar-tab-name-format-function #'tab-bar-tab-name-format-default))
 
 (use-package dumb-jump
   :ensure t
@@ -1606,6 +1676,8 @@ most recent, and so on."
   :commands (vterm-fix-evil-cursor)
   :bind (:map vterm-mode-map
               ("S-SPC" . nil)
+              ("C-M-h" . nil)
+              ("C-M-l" . nil)
          :map evil-leader-state-map-extension
               ("o T" . vterm)
               ("o t" . vterm+))
