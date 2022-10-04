@@ -1133,10 +1133,16 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package tab-bar
   :ensure nil
+  :bind (("C-M-l" . tab-bar-switch-to-next-tab)
+         ("C-M-h" . tab-bar-switch-to-prev-tab))
   :config
-  (setq tab-bar-mode nil)
-  (setq tab-bar-show nil)
-
+  (setq tab-bar-mode t)
+  (setq tab-bar-show t)
+  (setq tab-bar-close-button-show nil)
+  (setq tab-bar-separator "  ")
+  (setq tab-bar-new-button nil)
+  (set-face-attribute 'tab-bar-tab nil :background "red" :overline nil :underline nil :bold t)
+  (set-face-attribute 'tab-bar-tab-inactive nil :bold t)
   (defun tab-bar-switch-to-tab (name)
   "Switch to the tab by NAME.
 Default values are tab names sorted by recency, so you can use \
