@@ -1238,8 +1238,12 @@ most recent, and so on."
   (setq org-hide-leading-stars nil)
   (setq org-log-into-drawer t)
   (setq org-fontify-whole-heading-line t)
-  (setq notebox (expand-file-name "~/notes/"))
-  (setq org-directory notebox)
+
+  (defun org-set-notebox+ (path)
+    (setq notebox (expand-file-name path))
+    (setq org-directory notebox))
+
+  (org-set-notebox+ "~/notes/")
 
   (setq org-babel-load-languages '((emacs-lisp . t) (shell . t)))
   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
