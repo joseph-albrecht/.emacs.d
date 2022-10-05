@@ -946,6 +946,15 @@ not handle that themselves."
   (setq evil-operator-state-cursor '("Royal Blue" (hbar . 2)))
   (evil-mode 1)
 
+  (setq evil-position-map (make-sparse-keymap))
+  (define-key evil-position-map (kbd "t") #'evil-scroll-line-to-top)
+  (define-key evil-position-map (kbd "b") #'evil-scroll-line-to-bottom)
+  (define-key evil-position-map (kbd "z") #'evil-scroll-line-to-center)
+
+  (evil-define-key '(normal visual motion) 'global "z" evil-position-map)
+  (evil-define-key '(normal visual motion) 'global (kbd "C-z") evil-position-map)
+  (global-set-key (kbd "C-z") evil-position-map)
+
   ;;; for some reason this is necessary to not start in emacs-state
   (advice-add 'evil-show-registers
    :after (lambda (&rest r) (evil-change-state evil-default-state))))
@@ -1146,9 +1155,10 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package tab-bar
   :ensure nil
   :commands (tab-bar-goto-misc+)
-  :bind (("C-M-l" . tab-bar-switch-to-next-tab)
-         ("C-M-h" . tab-bar-switch-to-prev-tab)
-
+  :bind (("C-l" . tab-bar-switch-to-next-tab)
+         ("C-h" . tab-bar-switch-to-prev-tab)
+         ("C-M-l" . tab-bar-move-tab)
+         ("C-M-h" . tab-bar-move-tab-backward)
          :map evil-leader-state-map-extension
          ("TAB m" . tab-bar-goto-misc+)
          ("TAB 1" . tab-bar-switch-to-tab-1+)
@@ -1159,10 +1169,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
          ("TAB 6" . tab-bar-switch-to-tab-6+)
          ("TAB 7" . tab-bar-switch-to-tab-7+)
          ("TAB 8" . tab-bar-switch-to-tab-8+)
-         ("TAB 9" . tab-bar-switch-to-tab-9+)
-
-
-         )
+         ("TAB 9" . tab-bar-switch-to-tab-9+))
   :config
   (setq tab-bar-mode t)
   (setq tab-bar-show 0)
@@ -1172,6 +1179,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq tab-bar-tab-hints t)
   (set-face-attribute 'tab-bar-tab nil :background "red" :overline nil :underline nil :bold t)
   (set-face-attribute 'tab-bar-tab-inactive nil :bold t)
+  (evil-define-key '(normal) vterm-mode-map (kbd "C-l") #'tab-bar-switch-to-next-tab)
   (defun tab-bar-switch-to-tab (name)
   "Switch to the tab by NAME.
 Default values are tab names sorted by recency, so you can use \
