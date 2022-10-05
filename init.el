@@ -495,10 +495,19 @@
 
   )
 
+(use-package minibuffer
+  :ensure nil
+  :bind (:map minibuffer-mode-map
+              ("C-c SPC" . minibuffer-clear+))
+  :config
+  (defun minibuffer-clear+ ()
+    (interactive)
+    (delete-region (progn (move-beginning-of-line 1) (point))
+                   (progn (move-end-of-line 1) (point)))))
+
 (use-package vertico
   :after (evil-leader)
   :ensure t
-  :commands (vertico-clear+)
   :demand t
   :bind (("C-M-x" . vertico-repeat)
 	 :map vertico-map
@@ -510,7 +519,6 @@
 	      ("C-<return>" . vertico-exit-input)
 	      ("C-^" . vertico-directory-up)
               ("M-h" . vertico-directory-up)
-              ("C-c SPC" . vertico-clear+)
          :map evil-leader-state-map-extension
               ("X" . vertico-repeat))
   :config
@@ -562,10 +570,7 @@
      (vertico-reverse-mode     (call-interactively #'vertico-next))
      (t                        (call-interactively #'vertico-previous))))
 
-  (defun vertico-clear+ ()
-    (interactive)
-    (delete-region (progn (move-beginning-of-line 1) (point))
-                   (progn (move-end-of-line 1) (point)))))
+  )
 
 (use-package vertico-multiform
   :ensure nil
