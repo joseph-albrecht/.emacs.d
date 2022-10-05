@@ -536,15 +536,19 @@
   
   (defun vertico-show-more ()
     (interactive)
-    (setq vertico-count (+ vertico-count 10))
-    (vertico--exhibit))
+    (if vertico-unobtrusive-mode
+        (vertico-multiform-reverse)
+      (setq vertico-count (+ vertico-count 10))
+      (vertico--exhibit)))
 
   (defun vertico-show-less ()
     (interactive)
-    (setq vertico-count (- vertico-count 10))
-    (setq vertico-resize t)
-    (vertico--exhibit)
-    (setq vertico-resize nil))
+    (if (= vertico-count 10)
+        (vertico-multiform-unobtrusive)
+      (setq vertico-count (- vertico-count 10))
+      (setq vertico-resize t)
+      (vertico--exhibit)
+      (setq vertico-resize nil)))
   
   (setq vertico-multiline '(#("⤶" 0 1 (face vertico-multiline)) . #("…" 0 1 (face vertico-multiline))))
 
