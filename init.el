@@ -519,13 +519,33 @@
 	      ("C-<return>" . vertico-exit-input)
 	      ("C-^" . vertico-directory-up)
               ("M-h" . vertico-directory-up)
+              ("C-c +" . vertico-show-more)
+              ("C-c -" . vertico-show-less)
          :map evil-leader-state-map-extension
               ("X" . vertico-repeat))
   :config
-  (setq vertico-count 10)
+  (setq vertico-default-count 10)
+  (setq vertico-count vertico-default-count)
   (setq vertico-resize nil)
   (setq vertico-cycle nil)
 
+  (defun vertico-settings ()
+    (setq vertico-count vertico-default-count))
+  
+  (add-hook 'minibuffer-exit-hook #'vertico-settings)
+  
+  (defun vertico-show-more ()
+    (interactive)
+    (setq vertico-count (+ vertico-count 10))
+    (vertico--exhibit))
+
+  (defun vertico-show-less ()
+    (interactive)
+    (setq vertico-count (- vertico-count 10))
+    (setq vertico-resize t)
+    (vertico--exhibit)
+    (setq vertico-resize nil))
+  
   (setq vertico-multiline '(#("⤶" 0 1 (face vertico-multiline)) . #("…" 0 1 (face vertico-multiline))))
 
   (vertico-mode)
@@ -582,13 +602,13 @@
   (define-key vertico-reverse-map (kbd "M-n") 'vertico-previous)
   (define-key vertico-reverse-map (kbd "M-p") 'vertico-next) 
 
-  (setq vertico-multiform-categories '((imenu buffer)
-                                       (consult-grep buffer)
+  (setq vertico-multiform-categories '((imenu reverse)
+                                       (consult-grep reverse)
                                        (t unobtrusive)))
 
-  (setq vertico-multiform-commands '((consult-line buffer)
-                                     (consult-imenu buffer)
-                                     (org-jump+ buffer)
+  (setq vertico-multiform-commands '((consult-line reverse)
+                                     (consult-imenu reverse)
+                                     (org-jump+ reverse)
                                      (recompile+ reverse (vertico-resize . t))
                                      (select-from-history reverse (vertico-resize . t))
                                      (select-shell-history reverse (vertico-resize . t)))))
