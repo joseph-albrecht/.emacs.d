@@ -1198,7 +1198,6 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
          ("TAB 8" . tab-bar-switch-to-tab-8+)
          ("TAB 9" . tab-bar-switch-to-tab-9+))
   :config
-  (setq tab-bar-mode t)
   (setq tab-bar-show 0)
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-separator "  ")
@@ -1222,7 +1221,6 @@ most recent, and so on."
                             recent-tabs nil nil nil nil recent-tabs))))
   (tab-bar-select-tab (1+ (or (tab-bar--tab-index-by-name name) 0))))
 
-  (tab-bar-rename-tab "misc.")
 
   (defun tab-bar-goto-misc+ ()
     (interactive)
@@ -1266,7 +1264,10 @@ most recent, and so on."
       (8 . "⑧")
       (9 . "⑨"))
     "Alist of integers to strings of circled unicode numbers.")
-  (setq tab-bar-tab-name-format-function #'tab-bar-tab-name-format-default))
+  (setq tab-bar-tab-name-format-function #'tab-bar-tab-name-format-default)
+  (setq tab-bar-mode t)
+  (tab-bar-rename-tab "misc.")
+  (tab-bar--update-tab-bar-lines nil))
 
 (use-package dumb-jump
   :ensure t
