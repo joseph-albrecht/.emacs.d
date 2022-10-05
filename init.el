@@ -85,7 +85,6 @@
   (scroll-bar-mode -1)
   (menu-bar-mode -1)
   (fringe-mode (cons 1 1))
-  (tab-bar-mode -1)
 
   (condition-case nil
       (set-face-attribute 'default nil :font "iosevka" :height 150)
@@ -1198,7 +1197,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
          ("TAB 8" . tab-bar-switch-to-tab-8+)
          ("TAB 9" . tab-bar-switch-to-tab-9+))
   :config
-  (setq tab-bar-show 0)
+  (setq tab-bar-show t)
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-separator "  ")
   (setq tab-bar-new-button nil)
@@ -1265,9 +1264,8 @@ most recent, and so on."
       (9 . "⑨"))
     "Alist of integers to strings of circled unicode numbers.")
   (setq tab-bar-tab-name-format-function #'tab-bar-tab-name-format-default)
-  (setq tab-bar-mode t)
-  (tab-bar-rename-tab "misc.")
-  (tab-bar--update-tab-bar-lines nil))
+  (tab-bar-mode 1)
+  (tab-bar-rename-tab "misc."))
 
 (use-package dumb-jump
   :ensure t
