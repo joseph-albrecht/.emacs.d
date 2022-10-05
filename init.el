@@ -973,15 +973,6 @@ not handle that themselves."
   (setq evil-operator-state-cursor '("Royal Blue" (hbar . 2)))
   (evil-mode 1)
 
-  (setq evil-position-map (make-sparse-keymap))
-  (define-key evil-position-map (kbd "t") #'evil-scroll-line-to-top)
-  (define-key evil-position-map (kbd "b") #'evil-scroll-line-to-bottom)
-  (define-key evil-position-map (kbd "z") #'evil-scroll-line-to-center)
-
-  (evil-define-key '(normal visual motion) 'global "z" evil-position-map)
-  (evil-define-key '(normal visual motion) 'global (kbd "C-z") evil-position-map)
-  (global-set-key (kbd "C-z") evil-position-map)
-
   ;;; for some reason this is necessary to not start in emacs-state
   (advice-add 'evil-show-registers
    :after (lambda (&rest r) (evil-change-state evil-default-state))))
@@ -996,7 +987,16 @@ not handle that themselves."
 
 (use-package evil-baptism
   :after evil
-  :load-path my-package-dir)
+  :load-path my-package-dir
+  :config
+  (setq evil-position-map (make-sparse-keymap))
+  (define-key evil-position-map (kbd "t") #'evil-scroll-line-to-top)
+  (define-key evil-position-map (kbd "b") #'evil-scroll-line-to-bottom)
+  (define-key evil-position-map (kbd "z") #'evil-scroll-line-to-center)
+
+  (evil-define-key '(normal visual motion) 'global "z" evil-position-map)
+  (evil-define-key '(normal visual motion) 'global (kbd "C-z") evil-position-map)
+  (global-set-key (kbd "C-z") evil-position-map))
 
 (use-package evil-leader
   :after (evil)
