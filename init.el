@@ -519,8 +519,8 @@
 	      ("C-<return>" . vertico-exit-input)
 	      ("C-^" . vertico-directory-up)
               ("M-h" . vertico-directory-up)
-              ("C-c +" . vertico-show-more)
-              ("C-c -" . vertico-show-less)
+              ("C-+" . vertico-show-more)
+              ("C--" . vertico-show-less)
          :map evil-leader-state-map-extension
               ("X" . vertico-repeat))
   :config
