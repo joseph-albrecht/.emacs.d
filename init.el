@@ -612,6 +612,9 @@
 
   (setq vertico-multiform-commands '((consult-line reverse)
                                      (consult-imenu reverse)
+                                     (consult-buffer-terminal reverse)
+                                     (consult-buffer-ein reverse)
+                                     (consult-buffer-compilation reverse)
                                      (org-jump+ reverse)
                                      (recompile+ reverse (vertico-resize . t))
                                      (select-from-history reverse (vertico-resize . t))
