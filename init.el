@@ -643,6 +643,8 @@
   (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer)
   (global-corfu-mode 1))
 
+(use-package company
+  :ensure t)
 
 (use-package cape
   :ensure t
@@ -651,7 +653,10 @@
          ("M-- s" . cape-symbol)
          ("M-- l" . cape-line)) 
   :init
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  :config
+  (add-to-list 'completion-at-point-functions
+               (cape-company-to-capf #'company-yasnippet)))
 
 (use-package elisp-mode
   :after (cape)
