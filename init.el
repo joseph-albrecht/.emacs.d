@@ -501,8 +501,13 @@
   :config
   (defun minibuffer-clear+ ()
     (interactive)
-    (delete-region (progn (move-beginning-of-line 1) (point))
-                   (progn (move-end-of-line 1) (point)))))
+    (let ((start (progn (beginning-of-buffer)
+                          (move-end-of-line 1)
+                          (move-beginning-of-line 1)
+                          (point)))
+          (end    (progn (end-of-buffer)
+                         (point))))
+      (delete-region start end))))
 
 (use-package vertico
   :after (evil-leader)
