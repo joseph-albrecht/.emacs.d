@@ -1502,26 +1502,27 @@ most recent, and so on."
 (use-package org-roam
   :ensure t
   :custom (org-roam-directory (file-truename org-directory))
-  :commands (org-roam-new-note+)
   :bind (:map evil-leader-state-map-extension
-              ("n f" . org-roam-node-find)
-              ("n n" . org-roam-new-note+))
+              ("n f" . org-roam-node-find))
   :hook (org-roam-mode . org-show-all)
   :config
   (org-roam-db-autosync-mode)
 
   (advice-add #'org-roam-node-find :after (lambda (&rest args) (org-show-all)))
 
-  (defun org-roam-new-note+ ()
+  (defun org-roam-node-find ()
     (interactive)
     (let* ((id        (org-time-id+))
-           (node-name (org-roam-node-title (org-roam-node-read)))
+           (node      (org-roam-node-read))
+           (node-name (org-roam-node-title node))
            (template  (format ":PROPERTIES:\n:ID:  %s\n:TAGGED:\n:END:\n\n#+title: %s\n\n%%?" id node-name))
            (filename  (format "%s_%s.org" id node-name))
            (org-capture-templates (list (list "i" "i" 'plain
                                               (list 'file filename)
                                               template))))
-      (org-capture nil "i")))
+      (if (org-roam-node-file node)
+          (org-roam-node-open node)
+        (org-capture nil "i"))))
 
   (cl-defmethod org-roam-node-tagged ((node org-roam-node))
     "Return the currently set category for the NODE."
