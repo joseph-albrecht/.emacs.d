@@ -612,7 +612,7 @@
 
   (setq vertico-multiform-categories '((imenu reverse)
                                        (consult-grep reverse)
-                                       (t unobtrusive)))
+                                       (t reverse)))
 
   (setq vertico-multiform-commands '((consult-line reverse)
                                      (consult-imenu reverse)
@@ -1328,7 +1328,8 @@ most recent, and so on."
          (org-mode-hook . (lambda ()
                             (setq-local help-at-pt-display-when-idle t)
                             (setq-local help-at-pt-timer-delay .3)
-                            (help-at-pt-set-timer))))
+                            (help-at-pt-set-timer)))
+         (org-mode-hook . org-show-all))
   :bind (:map org-mode-map
 	      ("M-n"  . org-next-visible-heading)
 	      ("M-p"  . org-previous-visible-heading)
@@ -1497,6 +1498,35 @@ most recent, and so on."
     (interactive)
     (let ((query (read-string "Query: ")))
       (org-ql-search (org-ql-view--expand-buffers-files "buffer") query))))
+
+(use-package org-roam
+  :ensure t
+  :custom (org-roam-directory (file-truename org-directory))
+  :commands (org-roam-new-note+)
+  :bind (:map evil-leader-state-map-extension
+              ("n f" . org-roam-node-find)
+              ("n n" . org-roam-new-note+))
+  :hook (org-roam-mode . org-show-all)
+  :config
+  (org-roam-db-autosync-mode)
+
+  (advice-add #'org-roam-node-find :after (lambda (&rest args) (org-show-all)))
+
+  (defun org-roam-new-note+ ()
+    (interactive)
+    (let* ((id        (org-time-id+))
+           (node-name (org-roam-node-title (org-roam-node-read)))
+           (template  (format ":PROPERTIES:\n:ID:  %s\n:TAGGED:\n:END:\n\n#+title: %s\n\n%%?" id node-name))
+           (filename  (format "%s_%s.org" id node-name))
+           (org-capture-templates (list (list "i" "i" 'plain
+                                              (list 'file filename)
+                                              template))))
+      (org-capture nil "i")))
+
+  (cl-defmethod org-roam-node-tagged ((node org-roam-node))
+    "Return the currently set category for the NODE."
+    (cdr (assoc-string "TAGGED" (org-roam-node-properties node))))
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tagged:50}" 'face 'org-tag))))
 
 (use-package markdown-mode
   :ensure t
