@@ -1503,25 +1503,26 @@ most recent, and so on."
   :ensure t
   :custom (org-roam-directory (file-truename org-directory))
   :bind (:map evil-leader-state-map-extension
-              ("n f" . org-roam-node-find))
+              ("n f" . org-roam-node-find+))
   :hook (org-roam-mode . org-show-all)
   :config
   (org-roam-db-autosync-mode)
 
   (advice-add #'org-roam-node-find :after (lambda (&rest args) (org-show-all)))
 
-  (defun org-roam-node-find ()
+  (defun org-roam-node-find+ ()
     (interactive)
     (let* ((id        (org-time-id+))
            (node      (org-roam-node-read))
            (node-name (org-roam-node-title node))
            (template  (format ":PROPERTIES:\n:ID:  %s\n:TAGGED:\n:END:\n\n#+title: %s\n\n%%?" id node-name))
-           (filename  (format "%s_%s.org" id node-name))
+           (filename  (format "%s %s.org" id node-name))
            (org-capture-templates (list (list "i" "i" 'plain
                                               (list 'file filename)
                                               template))))
       (if (org-roam-node-file node)
-          (org-roam-node-open node)
+          (progn (org-roam-node-open node)
+                 (org-show-all))
         (org-capture nil "i"))))
 
   (cl-defmethod org-roam-node-tagged ((node org-roam-node))
