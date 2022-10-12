@@ -1191,10 +1191,10 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package tab-bar
   :ensure nil
   :commands (tab-bar-goto-misc+)
-  :bind (("C-l" . tab-bar-switch-to-next-tab)
-         ("C-h" . tab-bar-switch-to-prev-tab)
-         ("C-M-l" . tab-bar-move-tab)
-         ("C-M-h" . tab-bar-move-tab-backward)
+  :bind (("C-{" . tab-bar-switch-to-next-tab)
+         ("C-}" . tab-bar-switch-to-prev-tab)
+         ("C-M-{" . tab-bar-move-tab)
+         ("C-M-}" . tab-bar-move-tab-backward)
          :map evil-leader-state-map-extension
          ("TAB m" . tab-bar-goto-misc+)
          ("TAB 1" . tab-bar-switch-to-tab-1+)
@@ -1214,7 +1214,6 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq tab-bar-tab-hints t)
   (set-face-attribute 'tab-bar-tab nil :background "red" :overline nil :underline nil :bold t)
   (set-face-attribute 'tab-bar-tab-inactive nil :bold t)
-  (evil-define-key '(normal) vterm-mode-map (kbd "C-l") #'tab-bar-switch-to-next-tab)
   (defun tab-bar-switch-to-tab (name)
   "Switch to the tab by NAME.
 Default values are tab names sorted by recency, so you can use \
