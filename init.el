@@ -1011,6 +1011,7 @@ not handle that themselves."
   :after (evil)
   :load-path my-package-dir
   :config
+  (global-set-key (kbd "C-t") evil-leader-state-map-extension)
   (define-key evil-leader-state-map-extension (kbd "i t") 'insert-time-id)
   (global-set-key (kbd "C-M-SPC") evil-leader-state-map-extension))
 
@@ -1364,7 +1365,9 @@ most recent, and so on."
 
   (org-set-notebox+ "~/notes/")
 
-  (setq org-babel-load-languages '((emacs-lisp . t) (shell . t)))
+  (setq org-babel-load-languages '((emacs-lisp . t)
+                                   (shell . t)
+                                   (python . t)))
   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
   (set-face-attribute 'org-level-1 nil :background "#F0F0F0" :overline t :underline t :bold t)
@@ -1485,14 +1488,20 @@ most recent, and so on."
   :commands (org-ql-search-buffer+)
   :bind (:map evil-leader-state-map-extension
               ("n q b" . org-ql-search-buffer+)
+              ("n q a" . org-ql-search-all+)
               ("n q s" . org-ql-search)
               ("n q v" . org-ql-view))
   :config
-  (defun org-ql-search-all ()
+  (defun org-ql-search-all+ ()
     (interactive)
     (let ((query (read-string "Query: ")))
       (org-ql-search (org-ql-view--expand-buffers-files "all") query)))
   
+  (defun org-ql-search-buffer+ ()
+    (interactive)
+    (let ((query (read-string "Query: ")))
+      (org-ql-search (org-ql-view--expand-buffers-files "buffer") query)))
+
   (defun org-ql-search-buffer+ ()
     (interactive)
     (let ((query (read-string "Query: ")))
@@ -2026,6 +2035,9 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
     (format "*ein* (worksheet) %s @ %s "
             (ein:worksheet-notebook-path ws)
             (ein:format-url (ein:worksheet-url-or-port ws)))))
+
+(use-package pyvenv
+  :ensure t)
 
 ;; TODO: ibuffer-filter-by-filename filter should use f-short too
 (use-package ibuffer
