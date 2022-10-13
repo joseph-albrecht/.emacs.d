@@ -600,29 +600,29 @@
 
   )
 
-(use-package vertico-multiform
-  :ensure nil
-  :demand t
-  :config
-  (vertico-multiform-mode 1)
-  (vertico-reverse-mode 1)
-  (vertico-reverse-mode -1)
-  (define-key vertico-reverse-map (kbd "M-n") 'vertico-previous)
-  (define-key vertico-reverse-map (kbd "M-p") 'vertico-next) 
+;; (use-package vertico-multiform
+;;   :ensure nil
+;;   :demand t
+;;   :config
+;;   (vertico-multiform-mode 1)
+;;   (vertico-reverse-mode 1)
+;;   (vertico-reverse-mode -1)
+;;   (define-key vertico-reverse-map (kbd "M-n") 'vertico-previous)
+;;   (define-key vertico-reverse-map (kbd "M-p") 'vertico-next) 
 
-  (setq vertico-multiform-categories '((imenu reverse)
-                                       (consult-grep reverse)
-                                       (t reverse)))
+;;   (setq vertico-multiform-categories '((imenu reverse)
+;;                                        (consult-grep reverse)
+;;                                        (t reverse)))
 
-  (setq vertico-multiform-commands '((consult-line reverse)
-                                     (consult-imenu reverse)
-                                     (consult-buffer-terminal reverse)
-                                     (consult-buffer-ein reverse)
-                                     (consult-buffer-compilation reverse)
-                                     (org-jump+ reverse)
-                                     (recompile+ reverse (vertico-resize . t))
-                                     (select-from-history reverse (vertico-resize . t))
-                                     (select-shell-history reverse (vertico-resize . t)))))
+;;   (setq vertico-multiform-commands '((consult-line reverse)
+;;                                      (consult-imenu reverse)
+;;                                      (consult-buffer-terminal reverse)
+;;                                      (consult-buffer-ein reverse)
+;;                                      (consult-buffer-compilation reverse)
+;;                                      (org-jump+ reverse)
+;;                                      (recompile+ reverse (vertico-resize . t))
+;;                                      (select-from-history reverse (vertico-resize . t))
+;;                                      (select-shell-history reverse (vertico-resize . t)))))
 
 (use-package marginalia
   :ensure t
