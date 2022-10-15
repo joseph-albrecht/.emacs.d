@@ -32,7 +32,7 @@
          :map minibuffer-mode-map
 	      ("M-p" . nil)
 	      ("M-n" . nil)
-              ("C-c l" . edit-minibuffer)
+              ("C-c e" . edit-minibuffer)
 	      ("A-r" . select-from-history)
 	      ("A-p" . previous-history-element)
 	      ("A-n" . next-history-element)
@@ -775,7 +775,7 @@
    	      ("M-." . embark-act)
    	      ("C-M-." . embark-act-all)
    	      ("C-," . embark-become)
-   	      ("C-c e" . embark-export)
+   	      ("C-c x" . embark-export)
    	      ("C-c c" . embark-collect)
 	 :map vertico-map
    	      ("C-c e" . embark-export)
