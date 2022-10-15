@@ -86,7 +86,7 @@
 (define-key evil-leader-state-map-extension (kbd "t -") 'split-window-below)
 (define-key evil-leader-state-map-extension (kbd "t v") 'scroll-up-command)
 (define-key evil-leader-state-map-extension (kbd "t ^") 'scroll-down-command)
-(define-key evil-leader-state-map-extension (kbd "t b") 'balance-windows)
+(define-key evil-leader-state-map-extension (kbd "t =") 'balance-windows)
 (define-key evil-leader-state-map-extension (kbd "t m") 'switch-to-minibuffer)
 (define-key evil-leader-state-map-extension (kbd "t f k") 'delete-frame)
 (define-key evil-leader-state-map-extension (kbd "t f k") 'delete-frame)
