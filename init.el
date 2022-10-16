@@ -1535,11 +1535,14 @@ most recent, and so on."
            (filename  (format "%s %s.org" id node-name))
            (org-capture-templates (list (list "i" "i" 'plain
                                               (list 'file filename)
-                                              template))))
+                                              template
+                                              :immediate-finish t
+                                              :jump-to-captured t))))
       (if (org-roam-node-file node)
           (progn (org-roam-node-open node)
                  (org-show-all))
-        (org-capture nil "i"))))
+        (org-capture nil "i")
+        (org-show-all))))
 
   (cl-defmethod org-roam-node-tagged ((node org-roam-node))
     "Return the currently set category for the NODE."
