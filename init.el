@@ -55,7 +55,14 @@
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
 
-  (when (file-exists-p "/opt/homebrew/bin")
+  (defun server-edit-back-to-terminal+ ()
+    (interactive)
+    (when (not server-buffer-clients)
+      (shell-command "open -a Terminal")))
+
+  (advice-add 'server-edit :after #'server-edit-back-to-terminal+))
+
+(when (file-exists-p "/opt/homebrew/bin")
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/bin"))
     (setq exec-path (append exec-path (list "/opt/homebrew/bin"))))
   (when (file-exists-p "/opt/homebrew/sbin")
