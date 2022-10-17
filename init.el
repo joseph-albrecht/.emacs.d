@@ -62,6 +62,14 @@
 
   (advice-add 'server-edit :after #'server-edit-back-to-terminal+))
 
+(setq emacs-binary-path "/opt/homebrew/Cellar/emacs-plus@28/28.1/Emacs.app/Contents/MacOS/Emacs")
+
+(defun open-from-terminal (path name)
+  (let ((buffer (get-buffer-create name)))
+    (pop-to-buffer buffer)
+    (insert-file-contents path)
+    (shell-command (format "open -a %s" emacs-binary-path))))
+
 (when (file-exists-p "/opt/homebrew/bin")
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/bin"))
     (setq exec-path (append exec-path (list "/opt/homebrew/bin"))))
