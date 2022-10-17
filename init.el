@@ -2122,6 +2122,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (when (file-exists-p local-init-file)
     (load local-init-file)))
 
+(server-start)
 
 (defun display-startup-echo-area-message ()
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
