@@ -4,6 +4,8 @@
 # If you run emacs (26.1+) setting TERM=xterm-24bit, then it
 # will use 24bit color
 
+# run emacs with TERM=xterm-24bit emacs -nw
+
 
 cd $(mktemp -d)
 cat <<EOF > terminfo-24bit.src
