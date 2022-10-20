@@ -57,10 +57,10 @@
     (interactive)
     (let ((frame (selected-frame)))
       (when (not server-buffer-clients)
-        (shell-command "open -a Terminal")
         (with-selected-frame frame
           (when (< 1 (length (frame-list)))
-            (delete-frame frame))))))
+            (delete-frame frame)))
+        (shell-command "open -a iTerm"))))
 
   (advice-add 'server-edit :after #'server-edit-back-to-terminal+)
 
@@ -150,11 +150,11 @@
 			  :height font-height)
       (set-frame-size (selected-frame) frame-width 80)))
 
-  (setq mac-command-modifier 'meta)
-  (setq mac-right-command-modifier 'meta)
-  (setq mac-option-modifier 'alt)
-  (setq mac-right-option-modifier 'alt)
-  (define-key input-decode-map [?\C-m] [C-m]) ;;; allow C-m in GUI emacs
+  ;; (setq mac-command-modifier 'meta)
+  ;; (setq mac-right-command-modifier 'meta)
+  (setq mac-option-modifier 'meta)
+  (setq mac-right-option-modifier 'meta)
+  ;; (define-key input-decode-map [?\C-m] [C-m]) ;;; allow C-m in GUI emacs
 
   (setq completion-cycle-threshold nil)
   (setq tab-always-indent 'complete) ;;; TODO: maybe use a different keybinding for completion
@@ -316,6 +316,10 @@
     (let ((indent-tabs-mode nil))
       ad-do-it)))
 
+(use-package solarized-theme
+  :ensure t
+  :config
+  (load-theme 'solarized-dark t))
 
 (use-package grep
   :after (compile)
@@ -1187,7 +1191,6 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     ("l" smerge-keep-lower)
     ("a" smerge-keep-all)
     ("RET" smerge-keep-current)
-    ("\C-m" smerge-keep-current)
     ("<" smerge-diff-base-upper)
     ("=" smerge-diff-upper-lower)
     (">" smerge-diff-base-lower)
@@ -1229,12 +1232,12 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
          ("TAB 8" . tab-bar-switch-to-tab-8+)
          ("TAB 9" . tab-bar-switch-to-tab-9+))
   :config
-  (setq tab-bar-show t)
+  (setq tab-bar-show nil)
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-separator "  ")
   (setq tab-bar-new-button nil)
   (setq tab-bar-tab-hints t)
-  (set-face-attribute 'tab-bar-tab nil :background "red" :overline nil :underline nil :bold t)
+  (set-face-attribute 'tab-bar-tab nil :background "#273532" :foreground "#268bd2" :overline nil :underline nil :bold t)
   (set-face-attribute 'tab-bar-tab-inactive nil :bold t)
   (defun tab-bar-switch-to-tab (name)
   "Switch to the tab by NAME.
@@ -1295,7 +1298,7 @@ most recent, and so on."
       (9 . "⑨"))
     "Alist of integers to strings of circled unicode numbers.")
   (setq tab-bar-tab-name-format-function #'tab-bar-tab-name-format-default)
-  (tab-bar-mode 1)
+  (tab-bar-mode 0)
   (tab-bar-rename-tab "misc."))
 
 (use-package dumb-jump
