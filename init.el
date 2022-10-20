@@ -44,6 +44,7 @@
 	      ("c k" . keep-lines+)
               ("c f" . flush-lines+)
 	      ("f k" . kill-filepath)
+	      ("f w" . kill-filepath)
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
 	      ("v h" . global-hl-line-mode)
@@ -550,8 +551,8 @@
 	      ("C-<return>" . vertico-exit-input)
 	      ("C-^" . vertico-directory-up)
               ("M-h" . vertico-directory-up)
-              ("C-+" . vertico-show-more)
-              ("C--" . vertico-show-less)
+              ("C-c +" . vertico-show-more)
+              ("C-c -" . vertico-show-less)
          :map evil-leader-state-map-extension
               ("X" . vertico-repeat))
   :config
