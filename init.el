@@ -559,6 +559,14 @@
   (setq vertico-count vertico-default-count)
   (setq vertico-resize nil)
   (setq vertico-cycle nil)
+  (advice-add #'vertico--format-candidate :around
+            (lambda (orig cand prefix suffix index _start)
+              (setq cand (funcall orig cand prefix suffix index _start))
+              (concat
+               (if (= vertico--index index)
+                   (propertize "» " 'face 'vertico-current)
+                 "  ")
+               cand)))
 
   (defun vertico-settings ()
     (setq vertico-count vertico-default-count))
