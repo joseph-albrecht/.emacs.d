@@ -29,14 +29,12 @@
              isearch-abort+)
   :bind (:map isearch-mode-map
               ("C-g" . isearch-abort+)
-         :map minibuffer-mode-map
+              :map minibuffer-mode-map
 	      ("M-p" . nil)
 	      ("M-n" . nil)
               ("C-c e" . edit-minibuffer)
-	      ("A-r" . select-from-history)
-	      ("A-p" . previous-history-element)
-	      ("A-n" . next-history-element)
-	 :map evil-leader-state-map-extension
+	      ("C-c h" . select-from-history)
+	      :map evil-leader-state-map-extension
 	      ("C-c" . server-edit)
 	      ("e r" . eval-region+)
 	      ("e b" . eval-buffer+)
@@ -57,20 +55,27 @@
 
   (defun server-edit-back-to-terminal+ ()
     (interactive)
-    (when (not server-buffer-clients)
-      (shell-command "open -a Terminal")))
+    (let ((frame (selected-frame)))
+      (when (not server-buffer-clients)
+        (shell-command "open -a Terminal")
+        (with-selected-frame frame
+          (when (< 1 (length (frame-list)))
+            (delete-frame frame))))))
 
-  (advice-add 'server-edit :after #'server-edit-back-to-terminal+))
+  (advice-add 'server-edit :after #'server-edit-back-to-terminal+)
 
-(setq emacs-binary-path "/opt/homebrew/Cellar/emacs-plus@28/28.1/Emacs.app/Contents/MacOS/Emacs")
+  (setq emacs-binary-path "/opt/homebrew/Cellar/emacs-plus@28/28.1/Emacs.app/Contents/MacOS/Emacs")
 
-(defun open-from-terminal (path name)
-  (let ((buffer (get-buffer-create name)))
-    (pop-to-buffer buffer)
-    (insert-file-contents path)
-    (shell-command (format "open -a %s" emacs-binary-path))))
+  (defun open-from-terminal (path name)
+    (let ((buffer (get-buffer-create name)))
+      (pop-to-buffer buffer)
+      (insert-file-contents path)
+      (shell-command (format "open -a %s" emacs-binary-path))))
 
-(when (file-exists-p "/opt/homebrew/bin")
+  (defun print-buffer-to-stdout ()
+    (print (buffer-substring-no-properties (point-min) (point-max))))
+
+  (when (file-exists-p "/opt/homebrew/bin")
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/bin"))
     (setq exec-path (append exec-path (list "/opt/homebrew/bin"))))
   (when (file-exists-p "/opt/homebrew/sbin")
@@ -136,8 +141,8 @@
   (defun conform-frame-to-monitor ()
     (interactive)
     (let* ((monitor-settings (cdr (assoc (completing-read "select monitor: "
-						     monitor-attributes)
-				    monitor-attributes)))
+						          monitor-attributes)
+				         monitor-attributes)))
 	   (font-height (cdr (assoc 'font-height monitor-settings)))
 	   (frame-width (cdr (assoc 'frame-width monitor-settings))))
       (message "monitor-settings: %s font-height: %s frame-width: %s" monitor-settings font-height frame-width)
@@ -174,7 +179,8 @@
 
   (defun select-from-history ()
     (interactive)
-    (let ((history (seq-uniq (minibuffer-history-value)))
+    (let ((history (append (seq-uniq (minibuffer-history-value))
+                           minibuffer-default))
 	  (vertico-sort-override-function #'identity))
       (if (> (length history) 0)
 	  (let ((chosen-history (completing-read "input history: " history)))
@@ -215,13 +221,13 @@
   (setq confirm-kill-processes nil)
 
   (defun switch-to-minibuffer ()
-  "Switch to minibuffer window."
-  (interactive)
-  (if (active-minibuffer-window)
-      (select-window (active-minibuffer-window))
-    (error "Minibuffer is not active")))
+    "Switch to minibuffer window."
+    (interactive)
+    (if (active-minibuffer-window)
+        (select-window (active-minibuffer-window))
+      (error "Minibuffer is not active")))
 
-;; use current-minibuffer-command to change mode
+  ;; use current-minibuffer-command to change mode
   (defun edit-minibuffer ()
     (interactive)
     (ignore-errors (kill-buffer "*minibuffer contents*"))
@@ -1028,9 +1034,7 @@ not handle that themselves."
   :after (evil)
   :load-path my-package-dir
   :config
-  (global-set-key (kbd "C-t") evil-leader-state-map-extension)
-  (define-key evil-leader-state-map-extension (kbd "i t") 'insert-time-id)
-  (global-set-key (kbd "C-M-SPC") evil-leader-state-map-extension))
+  (define-key evil-leader-state-map-extension (kbd "i t") 'insert-time-id))
 
 (use-package evil-surround
   :after evil
@@ -1324,12 +1328,14 @@ most recent, and so on."
 
   (defun ipython ()
     (interactive)
-    (let ((python-shell-interpreter "python3")
+    (let ((python-shell-interpreter "python")
           (python-shell-interpreter-args "-m IPython --simple-prompt"))
       (call-interactively #'run-python))))
 
 (use-package pyvenv
-  :ensure t)
+  :ensure t
+  :config
+  (setenv "WORKON_HOME" "~/.pyenv/versions"))
 
 (use-package f
   :ensure t
@@ -1589,14 +1595,14 @@ most recent, and so on."
 (use-package shell
   :commands (select-shell-history)
   :bind (:map minibuffer-mode-map
-              ("A-h" . select-shell-history)
+              ("C-c s" . select-shell-history)
          :map shell-mode-map
               ("C-p" . comint-previous-input)
               ("C-n" . comint-next-input)
               ("M-p" . comint-previous-prompt)
               ("M-n" . comint-next-prompt)
-              ("A-h" . select-shell-history)
-              ("C-c r" . shell-rename+))
+              ("C-c h" . select-shell-history)
+              ("C-c s" . shell-rename+))
   :config
   (setq shell-file-name "/bin/zsh")
   (setq comint-process-echoes t)
