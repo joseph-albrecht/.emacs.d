@@ -998,6 +998,8 @@ not handle that themselves."
   (evil-set-initial-state 'inferior-emacs-lisp-mode 'normal)
   (evil-set-initial-state 'ein-notebook-mode 'normal)
   (evil-set-initial-state 'vterm-mode 'insert)
+  (evil-set-initial-state 'conf-mode 'normal)
+  (evil-set-initial-state 'shell-mode 'normal)
 
   (evil-set-initial-state 'magit-log-edit-mode 'insert)
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
