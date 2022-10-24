@@ -2177,6 +2177,9 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (global-diff-hl-mode)
   (diff-hl-margin-mode))
 
+(use-package cider
+  :ensure t)
+
 (save-window-excursion (switch-to-buffer "*Messages*") (evil-normal-state))
 
 (let ((local-init-file (concat (expand-file-name user-emacs-directory)
