@@ -46,11 +46,14 @@
 (define-key evil-leader-state-map-extension (kbd "f w") 'write-file)
 
 ;; dired
-(define-key evil-leader-state-map-extension (kbd "d d") 'dired-jump)
-(define-key evil-leader-state-map-extension (kbd "d f") 'dired)
+(define-key evil-leader-state-map-extension (kbd "d d") 'dired)
+(define-key evil-leader-state-map-extension (kbd "d D") 'dired-jump)
 
 ;; project
 (define-key evil-leader-state-map-extension (kbd "C-p") 'project-switch-project)
+
+;; insert
+(define-key evil-leader-state-map-extension (kbd "i c") 'insert-char)
 
 ;; eval
 (define-key evil-leader-state-map-extension (kbd "e l") 'eval-last-sexp)

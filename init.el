@@ -422,15 +422,11 @@
 
   (defun recompile+ ()
     (interactive)
-    (let* ((compile-buffers (seq-filter
-                            (lambda (buffer)
-                              (string-prefix-p "*compilation*"
-                                               (buffer-name buffer)))
-                            (buffer-list)))
-
-           (buffer (completing-read "buffer: " (seq-map #'buffer-name compile-buffers))))
-      (pop-to-buffer buffer)
-      (recompile)))
+    (let* ((dir (or compilation-directory default-directory)))
+      (if (y-or-n-p (format "Run a command in directory: %s" dir))
+          (let ((default-directory))
+            (call-interactively #'compile))
+        (compile+ nil))))
 
   (defun compile+ (current-dir)
     (interactive "P")
@@ -454,11 +450,12 @@
   :commands (project-dir-.emacs.d
 	     project-switch-current)
   :bind (:map evil-leader-state-map-extension
+              ("f F" . find-file-under-dir)
 	      ("p" . project-switch-current))
   :config
   (setq project-switch-commands
 	'((?f "File"          project-find-file)
-	  (?F "CLI Find"      find-grep-dired-default-dir)
+	  (?F "CLI Find"      project-find-file-no-ignores)
 	  (?n "New file"      find-file)
 	  (?r "Grep"          consult-grep)
 	  (?R "Grep"          consult-grep-case-sensitive)
@@ -490,9 +487,9 @@
 
   (defun makefile-from-dir (dir)
     (cond
-       ((file-exists-p (format "%s/GNUmakefile" dir)) (format "%s/GNUmakefile" dir))
-       ((file-exists-p (format "%s/makefile" dir)) (format "%s/makefile" dir))
-       ((file-exists-p (format "%s/Makefile" dir)) (format "%s/Makefile" dir))))
+     ((file-exists-p (format "%s/GNUmakefile" dir)) (format "%s/GNUmakefile" dir))
+     ((file-exists-p (format "%s/makefile" dir)) (format "%s/makefile" dir))
+     ((file-exists-p (format "%s/Makefile" dir)) (format "%s/Makefile" dir))))
   
   (defun project-make+ ()
     (interactive)
@@ -515,24 +512,45 @@
     (let ((root (locate-dominating-file default-directory ".project.el"))
           (backend  (ignore-errors (vc-responsible-backend dir))))
       (when root (if (version<= emacs-version "28")
-                         (cons 'vc root)
-                       (list 'vc backend root)))))
+                     (cons 'vc root)
+                   (list 'vc backend root)))))
 
-  ;; (add-hook 'project-find-functions #'project-override)
+  (defun find-file-under-dir ()
+    (interactive)
+    (project-find-file-no-ignores (read-directory-name "directory: ")))
 
-  )
+  (defun project-find-file-no-ignores (&optional dir)
+    (interactive)
+    (find-file (funcall project-read-file-name-function
+                        "Find file" (project--files-in-directory (or dir default-directory) nil) nil nil))))
 
 (use-package minibuffer
   :ensure nil
   :bind (:map minibuffer-mode-map
+              ("C-c r" . select-shell-history)
               ("C-c SPC" . minibuffer-clear+))
   :config
+  (defun select-shell-history ()
+    (interactive)
+    (let* ((zsh-hist     (shell-command-to-string "cat ~/.zsh_history  2> /dev/null"))
+           (history (->> zsh-hist
+	  		 (s-split "\n")
+                         (seq-remove #'string-empty-p)
+	  		 seq-uniq
+	  		 seq-reverse))
+	   (vertico-sort-override-function #'identity))
+      (if (> (length history) 0)
+	  (progn
+	    (let ((chosen-history (completing-read "history: " history)))
+	      (clear-line)
+	      (insert chosen-history))))))
+  
   (defun minibuffer-clear+ ()
     (interactive)
     (let ((start (progn (beginning-of-buffer)
-                          (move-end-of-line 1)
-                          (move-beginning-of-line 1)
-                          (point)))
+                        (move-end-of-line 1)
+                        (move-beginning-of-line 1)
+                        (point)))
           (end    (progn (end-of-buffer)
                          (point))))
       (delete-region start end))))
@@ -561,13 +579,13 @@
   (setq vertico-resize nil)
   (setq vertico-cycle nil)
   (advice-add #'vertico--format-candidate :around
-            (lambda (orig cand prefix suffix index _start)
-              (setq cand (funcall orig cand prefix suffix index _start))
-              (concat
-               (if (= vertico--index index)
-                   (propertize "» " 'face 'vertico-current)
-                 "  ")
-               cand)))
+              (lambda (orig cand prefix suffix index _start)
+                (setq cand (funcall orig cand prefix suffix index _start))
+                (concat
+                 (if (= vertico--index index)
+                     (propertize "» " 'face 'vertico-current)
+                   "  ")
+                 cand)))
 
   (defun vertico-settings ()
     (setq vertico-count vertico-default-count))
@@ -704,7 +722,7 @@
   :ensure nil
   :hook (emacs-lisp-mode-hook . (lambda ()
                                   (add-to-list 'completion-at-point-functions
-                                                        #'cape-dabbrev))))
+                                               #'cape-dabbrev))))
 
 (use-package consult
   :after (evil-leader)
@@ -750,7 +768,7 @@
     (interactive "P")
     (let ((consult-grep-args "grep --null --line-buffered --color=never --line-number -I -r ."))
       (if dir
-	(consult-grep default-directory)
+	  (consult-grep default-directory)
         (consult-grep t))))
 
   ;; add initial option
@@ -794,7 +812,9 @@
   :demand t
   :after (consult)
   :bind (:map minibuffer-mode-map
-         ("C-c d" . consult-dir)))
+              ("C-c d" . consult-dir)
+         :map evil-leader-state-map-extension
+              ("d c" . consult-dir)))
 
 ;; https://karthinks.com/software/fifteen-ways-to-use-embark/
 ;; TODO: remove confirmation from kill-buffer
@@ -803,27 +823,33 @@
   :ensure t
   :demand t
   :commands (embark-act-quit forward-button-click+ backward-button-click+ embark-collect-delete+)
-  :bind (("C-." . embark-act)
+  :bind (("C-z" . embark-act)
    	 :map minibuffer-mode-map
    	      ("TAB" . minibuffer-force-complete)
-   	      ("SPC" . self-insert-command)
-   	      ("C-." . embark-act-quit)
-   	      ("M-." . embark-act)
-   	      ("C-M-." . embark-act-all)
-   	      ("C-," . embark-become)
+   	      ("SPC" . nil)
+   	      ("C-z" . embark-act-quit)
+   	      ("M-z" . embark-act)
+   	      ("C-M-z" . embark-act-all)
+   	      ("M-." . embark-become+)
    	      ("C-c x" . embark-export)
    	      ("C-c c" . embark-collect)
 	 :map vertico-map
    	      ("C-c e" . embark-export)
    	 :map embark-meta-map
    	      ("C-h" . nil)
-   	      ("C-." . embark-keymap-help)
+   	      ("C-z" . embark-keymap-help)
 	 :map embark-collect-mode-map
 	      ("d" . embark-collect-delete+)
 	      ("D" . embark-collect-delete-no-select+)
 	      ("M-n" . forward-button-click+)
 	      ("M-p" . backward-button-click+))
   :config
+  (defun embark-become+ ()
+    (interactive)
+    (evil-normal-state)
+    (embark-become))
+
+
   (defun forward-button-click+ ()
     (interactive)
     (funcall-interactively #'forward-button 1)
@@ -877,7 +903,7 @@
   
   (cl-defun embark--confirm (&key action target &allow-other-keys)
     "Ask for confirmation before running the ACTION on the TARGET."
-    t)
+    nil)
 
   (defun record-vertico-details ()
     (interactive)
@@ -1022,7 +1048,7 @@ not handle that themselves."
 
   ;;; for some reason this is necessary to not start in emacs-state
   (advice-add 'evil-show-registers
-   :after (lambda (&rest r) (evil-change-state evil-default-state))))
+              :after (lambda (&rest r) (evil-change-state evil-default-state))))
 
 (use-package evil-escape
   :ensure t 
@@ -1034,16 +1060,7 @@ not handle that themselves."
 
 (use-package evil-baptism
   :after evil
-  :load-path my-package-dir
-  :config
-  (setq evil-position-map (make-sparse-keymap))
-  (define-key evil-position-map (kbd "t") #'evil-scroll-line-to-top)
-  (define-key evil-position-map (kbd "b") #'evil-scroll-line-to-bottom)
-  (define-key evil-position-map (kbd "z") #'evil-scroll-line-to-center)
-
-  (evil-define-key '(normal visual motion) 'global "z" evil-position-map)
-  (evil-define-key '(normal visual motion) 'global (kbd "C-z") evil-position-map)
-  (global-set-key (kbd "C-z") evil-position-map))
+  :load-path my-package-dir)
 
 (use-package evil-leader
   :after (evil)
@@ -1251,19 +1268,19 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (set-face-attribute 'tab-bar-tab nil :background "#273532" :foreground "#268bd2" :overline nil :underline nil :bold t)
   (set-face-attribute 'tab-bar-tab-inactive nil :bold t)
   (defun tab-bar-switch-to-tab (name)
-  "Switch to the tab by NAME.
+    "Switch to the tab by NAME.
 Default values are tab names sorted by recency, so you can use \
 \\<minibuffer-local-map>\\[next-history-element]
 to get the name of the most recently visited tab, the second
 most recent, and so on."
-  (interactive
-   (let* ((recent-tabs (mapcar (lambda (tab)
-                                 (alist-get 'name tab))
-                               (funcall tab-bar-tabs-function nil))))
-     (list (completing-read (format-prompt "Switch to tab by name"
-                                           (car recent-tabs))
-                            recent-tabs nil nil nil nil recent-tabs))))
-  (tab-bar-select-tab (1+ (or (tab-bar--tab-index-by-name name) 0))))
+    (interactive
+     (let* ((recent-tabs (mapcar (lambda (tab)
+                                   (alist-get 'name tab))
+                                 (funcall tab-bar-tabs-function nil))))
+       (list (completing-read (format-prompt "Switch to tab by name"
+                                             (car recent-tabs))
+                              recent-tabs nil nil nil nil recent-tabs))))
+    (tab-bar-select-tab (1+ (or (tab-bar--tab-index-by-name name) 0))))
 
 
   (defun tab-bar-goto-misc+ ()
@@ -1461,11 +1478,11 @@ most recent, and so on."
 
   (defun format-headline+ (headline parents)
     (concat (when parents (concat "%s" parents))
-              (propertize (--> (plist-get (cadr headline) :title)
-                               (replace-regexp-in-string "\\[\\[.*?\\]\\[" "" it t t)
-                               (replace-regexp-in-string "\\]\\]" "" it t t))
-                          'face (nth (plist-get (cadr headline) :level)
-                                     org-level-faces))))
+            (propertize (--> (plist-get (cadr headline) :title)
+                             (replace-regexp-in-string "\\[\\[.*?\\]\\[" "" it t t)
+                             (replace-regexp-in-string "\\]\\]" "" it t t))
+                        'face (nth (plist-get (cadr headline) :level)
+                                   org-level-faces))))
 
   (defun org-get-headline-details+ (ast &optional parents)
     (cond
@@ -1556,18 +1573,17 @@ most recent, and so on."
   :ensure t
   :custom (org-roam-directory (file-truename org-directory))
   :bind (:map evil-leader-state-map-extension
-              ("n f" . org-roam-node-find+))
+              ("n f" . org-roam-node-find+)
+              ("n i" . org-roam-node-insert+)
+              ("n d" . org-roam-goto-today+))
   :hook (org-roam-mode . org-show-all)
   :config
   (org-roam-db-autosync-mode)
 
   (advice-add #'org-roam-node-find :after (lambda (&rest args) (org-show-all)))
 
-  (defun org-roam-node-find+ ()
-    (interactive)
+  (defun org-roam-node-create+ (node-name &optional hide)
     (let* ((id        (org-time-id+))
-           (node      (org-roam-node-read))
-           (node-name (org-roam-node-title node))
            (template  (format ":PROPERTIES:\n:ID:  %s\n:TAGGED:\n:END:\n\n#+title: %s\n\n%%?" id node-name))
            (filename  (format "%s %s.org" id node-name))
            (org-capture-templates (list (list "i" "i" 'plain
@@ -1575,16 +1591,56 @@ most recent, and so on."
                                               template
                                               :immediate-finish t
                                               :jump-to-captured t))))
+      (if hide
+          (save-window-excursion (org-capture nil "i")
+                                 (org-show-all))
+        (org-capture nil "i")
+        (org-show-all))
+      id))
+
+  (defun org-roam-node-find+ ()
+    (interactive)
+    (let* ((node (org-roam-node-read)))
       (if (org-roam-node-file node)
           (progn (org-roam-node-open node)
                  (org-show-all))
-        (org-capture nil "i")
-        (org-show-all))))
+        (org-roam-node-create+ (org-roam-node-title node)))))
 
+
+  (defun org-roam-node-insert+ (bare &optional node)
+    (interactive (list (not current-prefix-arg)
+                       (org-roam-node-read)))
+    (cond ((and bare (org-roam-node-file node))
+           (insert (format "id:%s" (org-roam-node-id node))))
+          ((org-roam-node-file node)
+           (insert (format "[[id:%s][%s]]"
+                           (org-roam-node-id node)
+                           (org-roam-node-title node))))
+          (bare (insert (format "id:%s" (org-roam-node-create+ (org-roam-node-title node) t))))
+          (t (insert (format "[[id:%s][%s]]"
+                             (org-roam-node-create+ (org-roam-node-title node) t)
+                             (org-roam-node-title node))))))
+
+  (defun org-roam-node-titled (node-title)
+    (->> (org-roam-node-list)
+         (seq-find (lambda (node)
+                     (equal (org-roam-node-title node)
+                            node-title)))))
+  
   (cl-defmethod org-roam-node-tagged ((node org-roam-node))
     "Return the currently set category for the NODE."
     (cdr (assoc-string "TAGGED" (org-roam-node-properties node))))
-  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tagged:50}" 'face 'org-tag))))
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tagged:50}" 'face 'org-tag)))
+
+  (defun org-roam-goto-today+ ()
+    (interactive)
+    (let* ((today (format-time-string "%y-%m-%m" (current-time)))
+          (node  (org-roam-node-titled today)))
+      (if node
+        (org-roam-node-open node)
+      (org-roam-node-create+ today))))
+
+  )
 
 (use-package markdown-mode
   :ensure t
@@ -1607,15 +1663,14 @@ most recent, and so on."
   (load-file custom-file)
 
 (use-package shell
+  :after (minibuffer)
   :commands (select-shell-history)
-  :bind (:map minibuffer-mode-map
-              ("C-c s" . select-shell-history)
-         :map shell-mode-map
+  :bind (:map shell-mode-map
               ("C-p" . comint-previous-input)
               ("C-n" . comint-next-input)
               ("M-p" . comint-previous-prompt)
               ("M-n" . comint-next-prompt)
-              ("C-c h" . select-shell-history)
+              ("C-c r" . select-shell-history)
               ("C-c s" . shell-rename+))
   :config
   (setq shell-file-name "/bin/zsh")
@@ -1626,20 +1681,7 @@ most recent, and so on."
     (ignore-errors (kill-line)
 		   (pop kill-ring)))
   
-  (defun select-shell-history ()
-    (interactive)
-    (let* ((zsh-hist     (shell-command-to-string "cat ~/.zsh_history  2> /dev/null"))
-           (history (->> zsh-hist
-	  		 (s-split "\n")
-                         (seq-remove #'string-empty-p)
-	  		 seq-uniq
-	  		 seq-reverse))
-	   (vertico-sort-override-function #'identity))
-      (if (> (length history) 0)
-	  (progn
-	    (let ((chosen-history (completing-read "history: " history)))
-	      (clear-line)
-	      (insert chosen-history))))))
+  
 
   (defun shell-rename+()
     (interactive)

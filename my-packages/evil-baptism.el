@@ -290,9 +290,6 @@
 (define-key evil-motion-state-map (kbd "M-o") 'evil-jump-forward)
 (define-key evil-motion-state-map (kbd "RET") nil)
 (define-key evil-motion-state-map "\\" 'evil-execute-in-emacs-state)
-(define-key evil-motion-state-map "z^" 'evil-scroll-top-line-to-bottom)
-(define-key evil-motion-state-map "z+" 'evil-scroll-bottom-line-to-top)
-(define-key evil-motion-state-map "zt" 'evil-scroll-line-to-top)
 ;; TODO: z RET has an advanced form taking an count before the RET
 ;; but this requires again a special state with a single command
 ;; bound to RET
@@ -316,8 +313,8 @@
 (define-key evil-motion-state-map [?z left] "zh")
 (define-key evil-motion-state-map "zL" 'evil-scroll-right)
 (define-key evil-motion-state-map "zH" 'evil-scroll-left)
-(define-key evil-motion-state-map
-  (read-kbd-macro evil-toggle-key) 'evil-emacs-state)
+;; (define-key evil-motion-state-map
+;;   (read-kbd-macro evil-toggle-key) 'evil-emacs-state)
 (define-key evil-motion-state-map "gp" 'evil-previous-line)
 (define-key evil-motion-state-map "gn" 'evil-next-line)
 (define-key evil-motion-state-map (kbd "C-^") 'backward-up-list)

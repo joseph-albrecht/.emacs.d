@@ -103,6 +103,4 @@
     (define-key map "u" #'embark-browse-package-url)
     (make-composed-keymap map embark-symbol-map)))
 
-(message "i was run!")
-
 (provide 'embark-maps)
