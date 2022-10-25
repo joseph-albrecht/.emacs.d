@@ -652,7 +652,7 @@
      (vertico-reverse-mode     (call-interactively #'vertico-next))
      (t                        (call-interactively #'vertico-previous))))
 
-  )
+  (set-face-attribute 'vertico-current nil :underline t))
 
 ;; (use-package vertico-multiform
 ;;   :ensure nil
