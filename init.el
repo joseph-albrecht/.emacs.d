@@ -424,7 +424,7 @@
     (interactive)
     (let* ((dir (or compilation-directory default-directory)))
       (if (y-or-n-p (format "Run a command in directory: %s" dir))
-          (let ((default-directory))
+          (let ((default-directory dir))
             (call-interactively #'compile))
         (compile+ nil))))
 
@@ -650,9 +650,7 @@
     (cond
      (vertico-unobtrusive-mode (call-interactively #'vertico-multiform-reverse))
      (vertico-reverse-mode     (call-interactively #'vertico-next))
-     (t                        (call-interactively #'vertico-previous))))
-
-  (set-face-attribute 'vertico-current nil :underline t))
+     (t                        (call-interactively #'vertico-previous)))))
 
 ;; (use-package vertico-multiform
 ;;   :ensure nil
@@ -1385,6 +1383,7 @@ most recent, and so on."
                             (help-at-pt-set-timer)))
          (org-mode-hook . org-show-all))
   :bind (:map org-mode-map
+	      ("C-c o"  . org-open-at-point)
 	      ("M-n"  . org-next-visible-heading)
 	      ("M-p"  . org-previous-visible-heading)
 	      ("C-c ."  . org-insert-timestamp+)
