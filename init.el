@@ -318,9 +318,15 @@
       ad-do-it)))
 
 (use-package solarized-theme
+  :after (org)
   :ensure t
   :config
-  (load-theme 'solarized-light t))
+  (load-theme 'solarized-light t)
+
+  (set-face-attribute 'org-level-1 nil :height 1.0 :inherit 'default)
+  (set-face-attribute 'org-level-2 nil :height 1.0 :inherit 'default)
+  (set-face-attribute 'org-level-3 nil :height 1.0 :inherit 'default)
+  (set-face-attribute 'org-level-4 nil :height 1.0 :inherit 'default))
 
 (use-package grep
   :after (compile)
@@ -455,12 +461,13 @@
   :config
   (setq project-switch-commands
 	'((?f "File"          project-find-file)
-	  (?F "CLI Find"      project-find-file-no-ignores)
+	  (?F "File no ignore" project-find-file-no-ignores)
+	  (?o "matching files" find-grep-dired)
 	  (?n "New file"      find-file)
 	  (?r "Grep"          consult-grep)
 	  (?R "Grep"          consult-grep-case-sensitive)
-	  (?d "Project Dir"   project-dired)
-	  (?D "Dired"         dired)
+	  (?D "Project Dir"   project-dired)
+	  (?d "Dired"         dired)
 	  (?b "Buffer"        project-switch-to-buffer)
 	  (?q "Query replace" project-query-replace-regexp)
 	  (?g "Magit"         magit-project-status)
