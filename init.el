@@ -1381,6 +1381,7 @@ most recent, and so on."
   :ensure nil
   :commands (open-log-file+ org-insert-timestamp+ org-open-some-buffer-link+)
   :hook ((org-mode-hook . visual-line-mode)
+         (org-mode-hook . visible-mode)
          (org-mode-hook . (lambda ()
                             (setq paragraph-start "[ \t]*$")
                             (setq paragraph-separate "[ \t]*$")))
