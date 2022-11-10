@@ -1381,7 +1381,6 @@ most recent, and so on."
   :ensure nil
   :commands (open-log-file+ org-insert-timestamp+ org-open-some-buffer-link+)
   :hook ((org-mode-hook . visual-line-mode)
-         (org-mode-hook . visible-mode)
          (org-mode-hook . (lambda ()
                             (setq paragraph-start "[ \t]*$")
                             (setq paragraph-separate "[ \t]*$")))
@@ -1398,6 +1397,7 @@ most recent, and so on."
 	      ("C-c c"  . org-cycle)
 	      ("C-c l"  . org-open-some-buffer-link+)
 	      ("C-c r"  . org-refile)
+	      ("C-c t"  . org-set-tags-command)
 	      ("TAB"  . org-cycle)
 	      ("S-TAB"  . org-shifttab)
          :map evil-leader-state-map-extension
@@ -1431,13 +1431,13 @@ most recent, and so on."
                                    (python . t)))
   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
-  (set-face-attribute 'org-level-1 nil :background "#F0F0F0" :overline t :underline t :bold t)
-  (set-face-attribute 'org-level-2 nil :background "#F0F0F0" :overline t :underline t :bold t)
-  (set-face-attribute 'org-level-3 nil :background "#F0F0F0" :overline t :underline t :bold t)
-  (set-face-attribute 'org-level-4 nil :background "#F0F0F0" :overline t :underline t :bold t)
-  (set-face-attribute 'org-level-5 nil :background "#F0F0F0" :overline t :underline t :bold t)
-  (set-face-attribute 'org-level-6 nil :background "#F0F0F0" :overline t :underline t :bold t)
-  (set-face-attribute 'org-level-7 nil :background "#F0F0F0" :overline t :underline t :bold t)
+  (set-face-attribute 'org-level-1 nil :bold t)
+  (set-face-attribute 'org-level-2 nil :bold t)
+  (set-face-attribute 'org-level-3 nil :bold t)
+  (set-face-attribute 'org-level-4 nil :bold t)
+  (set-face-attribute 'org-level-5 nil :bold t)
+  (set-face-attribute 'org-level-6 nil :bold t)
+  (set-face-attribute 'org-level-7 nil :bold t)
 
   (setq org-log-file (concat notebox "daily-log.org" ))
   (evil-add-command-properties 'org-open-at-point :jump t)
@@ -1653,7 +1653,9 @@ most recent, and so on."
   :ensure t
   :hook (markdown-mode-hook . (lambda ()
                                 (setq paragraph-start "[ \t]*$")
-                                (setq paragraph-separate "[ \t]*$"))))
+                                (setq paragraph-separate "[ \t]*$")))
+  :config
+  (setq markdown-enable-wiki-links t))
 
 ;; TODO: read through this package
 ;; (use-package ob-http
