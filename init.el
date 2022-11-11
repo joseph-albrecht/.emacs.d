@@ -323,6 +323,7 @@
   :config
   (load-theme 'solarized-light t)
 
+  (set-face-attribute 'org-headline-done nil :strike-through t)
   (set-face-attribute 'org-level-1 nil :height 1.0 :inherit 'default)
   (set-face-attribute 'org-level-2 nil :height 1.0 :inherit 'default)
   (set-face-attribute 'org-level-3 nil :height 1.0 :inherit 'default)
@@ -1407,10 +1408,12 @@ most recent, and so on."
               ("c -" . org-decrease-number-at-point)
               ("o l" . open-log-file+)
               ("n p" . project-dir-notes)
+              ("n t" . org-open-todos )
               ("n f" . find-file-notebox)
               ("n c" . org-capture)
               ("n d" . open-log-file+))
   :config
+  (defun org-open-todos () (interactive) (find-file org-todo-file))
   (setq org-startup-folded 'showeverything)
   (setq org-property-format  "%-12s %s")
   (setq org-image-actual-width nil)
@@ -1505,9 +1508,9 @@ most recent, and so on."
   (setq org-use-fast-todo-selection 'expert)
   (setq org-tags-exclude-from-inheritance (list "project"))
   (setq org-capture-templates
-        '(("i" "idea" entry (file org-log-file)
-           "* IDEA %?")
-          ("t" "todo" entry (file org-log-file)
+        '(("i" "inbox" item (file org-log-file)
+           "")
+          ("t" "todo" entry (file org-todo-file)
            "* TODO %?")
           ("m" "meeting" entry (file org-log-file)
            "* DONE %? :meeting:")))
