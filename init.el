@@ -989,7 +989,13 @@ not handle that themselves."
    	orderless-style-dispatchers '(orderless-flex-if-twiddle-dispatcher+
    				      orderless-initialism-dispatcher+
    				      orderless-literal-dispatcher+
-   				      orderless-without-dispatcher+)))
+   				      orderless-without-dispatcher+))
+
+  (set-face-attribute 'orderless-match-face-0 nil :foreground nil :overline nil :underline t :bold t)
+  (set-face-attribute 'orderless-match-face-1 nil :foreground nil :overline nil :underline t :bold t)
+  (set-face-attribute 'orderless-match-face-2 nil :foreground nil :overline nil :underline t :bold t)
+  (set-face-attribute 'orderless-match-face-3 nil :foreground nil :overline nil :underline t :bold t)
+  )
 
 (use-package undo-tree
   :ensure t
@@ -1475,7 +1481,8 @@ most recent, and so on."
 
   (defun org-jump+ ()
     (interactive)
-    (let ((outline (org-collect-outline+)))
+    (let ((outline (org-collect-outline+))
+          (vertico-sort-override-function #'identity))
       (goto-char (cdr (assoc (completing-read "jump to:" outline) outline))))
     (recenter-top-bottom 0)
     (org-show-entry))
@@ -1487,7 +1494,7 @@ most recent, and so on."
         (org-get-headline-details+ ast))))
 
   (defun format-headline+ (headline parents)
-    (concat (when parents (concat "%s" parents))
+    (concat (when parents (concat parents "/"))
             (propertize (--> (plist-get (cadr headline) :title)
                              (replace-regexp-in-string "\\[\\[.*?\\]\\[" "" it t t)
                              (replace-regexp-in-string "\\]\\]" "" it t t))

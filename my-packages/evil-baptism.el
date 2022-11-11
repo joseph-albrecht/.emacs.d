@@ -297,6 +297,7 @@
 (define-key evil-motion-state-map (kbd "z RET") (vconcat "z" [return]))
 (define-key evil-motion-state-map "zz" 'evil-scroll-line-to-center)
 (define-key evil-motion-state-map "z." "zz^")
+(define-key evil-motion-state-map "zt" 'evil-scroll-line-to-top)
 (define-key evil-motion-state-map "zb" 'evil-scroll-line-to-bottom)
 (define-key evil-motion-state-map "z-" "zb^")
 (define-key evil-motion-state-map "v" 'evil-visual-char)
