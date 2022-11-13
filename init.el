@@ -191,7 +191,9 @@
 
   (defun kill-filepath ()
     (interactive)
-    (kill-new (buffer-file-name)))
+    (let ((path (buffer-file-name)))
+      (kill-new path)
+      (message "added to kill ring: %s" path)))
 
   (defun echo-filepath ()
     (interactive)
@@ -991,10 +993,10 @@ not handle that themselves."
    				      orderless-literal-dispatcher+
    				      orderless-without-dispatcher+))
 
-  (set-face-attribute 'orderless-match-face-0 nil :foreground nil :overline nil :underline t :bold t)
-  (set-face-attribute 'orderless-match-face-1 nil :foreground nil :overline nil :underline t :bold t)
-  (set-face-attribute 'orderless-match-face-2 nil :foreground nil :overline nil :underline t :bold t)
-  (set-face-attribute 'orderless-match-face-3 nil :foreground nil :overline nil :underline t :bold t)
+  (set-face-attribute 'orderless-match-face-0 nil :foreground "black" :overline nil :underline t :bold t)
+  (set-face-attribute 'orderless-match-face-1 nil :foreground "black" :overline nil :underline t :bold t)
+  (set-face-attribute 'orderless-match-face-2 nil :foreground "black" :overline nil :underline t :bold t)
+  (set-face-attribute 'orderless-match-face-3 nil :foreground "black" :overline nil :underline t :bold t)
   )
 
 (use-package undo-tree
