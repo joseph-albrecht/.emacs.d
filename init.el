@@ -1500,8 +1500,8 @@ most recent, and so on."
             (propertize (--> (plist-get (cadr headline) :title)
                              (replace-regexp-in-string "\\[\\[.*?\\]\\[" "" it t t)
                              (replace-regexp-in-string "\\]\\]" "" it t t))
-                        'face (nth (plist-get (cadr headline) :level)
-                                   org-level-faces))))
+                        'face
+                        (list :foreground (face-attribute (nth (plist-get (cadr headline) :level) org-level-faces) :foreground)))))
 
   (defun org-get-headline-details+ (ast &optional parents)
     (cond
