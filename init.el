@@ -320,7 +320,7 @@
       ad-do-it)))
 
 (use-package solarized-theme
-  :after (org)
+  :after (org orderless)
   :ensure t
   :config
   (load-theme 'solarized-light t)
@@ -329,7 +329,12 @@
   (set-face-attribute 'org-level-1 nil :height 1.0 :inherit 'default)
   (set-face-attribute 'org-level-2 nil :height 1.0 :inherit 'default)
   (set-face-attribute 'org-level-3 nil :height 1.0 :inherit 'default)
-  (set-face-attribute 'org-level-4 nil :height 1.0 :inherit 'default))
+  (set-face-attribute 'org-level-4 nil :height 1.0 :inherit 'default)
+
+  (set-face-attribute 'orderless-match-face-0 nil :foreground "black" :overline nil :underline t :bold t)
+  (set-face-attribute 'orderless-match-face-1 nil :foreground "black" :overline nil :underline t :bold t)
+  (set-face-attribute 'orderless-match-face-2 nil :foreground "black" :overline nil :underline t :bold t)
+  (set-face-attribute 'orderless-match-face-3 nil :foreground "black" :overline nil :underline t :bold t))
 
 (use-package grep
   :after (compile)
@@ -993,10 +998,6 @@ not handle that themselves."
    				      orderless-literal-dispatcher+
    				      orderless-without-dispatcher+))
 
-  (set-face-attribute 'orderless-match-face-0 nil :foreground "black" :overline nil :underline t :bold t)
-  (set-face-attribute 'orderless-match-face-1 nil :foreground "black" :overline nil :underline t :bold t)
-  (set-face-attribute 'orderless-match-face-2 nil :foreground "black" :overline nil :underline t :bold t)
-  (set-face-attribute 'orderless-match-face-3 nil :foreground "black" :overline nil :underline t :bold t)
   )
 
 (use-package undo-tree
@@ -1406,9 +1407,14 @@ most recent, and so on."
 	      ("C-c c"  . org-cycle)
 	      ("C-c l"  . org-open-some-buffer-link+)
 	      ("C-c r"  . org-refile)
-	      ("C-c t"  . org-set-tags-command)
+	      ("C-c t"  . org-todo)
+	      ("C-c i g"  . org-set-tags-command)
+	      ("C-c i t"  . org-insert-todo-heading)
+	      ("C-c i h"  . org-insert-heading)
 	      ("TAB"  . org-cycle)
 	      ("S-TAB"  . org-shifttab)
+              ("C-c RET" . org-meta-return)
+              ("C-c S-RET" . org-insert-todo-heading)
          :map evil-leader-state-map-extension
               ("i t" . org-insert-time-id+)
               ("s l" . org-jump+)
