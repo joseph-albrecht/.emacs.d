@@ -44,6 +44,7 @@
 (define-key evil-leader-state-map-extension (kbd "f s") 'save-buffer)
 (define-key evil-leader-state-map-extension (kbd "f S") 'save-some-buffers)
 (define-key evil-leader-state-map-extension (kbd "f w") 'write-file)
+(define-key evil-leader-state-map-extension (kbd "f r") 'revert-buffer)
 
 ;; dired
 (define-key evil-leader-state-map-extension (kbd "d d") 'dired)

@@ -331,10 +331,10 @@
   (set-face-attribute 'org-level-3 nil :height 1.0 :inherit 'default)
   (set-face-attribute 'org-level-4 nil :height 1.0 :inherit 'default)
 
-  (set-face-attribute 'orderless-match-face-0 nil :foreground "black" :overline nil :underline t :bold t)
-  (set-face-attribute 'orderless-match-face-1 nil :foreground "black" :overline nil :underline t :bold t)
-  (set-face-attribute 'orderless-match-face-2 nil :foreground "black" :overline nil :underline t :bold t)
-  (set-face-attribute 'orderless-match-face-3 nil :foreground "black" :overline nil :underline t :bold t))
+  (set-face-attribute 'orderless-match-face-0 nil :foreground "black" :overline nil :underline nil :bold t)
+  (set-face-attribute 'orderless-match-face-1 nil :foreground "black" :overline nil :underline nil :bold t)
+  (set-face-attribute 'orderless-match-face-2 nil :foreground "black" :overline nil :underline nil :bold t)
+  (set-face-attribute 'orderless-match-face-3 nil :foreground "black" :overline nil :underline nil :bold t))
 
 (use-package grep
   :after (compile)
@@ -1391,6 +1391,7 @@ most recent, and so on."
   :ensure nil
   :commands (open-log-file+ org-insert-timestamp+ org-open-some-buffer-link+)
   :hook ((org-mode-hook . visual-line-mode)
+         (org-mode-hook . auto-revert-mode)
          (org-mode-hook . (lambda ()
                             (setq paragraph-start "[ \t]*$")
                             (setq paragraph-separate "[ \t]*$")))
@@ -1408,6 +1409,7 @@ most recent, and so on."
 	      ("C-c l"  . org-open-some-buffer-link+)
 	      ("C-c r"  . org-refile)
 	      ("C-c t"  . org-todo)
+	      ("C-c s t"  . org-show-tree)
 	      ("C-c i g"  . org-set-tags-command)
 	      ("C-c i t"  . org-insert-todo-heading)
 	      ("C-c i h"  . org-insert-heading)
@@ -1552,7 +1554,9 @@ most recent, and so on."
                                (file . find-file)
                                (wl . wl-other-frame)))
 
-  )
+  (defun org-show-tree ()
+    (interactive)
+    (org-content 10)))
 
 (use-package ob-async
   :ensure t)
