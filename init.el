@@ -827,7 +827,7 @@
   :bind (:map minibuffer-mode-map
               ("C-c d" . consult-dir)
          :map evil-leader-state-map-extension
-              ("d c" . consult-dir)))
+              ("d M-d" . consult-dir)))
 
 ;; https://karthinks.com/software/fifteen-ways-to-use-embark/
 ;; TODO: remove confirmation from kill-buffer
