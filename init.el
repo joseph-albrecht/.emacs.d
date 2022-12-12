@@ -180,8 +180,8 @@
 
   (defun select-from-history ()
     (interactive)
-    (let ((history (append (seq-uniq (minibuffer-history-value))
-                           minibuffer-default))
+    (let ((history (append minibuffer-default
+                           (seq-uniq (minibuffer-history-value))))
 	  (vertico-sort-override-function #'identity))
       (if (> (length history) 0)
 	  (let ((chosen-history (completing-read "input history: " history)))
