@@ -105,11 +105,11 @@
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (menu-bar-mode -1)
-  (fringe-mode (cons 1 1))
+  (fringe-mode nil)
 
   (condition-case nil
-      (set-face-attribute 'default nil :font "iosevka" :height 150)
-    (error (set-face-attribute 'default nil :height 150)))
+      (set-face-attribute 'default nil :font "iosevka" :height 120)
+    (error (set-face-attribute 'default nil :height 120)))
 
   (set-face-attribute 'region nil :background "#A0F5F4")
   (set-cursor-color "#007F00")
@@ -136,8 +136,8 @@
 
   (setq monitor-attributes '(("ultrawide" . ((font-height . 170)
 					     (frame-width . 190)))
-			     ("mac-retina" . ((font-height . 150)
-					      (frame-width . 179)))))
+			     ("mac-retina" . ((font-height . 140)
+					      (frame-width . 215)))))
 
   (defun conform-frame-to-monitor ()
     (interactive)
@@ -589,7 +589,7 @@
          :map evil-leader-state-map-extension
               ("X" . vertico-repeat))
   :config
-  (setq vertico-default-count 10)
+  (setq vertico-default-count 20)
   (setq vertico-count vertico-default-count)
   (setq vertico-resize nil)
   (setq vertico-cycle nil)
@@ -700,7 +700,7 @@
   :ensure t
   :commands (corfu-move-to-minibuffer)
   :demand t
-  :bind (("C--" . completion-at-point)
+  :bind (("C-," . completion-at-point)
          :map corfu-map
          ("M-h" . corfu-reset)
          ("C-c c" . corfu-move-to-minibuffer))
@@ -714,9 +714,6 @@
       (apply #'consult-completion-in-region completion-in-region--data)))
   (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer)
   (global-corfu-mode 1))
-
-(use-package company
-  :ensure t)
 
 (use-package cape
   :ensure t
@@ -1087,10 +1084,31 @@ not handle that themselves."
   :after evil
   :ensure t
   :config
-  (define-key evil-operator-state-map (kbd "!") #'evil-surround-edit)
-  (define-key evil-operator-state-map (kbd "C-!") #'evil-Surround-edit)
-  (define-key evil-visual-state-map (kbd "!") #'evil-surround-region)
-  (define-key evil-visual-state-map (kbd "C-!") #'evil-Surround-region))
+  (define-key evil-operator-state-map (kbd "$") #'evil-surround-edit)
+  (define-key evil-operator-state-map (kbd "M-$") #'evil-Surround-edit)
+  (define-key evil-visual-state-map (kbd "$") #'evil-surround-region)
+  (define-key evil-visual-state-map (kbd "M-$") #'evil-Surround-region)
+
+  (setq evil-surround-pairs-alist
+        '((?\) . ("( " . " )"))
+          (?\] . ("[ " . " ]"))
+          (?\} . ("{ " . " }"))
+
+          (?\( . ("(" . ")"))
+          (?\[ . ("[" . "]"))
+          (?\{ . ("{" . "}"))
+
+          (?# . ("#{" . "}"))
+          (?b . ("(" . ")"))
+          (?B . ("{" . "}"))
+          (?> . ("<" . ">"))
+          (?t . evil-surround-read-tag)
+          (?< . evil-surround-read-tag)
+          (?\C-f . evil-surround-prefix-function)
+          (?f . evil-surround-function)))
+
+
+  )
 
 (use-package magit
   :ensure t
@@ -1730,7 +1748,9 @@ most recent, and so on."
 (use-package xref
   :after (evil-leader)
   :ensure nil
-  :bind (:map xref--xref-buffer-mode-map
+  :bind (:map evil-leader-state-map-extension
+              ("s ."   . xref-find-references)
+         :map xref--xref-buffer-mode-map
               ("n"   . xref-next-line-no-show)
               ("p"   . xref-prev-line-no-show)
               ("M-n" . xref-next-line)
@@ -1744,14 +1764,25 @@ most recent, and so on."
               ("l l" . lsp)
               ("l k" . lsp-shutdown-workspace)
               ("l R" . lsp-rename))
+  :hook ((java-mode-hook . lsp)
+         (python-mode-hook . lsp))
   :config
   (setq lsp-enable-symbol-highlighting nil)
   (setq lsp-headerline-breadcrumb-enable nil)
   (evil-define-key '(normal motion) lsp-mode-map (kbd "g r") 'lsp-find-references))
 
+;; https://emacs-lsp.github.io/dap-mode/page/configuration/
 (use-package dap-mode
   :ensure nil
-  :after (lsp-mode evil-leader))
+  :commands (dap-debug+)
+  :after (lsp-mode evil-leader)
+  :bind (:map evil-leader-state-map-extension
+              ("l d d" . dap-debug)
+              ("l d h" . dap-hydra)))
+
+(use-package realgud
+  :ensure t)
+
 
 (use-package lsp-java
   :after (lsp-mode)
