@@ -531,7 +531,7 @@
 
 ;;; TODO: i'd prefer to use a normal key-map here. can i write something?
 (use-package project
-  :after (evil-leader embark)
+  :after (evil-leader embark consult)
   :demand t
   :commands (project-dir-.emacs.d
 	     project-switch-current)
@@ -542,8 +542,8 @@
 	      ("p c" . project-compile)
 	      ("p f" . project-find-file)
 	      ("p F" . project-find-file-no-ignores)
-	      ("p g" . consult-git-grep)
-	      ("p G" . consult-grep)
+	      ("p g" . consult-git-grep+)
+	      ("p G" . consult-grep+)
               ("p d" . project-find-dir)
               ("p D" . project-dired)
               ("p m" . project-make+))
@@ -836,31 +836,27 @@
    	      ("b C-B"   . ibuffer)
    	      ("s l"   . consult-outline)
    	      ("s s"   . consult-line)
-   	      ("s g"   . consult-git-grep)
-   	      ("s G"   . consult-grep)
+   	      ("s g"   . consult-git-grep+)
+   	      ("s G"   . consult-grep+)
 	      ("s i"   . consult-imenu)
 	      ("s o"   . occur))
   :config
   (setq consult-preview-key (list "M-<return>" "M-n" "M-p"))
   (consult-customize consult-ripgrep consult-git-grep consult-grep :preview-key nil)
 
-  (defun consult-grep-case-sensitive (&optional dir)
+  (defun consult-grep+ (case-sensitive)
     (interactive "P")
-    (let ((consult-grep-args "grep --null --line-buffered --color=never --line-number -I -r ."))
+    (if case-sensitive
+        (let ((consult-grep-args "grep --null --line-buffered --color=never --line-number -I -r ."))
+          (consult-grep))
+      (consult-grep)))
+
+  (defun consult-git-grep+ (case-sensitive)
+    (interactive "P")
+    (if case-sensitive
+        (let ((consult-git-grep-args "git --no-pager grep --null --color=never --extended-regexp --line-number -I"))
+          (consult-git-grep))
       (consult-git-grep)))
-
-  (defun consult-grep-dir (&optional dir)
-    (interactive "P")
-    (if dir
-	(consult-grep default-directory)
-      (consult-grep t)))
-
-  (defun consult-grep-dir-case-sensitive (&optional dir)
-    (interactive "P")
-    (let ((consult-grep-args "grep --null --line-buffered --color=never --line-number -I -r ."))
-      (if dir
-	  (consult-grep default-directory)
-        (consult-grep t))))
 
   ;; add initial option
   (defun consult-buffer (&optional sources initial)
@@ -1238,6 +1234,9 @@ not handle that themselves."
   (defvar evil-cp-swapped-movement-keys '())
   (defvar evil-cp-additional-movement-keys '())
   (defvar evil-cp-additional-bindings '())
+  (defvar evil-cp-insert-key "i")
+  (defvar evil-cp-append-key "d")
+  (setq evil-cleverparens-use-s-and-S nil)
 
   (defvar evil-cp-regular-bindings
     '(("k"   . evil-cp-delete)
