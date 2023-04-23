@@ -14,7 +14,7 @@
   :custom ((use-package-hook-name-suffix "")))
 
 (use-package emacs
-  :after (evil-leader)
+  :after (evil-leader embark)
   :commands (insert-time-id
              eval-region+
              eval-buffer+
@@ -38,6 +38,8 @@
 	      ("C-c" . server-edit)
 	      ("e r" . eval-region+)
 	      ("e b" . eval-buffer+)
+	      ("v +" . text-scale-increase)
+	      ("v -" . text-scale-decrease)
 	      ("e L" . eval-expression-and-replace)
               ("e $" . shell-command-on-region+)
               ("c $" . shell-command-on-region+)
@@ -50,9 +52,19 @@
 	      ("v h" . global-hl-line-mode)
 	      ("v m" . conform-frame-to-monitor)
 	      ("v e" . setenv)
-              ("t C" . 'copy-window))
+              ("t C" . 'copy-window)
+              ("h g" . 'open-guide)
+              ("s h ." . 'highlight-symbol-at-point)
+              ("s h r" . 'highlight-lines-matching-regexp)
+              ("s h u" . 'unhighlight-regexp)
+              ("s h U" . 'unhighlight-regexp-all+)
+              ("s h p" . 'highlight-phrase)
+              ("M-x" . run-command-with-default-dir))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
+  (defun unhighlight-regexp-all+ ()
+    (interactive)
+    (unhighlight-regexp t))
 
   (defun server-edit-back-to-terminal+ ()
     (interactive)
@@ -62,6 +74,8 @@
           (when (< 1 (length (frame-list)))
             (delete-frame frame)))
         (shell-command "open -a iTerm"))))
+
+  (setq warning-minimum-level :error)
 
   (advice-add 'server-edit :after #'server-edit-back-to-terminal+)
 
@@ -239,7 +253,6 @@
     (let ((minibuffer (minibuffer-contents))
 	  (window (get-buffer-window (get-buffer "*minibuffer contents*"))))
       (select-window window)
-      (emacs-lisp-mode)
       (use-local-map (copy-keymap emacs-lisp-mode-map))
       (local-set-key (kbd "C-c C-c") 'edit-minibuffer-save)
       (setq header-line-format "Press C-c C-c to save changes")
@@ -279,9 +292,9 @@
           (when (memq 'down (event-modifiers last-command-event))
             current-prefix-arg)))
 
-  (defun shell-command-on-region+ (start beg command &optional output)
-    (interactive (list (if (region-active-p) (region-beginning) (point-min))
-                       (if (region-active-p) (region-end)       (point-max))
+  (defun shell-command-on-region+ (start end command &optional output)
+    (interactive (list (if (region-active-p) (region-beginning) (point))
+                       (if (region-active-p) (region-end)       (point))
                        (read-shell-command "Shell command on region: ")
                        (if current-prefix-arg
                            (intern (completing-read "output: " '(buffer echo replace)))
@@ -290,11 +303,7 @@
                     (get-buffer-create (format "*shell-command* (%s) %s"
                                                (buffer-name)
                                                command)))))
-      (message "%S" (list start beg command output))
-      (message "%S" (list 'shell-command-on-region start beg command
-                          buffer
-                          (equal output 'replace)))
-      (shell-command-on-region start beg command
+      (shell-command-on-region start end command
                                buffer
                                (equal output 'replace))
       (when (equal output 'buffer) (pop-to-buffer buffer))))
@@ -317,7 +326,21 @@
 
   (defadvice align-regexp (around align-regexp-with-spaces activate)
     (let ((indent-tabs-mode nil))
-      ad-do-it)))
+      ad-do-it))
+
+  (defun open-guide ()
+    (interactive)
+    (find-file "~/.emacs.d/guide.org"))
+
+  (defun run-command-with-default-dir (dir)
+    (interactive (list (read-directory-name "in directory: ")))
+    (let ((default-directory dir)
+          (project-current-inhibit-prompt t)
+          (map (make-composed-keymap evil-leader-state-map (current-global-map))))
+      (message "waiting for command to run in dir: %s" dir)
+      (call-interactively (funcall embark-prompter map #'indentity))))
+
+  )
 
 (use-package solarized-theme
   :after (org orderless)
@@ -434,20 +457,69 @@
       (previous-line)
       (next-line)))
 
+  ;; TODO: would a compile transient command be nice?
+  ;; default to current directory
+  ;; allow adding a command
+  ;; executing
+
   (defun recompile+ ()
+    "Edit the last compile command than run it in a compile buffer"
     (interactive)
     (let* ((dir (or compilation-directory default-directory)))
-      (if (y-or-n-p (format "Run a command in directory: %s" dir))
-          (let ((default-directory dir))
-            (call-interactively #'compile))
-        (compile+ nil))))
+      (let ((default-directory dir))
+            (call-interactively #'compile))))
 
   (defun compile+ (current-dir)
+    "Select a directory, enter a command, then run it in compile buffer."
     (interactive "P")
     (let ((default-directory (if current-dir default-directory (read-directory-name "directory: ")))
           (current-prefix-arg nil))
       (call-interactively #'compile)))
+
+  (put 'project-compile-commands 'safe-local-variable #'listp)
+  (defun make-command-assoc-list (command-list) 
+    (let* ((dir-text (propertize "DIR" 'face 'bold))
+           (command-text (propertize "COMMAND" 'face 'bold))
+           (max-dir-length (apply 'max (mapcar (lambda (pair)
+                                               (length (format "%s%s" (project-root (project-current)) (car pair))))
+                                             command-list))))
+      (mapcar (lambda (pair)
+                (let* ((dir (format "%s%s" (project-root (project-current)) (car pair)))
+                       (cmd (cdr pair))
+                       (combined-key (format (concat "%s: %-" (number-to-string max-dir-length) "s %s: %s")
+                                             dir-text
+                                             dir
+                                             command-text
+                                             cmd)))
+                  (cons combined-key (cons dir cmd))))
+              command-list)))
   
+  (defun select-command-presets ()
+    (interactive)
+    (let* ((vertico-sort-override-function #'identity))
+      (if (> (length compile-commands) 0)
+	  (progn
+	    (let ((chosen (completing-read "history: " compile-commands)))
+	      (clear-line)
+	      (insert chosen))))))
+
+  (defun project-compile-menu ()
+    "given a selection of commands, choose one and run it."
+    (interactive)
+    (let* ((command-assoc-list (make-command-assoc-list compile-commands))
+           (command-name (completing-read "select command: " command-assoc-list))
+           (dir-and-command (cdr (assoc command-name command-assoc-list)))
+           (default-directory (car dir-and-command)))
+      (compile (cdr dir-and-command))))
+
+  (defun compilation-read-command (command)
+    (let* ((dir-text (propertize "DIR" 'face 'bold))
+           (command-text (propertize "COMMAND" 'face 'bold))
+           (current-dir default-directory)
+           (prompt (format "%s: (%s) %s: " dir-text current-dir command-text)))
+      ;; Execute the shell command with `shell-command`
+      (read-shell-command prompt command)))
+
   (defun append-to-zsh-history (&rest r)
     (shell-command (format "echo '%s' >> ~/.zsh_history" (car r))))
 
@@ -459,40 +531,23 @@
 
 ;;; TODO: i'd prefer to use a normal key-map here. can i write something?
 (use-package project
-  :after (evil-leader)
+  :after (evil-leader embark)
   :demand t
   :commands (project-dir-.emacs.d
 	     project-switch-current)
   :bind (:map evil-leader-state-map-extension
               ("f F" . find-file-under-dir)
-	      ("p" . project-switch-current))
+              ("C-p" . project-run-command+)
+              ("p x" . project-current-run-command+)
+	      ("p c" . project-compile)
+	      ("p f" . project-find-file)
+	      ("p F" . project-find-file-no-ignores)
+	      ("p g" . consult-git-grep)
+	      ("p G" . consult-grep)
+              ("p d" . project-find-dir)
+              ("p D" . project-dired)
+              ("p m" . project-make+))
   :config
-  (setq project-switch-commands
-	'((?f "File"          project-find-file)
-	  (?F "File no ignore" project-find-file-no-ignores)
-	  (?o "matching files" find-grep-dired)
-	  (?n "New file"      find-file)
-	  (?r "Grep"          consult-grep)
-	  (?R "Grep"          consult-grep-case-sensitive)
-	  (?D "Project Dir"   project-dired)
-	  (?d "Dired"         dired)
-	  (?b "Buffer"        project-switch-to-buffer)
-	  (?q "Query replace" project-query-replace-regexp)
-	  (?g "Magit"         magit-project-status)
-	  (?c "Compile"       compile)
-	  (?C "Recompile"     recompile)
-	  (?e "Eshell"        project-eshell)
-	  (?s "Shell"         shell)
-          (?m "Make"          project-make+)))
-
-  (defun project-switch-current ()
-    (interactive)
-    (project-switch-project (project-root (project-current nil))))
-
-  (defun project-dir-.emacs.d ()
-    (interactive)
-    (project-switch-project user-emacs-directory))
-
   (defun lines-in-file-matching-re (file regexp)
     (with-temp-buffer
       (insert-file-contents file)
@@ -507,6 +562,7 @@
      ((file-exists-p (format "%s/Makefile" dir)) (format "%s/Makefile" dir))))
   
   (defun project-make+ ()
+    "Select a command from the project makefile and make."
     (interactive)
     (let* ((project-dir (project-root (project-current nil)))
            (default-dir project-dir)
@@ -537,12 +593,25 @@
   (defun project-find-file-no-ignores (&optional dir)
     (interactive)
     (find-file (funcall project-read-file-name-function
-                        "Find file" (project--files-in-directory (or dir default-directory) nil) nil nil))))
+                        "Find file" (project--files-in-directory (or dir default-directory) nil) nil nil)))
+
+  (defun project-run-command+ (dir)
+    (interactive (list (project-prompt-project-dir)))
+    (let ((default-directory dir)
+          (project-current-inhibit-prompt t)
+          (map (make-composed-keymap evil-leader-state-map (current-global-map))))
+      (message "waiting for command to run in project: %s" dir)
+      (call-interactively (funcall embark-prompter map #'indentity))))
+
+  (defun project-current-run-command+ ()
+    (interactive)
+    (project-run-command+ (project-root (project-current))))
+  )
 
 (use-package minibuffer
   :ensure nil
   :bind (:map minibuffer-mode-map
-              ("C-c r" . select-shell-history)
+              ("C-c z" . select-shell-history)
               ("C-c SPC" . minibuffer-clear+))
   :config
   (defun select-shell-history ()
@@ -629,24 +698,24 @@
   (set-face-attribute 'vertico-group-title nil :foreground "blue")
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
 
-  (defun vertico--exhibit ()
-    "Exhibit completion UI."
-    (let* ((buffer-undo-list t) ;; Overlays affect point position and undo list!
-           (pt (max 0 (- (point) (minibuffer-prompt-end))))
-           (content (minibuffer-contents-no-properties)))
-      (unless (or (input-pending-p) (equal vertico--input (cons content pt)))
-        (vertico--update-candidates pt content))
-      (vertico--prompt-selection)
-      (vertico--display-count)
-      (vertico--display-candidates (vertico--arrange-candidates))
-      (when (and (bound-and-true-p last-vertico--index)
-                 (> last-vertico--index 0))
-        (dotimes (1- last-vertico--index)
-          (message "...")
-          (vertico-next 1))
-        (setq last-vertico--index -1)
-        (vertico--update-scroll)
-        (vertico--exhibit))))
+  ;; (defun vertico--exhibit ()
+  ;;   "Exhibit completion UI."
+  ;;   (let* ((buffer-undo-list t) ;; Overlays affect point position and undo list!
+  ;;          (pt (max 0 (- (point) (minibuffer-prompt-end))))
+  ;;          (content (minibuffer-contents-no-properties)))
+  ;;     (unless (or (input-pending-p) (equal vertico--input (cons content pt)))
+  ;;       (vertico--update-candidates pt content))
+  ;;     (vertico--prompt-selection)
+  ;;     (vertico--display-count)
+  ;;     (vertico--display-candidates (vertico--arrange-candidates))
+  ;;     (when (and (bound-and-true-p last-vertico--index)
+  ;;                (> last-vertico--index 0))
+  ;;       (dotimes (1- last-vertico--index)
+  ;;         (message "...")
+  ;;         (vertico-next 1))
+  ;;       (setq last-vertico--index -1)
+  ;;       (vertico--update-scroll)
+  ;;       (vertico--exhibit))))
   
   (defun vertico-next+ ()
     (interactive)
@@ -696,6 +765,7 @@
   :config
   (marginalia-mode 1))
 
+;; https://github.com/minad/corfu
 (use-package corfu
   :ensure t
   :commands (corfu-move-to-minibuffer)
@@ -713,7 +783,18 @@
           completion-cycle-threshold completion-cycling)
       (apply #'consult-completion-in-region completion-in-region--data)))
   (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer)
-  (global-corfu-mode 1))
+  (global-corfu-mode 1)
+  (defun corfu-enable-always-in-minibuffer ()
+    "Enable Corfu in the minibuffer if Vertico/Mct are not active."
+    (unless (or (bound-and-true-p mct--active)
+                (bound-and-true-p vertico--input)
+                (eq (current-local-map) read-passwd-map))
+      ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
+      (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
+                  corfu-popupinfo-delay nil)
+      (corfu-mode 1)))
+  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer)
+  )
 
 (use-package cape
   :ensure t
@@ -755,18 +836,18 @@
    	      ("b C-B"   . ibuffer)
    	      ("s l"   . consult-outline)
    	      ("s s"   . consult-line)
-   	      ("s r"   . consult-grep-dir)
-   	      ("s R"   . consult-grep-dir-case-sensitive)
+   	      ("s g"   . consult-git-grep)
+   	      ("s G"   . consult-grep)
 	      ("s i"   . consult-imenu)
 	      ("s o"   . occur))
   :config
-  (setq consult-preview-key (list (kbd "M-<return>") (kbd "M-n") (kbd "M-p")))
+  (setq consult-preview-key (list "M-<return>" "M-n" "M-p"))
   (consult-customize consult-ripgrep consult-git-grep consult-grep :preview-key nil)
 
   (defun consult-grep-case-sensitive (&optional dir)
     (interactive "P")
     (let ((consult-grep-args "grep --null --line-buffered --color=never --line-number -I -r ."))
-      (consult-grep)))
+      (consult-git-grep)))
 
   (defun consult-grep-dir (&optional dir)
     (interactive "P")
@@ -844,7 +925,7 @@
    	      ("C-c x" . embark-export)
    	      ("C-c c" . embark-collect)
 	 :map vertico-map
-   	      ("C-c e" . embark-export)
+   	      ("C-c C" . embark-export)
    	 :map embark-meta-map
    	      ("C-h" . nil)
    	      ("C-z" . embark-keymap-help)
@@ -891,10 +972,7 @@
 
   (setq prefix-help-command #'embark-prefix-help-command)
   (setq embark-quit-after-action nil)
-  (setq embark-action-indicator (lambda (map)
-   				  (which-key--show-keymap "Embark" map nil nil 'no-paging)
-   				  #'which-key--hide-popup-ignore-command))
-  (setq embark-become-indicator embark-action-indicator)
+  (setq embark-indicators '(embark--vertico-indicator embark-mixed-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
 
   (defun embark-collect-delete+ ()
     (interactive)
@@ -940,12 +1018,17 @@ not handle that themselves."
     (when (minibufferp)
       (record-vertico-details)
       (embark--become-command embark--command (minibuffer-contents))))
+
+  (set-face-attribute 'embark-target nil :bold t)
   )
 
 (use-package embark-maps
-  :after (embark)
+  :after (embark evil-leader)
   :demand t
-  :load-path my-package-dir)
+  :load-path my-package-dir
+  :config
+  (define-key embark-general-map (kbd "SPC") evil-leader-state-map-extension)
+  )
 
 (use-package orderless
   :ensure t
@@ -954,7 +1037,8 @@ not handle that themselves."
   :bind (:map minibuffer-mode-map
               ("C-c ?" . orderless-help+))
   :config
-  (setq completion-styles '(orderless))
+  (setq completion-styles '(orderless basic)
+        completion-category-overrides '((file (styles basic partial-completion))))
   (setq orderless-component-separator 'orderless-escapable-split-on-space)
 
   (defun orderless-flex-if-twiddle-dispatcher+ (pattern _index _total)
@@ -989,13 +1073,40 @@ not handle that themselves."
      ((string-prefix-p "!" pattern)
       `(orderless-without-literal . ,(substring pattern 1)))))
 
-  (setq orderless-matching-styles '(orderless-regexp)
+  (setq orderless-matching-styles '(orderless-literal orderless-regexp)
    	orderless-style-dispatchers '(orderless-flex-if-twiddle-dispatcher+
    				      orderless-initialism-dispatcher+
    				      orderless-literal-dispatcher+
    				      orderless-without-dispatcher+))
 
-  )
+  (defvar my-orderless-prefix-faces
+    '((?= . error)
+      (?, . error)
+      (?! . error)
+      (?~ . error)))
+
+  (defun my-highlight-prefix ()
+    (save-excursion
+      (goto-char (point-min))
+      (dolist (prefix-face my-orderless-prefix-faces)
+        (let* ((prefix (car prefix-face))
+               (face (cdr prefix-face))
+               (search (format "\\(^\\|[^\\\\] \\)%s[^ ]" (char-to-string prefix))))
+          (while (search-forward-regexp search nil t)
+            (let ((prefix-pos (- (match-end 0) 2)))
+              (put-text-property prefix-pos (1+ prefix-pos) 'face face)
+              (remove-list-of-text-properties (1+ prefix-pos)
+                                              (min (1+ (1+ prefix-pos)) (point-max))
+                                              '(face)))))))
+    (set-buffer-modified-p nil))
+
+  (setq orderless-smart-case t)
+
+  (defun my-setup-highlight-hook ()
+    (when (eq (current-local-map) vertico-map)
+      (add-hook 'post-command-hook #'my-highlight-prefix nil t)))
+
+  (add-hook 'minibuffer-setup-hook #'my-setup-highlight-hook))
 
 (use-package undo-tree
   :ensure t
@@ -1047,6 +1158,7 @@ not handle that themselves."
   (evil-set-initial-state 'vterm-mode 'insert)
   (evil-set-initial-state 'conf-mode 'normal)
   (evil-set-initial-state 'shell-mode 'normal)
+  (evil-set-initial-state 'cider-repl-mode 'normal)
 
   (evil-set-initial-state 'magit-log-edit-mode 'insert)
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
@@ -1105,10 +1217,46 @@ not handle that themselves."
           (?t . evil-surround-read-tag)
           (?< . evil-surround-read-tag)
           (?\C-f . evil-surround-prefix-function)
-          (?f . evil-surround-function)))
+          (?f . evil-surround-function))))
+
+;; (use-package lispyville
+;;   :ensure t
+;;   :bind (("C-k" . lispy-kill))
+
+(use-package evil-cleverparens
+  :ensure t
+  :demand t
+  :bind (("C-k " . paredit-kill))
+  :hook ((text-mode-hook   . evil-cleverparens-mode)
+         (prog-mode-hook   . evil-cleverparens-mode)
+         (python-mode-hook . evil-cleverparens-mode)
+         (java-mode-hook   . evil-cleverparens-mode)
+         (scala-mode-hook  . evil-cleverparens-mode)
+         (emacs-lisp-mode  . evil-cleverparens-mode))
+  :init
+  (defvar evil-cp-regular-movement-keys '())
+  (defvar evil-cp-swapped-movement-keys '())
+  (defvar evil-cp-additional-movement-keys '())
+  (defvar evil-cp-additional-bindings '())
+
+  (defvar evil-cp-regular-bindings
+    '(("k"   . evil-cp-delete)
+      ("c"   . evil-cp-change)
+      ("w"   . evil-cp-yank)
+      ("K"   . evil-cp-delete-line)
+      ("C"   . evil-cp-change-line)
+      ("W"   . evil-cp-yank-line)
+      ("x"   . evil-cp-delete-char-or-splice)
+      ("X"   . evil-cp-delete-char-or-splice-backwards))))
 
 
-  )
+(use-package elec-pair
+  :hook ((text-mode-hook   . evil-cleverparens-mode)
+         (prog-mode-hook   . evil-cleverparens-mode)
+         (python-mode-hook . electric-pair-local-mode)
+         (java-mode-hook   . electric-pair-local-mode)
+         (scala-mode-hook  . electric-pair-local-mode)
+         (emacs-lisp-mode  . electric-pair-local-mode)))
 
 (use-package magit
   :ensure t
@@ -1169,12 +1317,6 @@ not handle that themselves."
     (dired-next-line 1)
     (dired-preview)))
 
-(use-package ls-lisp
-  :after (dired)
-  :config
-  (setq dired-use-ls-dired t)
-  (setq ls-lisp-use-insert-directory-program nil)
-  (setq ls-lisp-dirs-first t))
 
 (use-package dired-narrow
   :ensure t
@@ -1182,6 +1324,45 @@ not handle that themselves."
   :commands (dired-narrow-archive)
   :bind (:map dired-mode-map
   	      ("/" . dired-narrow)))
+
+(use-package dired-sidebar
+  :after (dired)
+  :ensure t
+  :demand t
+  :commands (dired-sidebar-toggle-sidebar)
+  :bind (:map evil-leader-state-map-extension
+              ("d s" . dired-sidebar-toggle-sidebar)
+         :map dired-mode-map
+              ("<" . dired-up-directory)
+              ("^" . nil)
+         :map dired-sidebar-mode-map
+         ("^" . nil))
+  :config
+  (setq dired-sidebar-width 45)
+
+  )
+
+(use-package dired-sidebar
+  :after (dired)
+  :ensure t
+  :demand t
+  :commands (dired-sidebar-toggle-sidebar))
+
+(use-package dired-subtree
+  :after (dired dired-sidebar)
+  :ensure t
+  :bind (:map dired-mode-map
+              ("TAB" . dired-subtree-cycle)
+              ("^" . dired-subtree-up)
+         :map dired-sidebar-mode-map
+              ("^" . dired-subtree-up)))
+
+(use-package ls-lisp
+  :after (dired)
+  :config
+  (setq dired-use-ls-dired t)
+  (setq ls-lisp-use-insert-directory-program nil)
+  (setq ls-lisp-dirs-first t))
 
 (use-package ace-window
   :ensure t
@@ -1599,7 +1780,8 @@ most recent, and so on."
               ("n q b" . org-ql-search-buffer+)
               ("n q a" . org-ql-search-all+)
               ("n q s" . org-ql-search)
-              ("n q v" . org-ql-view))
+              ("n q v" . org-ql-view)
+              ("n g" . org-ql-find-guide))
   :config
   (defun org-ql-search-all+ ()
     (interactive)
@@ -1611,10 +1793,11 @@ most recent, and so on."
     (let ((query (read-string "Query: ")))
       (org-ql-search (org-ql-view--expand-buffers-files "buffer") query)))
 
-  (defun org-ql-search-buffer+ ()
+  ;; todo: this doesn't seem to filter on headline?
+  (defun org-ql-find-guide ()
     (interactive)
-    (let ((query (read-string "Query: ")))
-      (org-ql-search (org-ql-view--expand-buffers-files "buffer") query))))
+    (let ((guides (list (expand-file-name "guide.org" user-emacs-directory))))
+      (org-ql-find guides :query-prefix "tags:#help "))))
 
 (use-package org-roam
   :ensure t
@@ -1653,20 +1836,16 @@ most recent, and so on."
                  (org-show-all))
         (org-roam-node-create+ (org-roam-node-title node)))))
 
-
-  (defun org-roam-node-insert+ (bare &optional node)
-    (interactive (list (not current-prefix-arg)
-                       (org-roam-node-read)))
-    (cond ((and bare (org-roam-node-file node))
-           (insert (format "id:%s" (org-roam-node-id node))))
-          ((org-roam-node-file node)
-           (insert (format "[[id:%s][%s]]"
-                           (org-roam-node-id node)
-                           (org-roam-node-title node))))
-          (bare (insert (format "id:%s" (org-roam-node-create+ (org-roam-node-title node) t))))
-          (t (insert (format "[[id:%s][%s]]"
-                             (org-roam-node-create+ (org-roam-node-title node) t)
-                             (org-roam-node-title node))))))
+  (defun org-roam-node-insert+ (with-title &optional title)
+    (interactive (list current-prefix-arg
+                       (org-roam-node-title (org-roam-node-read))))
+    (when (not (org-roam-node-titled title))
+      (org-roam-node-create+ title t))
+    (let* ((node (org-roam-node-titled title))
+           (id (org-roam-node-id node)))
+      (insert (format "id:%s%s"
+                      id
+                      (if with-title (concat " " title) "")))))
 
   (defun org-roam-node-titled (node-title)
     (->> (org-roam-node-list)
@@ -1677,6 +1856,7 @@ most recent, and so on."
   (cl-defmethod org-roam-node-tagged ((node org-roam-node))
     "Return the currently set category for the NODE."
     (cdr (assoc-string "TAGGED" (org-roam-node-properties node))))
+
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tagged:50}" 'face 'org-tag)))
 
   (defun org-roam-goto-today+ ()
@@ -1685,9 +1865,7 @@ most recent, and so on."
           (node  (org-roam-node-titled today)))
       (if node
         (org-roam-node-open node)
-      (org-roam-node-create+ today))))
-
-  )
+      (org-roam-node-create+ today)))))
 
 (use-package markdown-mode
   :ensure t
@@ -1765,8 +1943,23 @@ most recent, and so on."
               ("l k" . lsp-shutdown-workspace)
               ("l R" . lsp-rename))
   :hook ((java-mode-hook . lsp)
-         (python-mode-hook . lsp))
+         (python-mode-hook . lsp)
+         (lsp-completion-mode . my/lsp-mode-setup-completion))
   :config
+  (defun my/orderless-dispatch-flex-first (_pattern index _total)
+    (and (eq index 0) 'orderless-flex))
+
+  (defun my/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless)))
+
+  ;; Optionally configure the first word as flex filtered.
+  (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
+
+  ;; Optionally configure the cape-capf-buster.
+  (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point)))
+
+  (setq lsp-completion-provider :none)
   (setq lsp-enable-symbol-highlighting nil)
   (setq lsp-headerline-breadcrumb-enable nil)
   (evil-define-key '(normal motion) lsp-mode-map (kbd "g r") 'lsp-find-references))
@@ -2254,5 +2447,29 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
 (defun display-startup-echo-area-message ()
   (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
     (message (format "Emacs started in %s seconds." seconds))))
+
+(setq site-to-query '(("google" . "https://www.google.com/search?q=")
+                      ("ddg" . "https://duckduckgo.com/?q=")
+                      ("stack overflow" . "https://stackoverflow.com/search?q=")))
+
+(cdr (assoc "google" site-to-query))
+
+(defun search-web (site query)
+  (interactive (list (completing-read "site" site-to-query)
+                     (read-string "query: ")))
+  (let* ((stub (cdr (assoc site site-to-query)))
+         (url (concat stub (s-replace " " "+" query))))
+    (browse-url url)))
+
+(use-package simple-modeline
+  :ensure t
+  :hook (after-init-hook . simple-modeline-mode))
+
+(defun uncheck-all ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (search-forward "[X]" nil t)
+      (replace-match "[ ]"))))
 
 (setq debug-on-error nil)

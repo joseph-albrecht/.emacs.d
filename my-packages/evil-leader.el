@@ -139,8 +139,10 @@
 (define-key evil-leader-state-map-extension (kbd "o b") 'bookmark-jump)
 (define-key evil-leader-state-map-extension (kbd "o +") 'bookmark-set)
 (define-key evil-leader-state-map-extension (kbd "o p") 'list-processes)
-(defun open-init () (interactive) (find-file (format "%s/init.el" user-emacs-directory)))
+(defun open-init () (interactive) (find-file (expand-file-name "init.el" user-emacs-directory)))
+(defun open-guide () (interactive) (find-file (expand-file-name "guide.org" user-emacs-directory)))
 (define-key evil-leader-state-map-extension (kbd "o i") 'open-init)
+(define-key evil-leader-state-map-extension (kbd "o g") 'open-guide)
 
 ;; local
 (define-key evil-leader-state-map-extension (kbd "SPC") 'evil-leader-call-local-map)
