@@ -15,6 +15,7 @@
 
 (use-package emacs
   :after (evil-leader embark)
+  :demand t
   :commands (insert-time-id
              eval-region+
              eval-buffer+
@@ -493,15 +494,6 @@
                                              cmd)))
                   (cons combined-key (cons dir cmd))))
               command-list)))
-  
-  (defun select-command-presets ()
-    (interactive)
-    (let* ((vertico-sort-override-function #'identity))
-      (if (> (length compile-commands) 0)
-	  (progn
-	    (let ((chosen (completing-read "history: " compile-commands)))
-	      (clear-line)
-	      (insert chosen))))))
 
   (defun project-compile-menu ()
     "given a selection of commands, choose one and run it."
@@ -817,12 +809,13 @@
 
 (use-package consult
   :after (evil-leader)
+  :ensure t
+  :demand t
   :commands (consult-grep-dir
    	     consult-buffer-terminal
              consult-buffer-ein
              consult-buffer-compilation
              consult-grep-dir-case-sensitive)
-  :ensure t
   :bind (("C-M-y" . consult-yank-from-kill-ring)
          :map evil-leader-state-map-extension
    	      ("b b"   . consult-buffer)
@@ -1034,6 +1027,7 @@ not handle that themselves."
               ("C-c ?" . orderless-help+))
   :config
   (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
         completion-category-overrides '((file (styles basic partial-completion))))
   (setq orderless-component-separator 'orderless-escapable-split-on-space)
 
@@ -1184,6 +1178,7 @@ not handle that themselves."
 
 (use-package evil-leader
   :after (evil)
+  :demand t
   :load-path my-package-dir
   :config
   (define-key evil-leader-state-map-extension (kbd "i t") 'insert-time-id))
@@ -1641,7 +1636,7 @@ most recent, and so on."
     (setq notebox (expand-file-name path))
     (setq org-directory notebox))
 
-  (org-set-notebox+ "~/notes/")
+  (org-set-notebox+ "~/home/notebox/")
 
   (setq org-babel-load-languages '((emacs-lisp . t)
                                    (shell . t)
@@ -1926,7 +1921,7 @@ most recent, and so on."
   :after (evil-leader)
   :ensure nil
   :bind (:map evil-leader-state-map-extension
-              ("s ."   . xref-find-references)
+              ("s r"   . xref-find-references)
          :map xref--xref-buffer-mode-map
               ("n"   . xref-next-line-no-show)
               ("p"   . xref-prev-line-no-show)
@@ -1937,13 +1932,12 @@ most recent, and so on."
   :ensure t
   :demand t
   :bind (:map evil-leader-state-map-extension
-              ("l r" . lsp-find-references)
               ("l l" . lsp)
               ("l k" . lsp-shutdown-workspace)
-              ("l R" . lsp-rename))
+              ("l r" . lsp-rename))
   :hook ((java-mode-hook . lsp)
          (python-mode-hook . lsp)
-         (lsp-completion-mode . my/lsp-mode-setup-completion))
+         (lsp-completion-mode-hook . my/lsp-mode-setup-completion))
   :config
   (defun my/orderless-dispatch-flex-first (_pattern index _total)
     (and (eq index 0) 'orderless-flex))
@@ -1962,6 +1956,12 @@ most recent, and so on."
   (setq lsp-enable-symbol-highlighting nil)
   (setq lsp-headerline-breadcrumb-enable nil)
   (evil-define-key '(normal motion) lsp-mode-map (kbd "g r") 'lsp-find-references))
+
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))
 
 ;; https://emacs-lsp.github.io/dap-mode/page/configuration/
 (use-package dap-mode
@@ -2095,12 +2095,6 @@ most recent, and so on."
     (interactive)
     (let ((symbol (thing-at-point 'symbol)))
       (devdocs-lookup nil symbol))))
-
-(unless (require 'vterm-module nil t)
-  (message "Running: brew install cmake")
-  (shell-command "brew install cmake")
-  (message "Running: brew install libvterm")
-  (shell-command "brew install libvterm"))
 
 ;; TODO: figure out evil-replace
 (use-package vterm
@@ -2281,6 +2275,13 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (evil-define-key '(normal)        vterm-mode-map (kbd "d")   #'evil-vterm-append)
   (evil-define-key '(normal)        vterm-mode-map (kbd "I")   #'evil-vterm-insert-line)
   (evil-define-key '(normal)        vterm-mode-map (kbd "I")   #'evil-vterm-insert-line))
+
+(unless (require 'vterm-module nil t)
+  (message "Running: brew install cmake")
+  (shell-command "brew install cmake")
+  (message "Running: brew install libvterm")
+  (shell-command "brew install libvterm")
+  (vterm-module-compile))
 
 (use-package ein
   :ensure t
