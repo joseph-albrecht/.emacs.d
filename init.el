@@ -60,7 +60,7 @@
               ("s h u" . 'unhighlight-regexp)
               ("s h U" . 'unhighlight-regexp-all+)
               ("s h p" . 'highlight-phrase)
-              ("M-x" . run-command-with-default-dir))
+              ("d x" . run-command-with-default-dir))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   (defun unhighlight-regexp-all+ ()
