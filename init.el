@@ -1212,6 +1212,12 @@ not handle that themselves."
 (use-package lispyville
   :ensure t
   :bind (("C-k" . lispy-kill))
+  :hook ((text-mode-hook   . lispyville-mode)
+         (prog-mode-hook   . lispyville-mode)
+         (python-mode-hook . lispyville-mode)
+         (java-mode-hook   . lispyville-mode)
+         (scala-mode-hook  . lispyville-mode)
+         (emacs-lisp-mode  . lispyville-mode)))
 
 (use-package elec-pair
   :hook ((text-mode-hook   . electric-pair-local-mode)
