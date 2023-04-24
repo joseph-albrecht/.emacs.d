@@ -527,6 +527,7 @@
 	     project-switch-current)
   :bind (:map evil-leader-state-map-extension
               ("f F" . find-file-under-dir)
+              ("p b" . project-switch-to-buffer)
               ("C-p" . project-run-command+)
               ("p x" . project-current-run-command+)
 	      ("p c" . project-compile)
@@ -1208,43 +1209,13 @@ not handle that themselves."
           (?\C-f . evil-surround-prefix-function)
           (?f . evil-surround-function))))
 
-;; (use-package lispyville
-;;   :ensure t
-;;   :bind (("C-k" . lispy-kill))
-
-(use-package evil-cleverparens
+(use-package lispyville
   :ensure t
-  :demand t
-  :bind (("C-k " . paredit-kill))
-  :hook ((text-mode-hook   . evil-cleverparens-mode)
-         (prog-mode-hook   . evil-cleverparens-mode)
-         (python-mode-hook . evil-cleverparens-mode)
-         (java-mode-hook   . evil-cleverparens-mode)
-         (scala-mode-hook  . evil-cleverparens-mode)
-         (emacs-lisp-mode  . evil-cleverparens-mode))
-  :init
-  (defvar evil-cp-regular-movement-keys '())
-  (defvar evil-cp-swapped-movement-keys '())
-  (defvar evil-cp-additional-movement-keys '())
-  (defvar evil-cp-additional-bindings '())
-  (defvar evil-cp-insert-key "i")
-  (defvar evil-cp-append-key "d")
-  (setq evil-cleverparens-use-s-and-S nil)
-
-  (defvar evil-cp-regular-bindings
-    '(("k"   . evil-cp-delete)
-      ("c"   . evil-cp-change)
-      ("w"   . evil-cp-yank)
-      ("K"   . evil-cp-delete-line)
-      ("C"   . evil-cp-change-line)
-      ("W"   . evil-cp-yank-line)
-      ("x"   . evil-cp-delete-char-or-splice)
-      ("X"   . evil-cp-delete-char-or-splice-backwards))))
-
+  :bind (("C-k" . lispy-kill))
 
 (use-package elec-pair
-  :hook ((text-mode-hook   . evil-cleverparens-mode)
-         (prog-mode-hook   . evil-cleverparens-mode)
+  :hook ((text-mode-hook   . electric-pair-local-mode)
+         (prog-mode-hook   . electric-pair-local-mode)
          (python-mode-hook . electric-pair-local-mode)
          (java-mode-hook   . electric-pair-local-mode)
          (scala-mode-hook  . electric-pair-local-mode)
