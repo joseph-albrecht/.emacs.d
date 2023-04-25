@@ -1929,6 +1929,7 @@ most recent, and so on."
 
   (setq lsp-completion-provider :none)
   (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-imenu  nil)
   (setq lsp-headerline-breadcrumb-enable nil)
   (evil-define-key '(normal motion) lsp-mode-map (kbd "g r") 'lsp-find-references))
 
