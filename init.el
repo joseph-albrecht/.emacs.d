@@ -1611,7 +1611,7 @@ most recent, and so on."
     (setq notebox (expand-file-name path))
     (setq org-directory notebox))
 
-  (org-set-notebox+ "~/home/notebox/")
+  (org-set-notebox+ "~/notes")
 
   (setq org-babel-load-languages '((emacs-lisp . t)
                                    (shell . t)
