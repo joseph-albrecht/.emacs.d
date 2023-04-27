@@ -187,7 +187,7 @@
 
   (setq confirm-kill-processes nil)
   (setq kill-buffer-query-functions nil)
-  
+
   (defun clear-line ()
     (move-beginning-of-line 1)
     (ignore-errors (kill-line)
@@ -477,7 +477,7 @@
       (call-interactively #'compile)))
 
   (put 'project-compile-commands 'safe-local-variable #'listp)
-  (defun make-command-assoc-list (command-list) 
+  (defun make-command-assoc-list (command-list)
     (let* ((dir-text (propertize "DIR" 'face 'bold))
            (command-text (propertize "COMMAND" 'face 'bold))
            (max-dir-length (apply 'max (mapcar (lambda (pair)
@@ -563,7 +563,7 @@
      ((file-exists-p (format "%s/GNUmakefile" dir)) (format "%s/GNUmakefile" dir))
      ((file-exists-p (format "%s/makefile" dir)) (format "%s/makefile" dir))
      ((file-exists-p (format "%s/Makefile" dir)) (format "%s/Makefile" dir))))
-  
+
   (defun project-make+ ()
     "Select a command from the project makefile and make."
     (interactive)
@@ -631,7 +631,7 @@
 	    (let ((chosen-history (completing-read "history: " history)))
 	      (clear-line)
 	      (insert chosen-history))))))
-  
+
   (defun minibuffer-clear+ ()
     (interactive)
     (let ((start (progn (beginning-of-buffer)
@@ -676,9 +676,9 @@
 
   (defun vertico-settings ()
     (setq vertico-count vertico-default-count))
-  
+
   (add-hook 'minibuffer-exit-hook #'vertico-settings)
-  
+
   (defun vertico-show-more ()
     (interactive)
     (if vertico-unobtrusive-mode
@@ -694,7 +694,7 @@
       (setq vertico-resize t)
       (vertico--exhibit)
       (setq vertico-resize nil)))
-  
+
   (setq vertico-multiline '(#("⤶" 0 1 (face vertico-multiline)) . #("…" 0 1 (face vertico-multiline))))
 
   (vertico-mode)
@@ -719,7 +719,7 @@
   ;;       (setq last-vertico--index -1)
   ;;       (vertico--update-scroll)
   ;;       (vertico--exhibit))))
-  
+
   (defun vertico-next+ ()
     (interactive)
     (cond
@@ -747,7 +747,7 @@
 ;;   (vertico-reverse-mode 1)
 ;;   (vertico-reverse-mode -1)
 ;;   (define-key vertico-reverse-map (kbd "M-n") 'vertico-previous)
-;;   (define-key vertico-reverse-map (kbd "M-p") 'vertico-next) 
+;;   (define-key vertico-reverse-map (kbd "M-p") 'vertico-next)
 
 ;;   (setq vertico-multiform-categories '((imenu reverse)
 ;;                                        (consult-grep reverse)
@@ -804,7 +804,7 @@
   :bind (("M--" . nil)
          ("M-- f" . cape-file)
          ("M-- s" . cape-symbol)
-         ("M-- l" . cape-line)) 
+         ("M-- l" . cape-line))
   :init
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   :config
@@ -988,7 +988,7 @@
       (when (equal (line-number-at-pos (point-max))
                    (line-number-at-pos (point)))
         (previous-line))))
-  
+
   (cl-defun embark--confirm (&key action target &allow-other-keys)
     "Ask for confirmation before running the ACTION on the TARGET."
     nil)
@@ -1176,7 +1176,7 @@ not handle that themselves."
               :after (lambda (&rest r) (evil-change-state evil-default-state))))
 
 (use-package evil-escape
-  :ensure t 
+  :ensure t
   :config
   (evil-escape-mode)
   (setq evil-escape-key-sequence "jk")
@@ -1244,7 +1244,7 @@ not handle that themselves."
   :bind (:map magit-status-mode-map
               ("<" . magit-section-up)
          :map evil-leader-state-map-extension
-	      ("g g" . magit-status) 
+	      ("g g" . magit-status)
               ("g c" . magit-clone)
               ("g d" . magit-file-dispatch))
   :config
@@ -1368,7 +1368,7 @@ not handle that themselves."
   (defun ace-switch-buffer-other-window ()
     (interactive)
     (aw-select #'aw-switch-buffer-other-window))
-  
+
   (setq aw-keys '(?u ?h ?e ?t))
   (setq aw-dispatch-always nil))
 
@@ -1698,7 +1698,7 @@ most recent, and so on."
                (formatted-headline (format-headline+ current-headline parents)))
           (append (list (cons formatted-headline
                               (plist-get (cadr current-headline)
-                                         :begin))) 
+                                         :begin)))
                   (org-get-headline-details+ (cddr current-headline)
                                              formatted-headline)
                   (org-get-headline-details+ (cdr ast) parents))))))
@@ -1768,7 +1768,7 @@ most recent, and so on."
     (interactive)
     (let ((query (read-string "Query: ")))
       (org-ql-search (org-ql-view--expand-buffers-files "all") query)))
-  
+
   (defun org-ql-search-buffer+ ()
     (interactive)
     (let ((query (read-string "Query: ")))
@@ -1833,7 +1833,7 @@ most recent, and so on."
          (seq-find (lambda (node)
                      (equal (org-roam-node-title node)
                             node-title)))))
-  
+
   (cl-defmethod org-roam-node-tagged ((node org-roam-node))
     "Return the currently set category for the NODE."
     (cdr (assoc-string "TAGGED" (org-roam-node-properties node))))
@@ -1883,13 +1883,13 @@ most recent, and so on."
   :config
   (setq shell-file-name "/bin/zsh")
   (setq comint-process-echoes t)
-  
+
   (defun clear-line ()
     (move-beginning-of-line 1)
     (ignore-errors (kill-line)
 		   (pop kill-ring)))
-  
-  
+
+
 
   (defun shell-rename+()
     (interactive)
@@ -2056,7 +2056,7 @@ most recent, and so on."
 
   (advice-add 'consult-buffer :after #'pulsar-recenter-middle)
   (advice-add 'consult-imenu :after #'pulsar-recenter-middle)
-  
+
   (setq pulsar-pulse t)
   (setq pulsar-delay 0.04)
   (setq pulsar-iterations 10)
@@ -2069,7 +2069,7 @@ most recent, and so on."
   :ensure t
   :config
   :hook (scala-mode-hook . (lambda ()
-                         
+
                              (setq paragraph-start "[ \t]*$")
                              (setq paragraph-separate "[ \t]*$"))))
 
@@ -2128,7 +2128,7 @@ most recent, and so on."
     (if (vterm-on-prompt-p)
         (vterm-goto-char (vterm--get-prompt-point))
       (evil-first-non-blank-of-visual-line)))
-  
+
   (defun evil-vterm-insert-line ()
     "Insert character at beginning of prompt."
     (interactive)
