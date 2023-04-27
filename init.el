@@ -399,6 +399,7 @@
   :bind (("C-M-n" . next-error)
          ("C-M-p" . previous-error)
          :map evil-leader-state-map-extension
+	      ("p C" . project-compile-menu)
               ("e c" . compile)
               ("e C" . recompile)
          :map compilation-mode-map
@@ -493,10 +494,21 @@
                   (cons combined-key (cons dir cmd))))
               command-list)))
 
+  (defun get-project-compile-commands ()
+    (interactive)
+    (let* ((dir (project-root (project-current)))
+           (path (format "%s%s" dir ".compile-commands.el"))
+           (buffer (find-buffer-visiting path)))
+      (unless buffer
+        (setq buffer (find-file-noselect path)))
+      (with-current-buffer buffer
+        (let* ((buffer-contents (buffer-string)))
+          (read buffer-contents)))))
+
   (defun project-compile-menu ()
     "given a selection of commands, choose one and run it."
     (interactive)
-    (let* ((command-assoc-list (make-command-assoc-list compile-commands))
+    (let* ((command-assoc-list (make-command-assoc-list (get-project-compile-commands)))
            (command-name (completing-read "select command: " command-assoc-list))
            (dir-and-command (cdr (assoc command-name command-assoc-list)))
            (default-directory (car dir-and-command)))
