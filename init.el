@@ -1913,7 +1913,7 @@ most recent, and so on."
               ("n"   . xref-next-line-no-show)
               ("p"   . xref-prev-line-no-show)
               ("M-n" . xref-next-line)
-              ("M-p" . xref-previous-line)))
+              ("M-p" . xref-prev-line)))
 
 (use-package lsp-mode
   :ensure t
