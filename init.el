@@ -593,8 +593,11 @@
     (interactive)
     (project-find-file-no-ignores (read-directory-name "directory: ")))
 
-  (defun project-find-file-no-ignores (&optional dir)
+  (defun project-find-file-no-ignores ()
     (interactive)
+    (find-file-no-ignores (project-root (project-current))))
+
+  (defun find-file-no-ignores (&optional dir)
     (find-file (funcall project-read-file-name-function
                         "Find file" (project--files-in-directory (or dir default-directory) nil) nil nil)))
 
