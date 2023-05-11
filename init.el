@@ -1248,6 +1248,12 @@ not handle that themselves."
   :config
   (setq magit-save-repository-buffers 'dontask))
 
+(use-package magit-delta
+  :ensure t
+  :init
+  (shell-command "which delta || brew install git-delta")
+  :hook (magit-mode-hook . (lambda () (magit-delta-mode +1))))
+
 (use-package avy
   :ensure t
   :config
