@@ -1959,7 +1959,7 @@ most recent, and so on."
 (use-package dap-mode
   :ensure nil
   :commands (dap-debug+)
-  :after (lsp-mode evil-leader)
+  :after (lsp-mode)
   :bind (:map evil-leader-state-map-extension
               ("l d d" . dap-debug)
               ("l d h" . dap-hydra)))
