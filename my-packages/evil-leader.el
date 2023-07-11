@@ -34,6 +34,7 @@
 
 ;; buffers
 (define-key evil-leader-state-map-extension (kbd "b b") 'switch-to-buffer)
+(define-key evil-leader-state-map-extension (kbd "b D") 'dired-jump)
 (define-key evil-leader-state-map-extension (kbd "b k") 'kill-buffer)
 (define-key evil-leader-state-map-extension (kbd "b K") 'kill-this-buffer)
 (define-key evil-leader-state-map-extension (kbd "b .") 'mode-line-other-buffer)
@@ -46,9 +47,14 @@
 (define-key evil-leader-state-map-extension (kbd "f w") 'write-file)
 (define-key evil-leader-state-map-extension (kbd "f r") 'revert-buffer)
 
+(defun dired-default-directory+ ()
+  (interactive)
+  (find-file default-directory))
+
 ;; dired
 (define-key evil-leader-state-map-extension (kbd "d d") 'dired)
-(define-key evil-leader-state-map-extension (kbd "d D") 'dired-jump)
+(define-key evil-leader-state-map-extension (kbd "d b") 'dired-jump)
+(define-key evil-leader-state-map-extension (kbd "d D") 'dired-default-directory+)
 
 ;; project
 (define-key evil-leader-state-map-extension (kbd "C-p") 'project-switch-project)

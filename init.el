@@ -656,6 +656,8 @@
 	      ("C-M-p" . vertico-previous-group)
 	      ("M-n" . vertico-next+)
 	      ("M-p" . vertico-previous+)
+	      ("C-M-n" . vertico-next-group)
+	      ("C-M-p" . vertico-previous-group)
 	      ("C-<return>" . vertico-exit-input)
 	      ("C-^" . vertico-directory-up)
               ("M-h" . vertico-directory-up)
@@ -1254,6 +1256,9 @@ not handle that themselves."
   (shell-command "which delta || brew install git-delta")
   :hook (magit-mode-hook . (lambda () (magit-delta-mode +1))))
 
+(use-package forge
+  :after magit)
+
 (use-package avy
   :ensure t
   :config
@@ -1340,7 +1345,23 @@ not handle that themselves."
               ("TAB" . dired-subtree-cycle)
               ("^" . dired-subtree-up)
          :map dired-sidebar-mode-map
-              ("^" . dired-subtree-up)))
+         ("^" . dired-subtree-up))
+  :config
+  (copy-face 'default 'dired-subtree-depth-1-face)
+  (copy-face 'default 'dired-subtree-depth-2-face)
+  (copy-face 'default 'dired-subtree-depth-3-face)
+  (copy-face 'default 'dired-subtree-depth-4-face)
+  (copy-face 'default 'dired-subtree-depth-5-face)
+  (copy-face 'default 'dired-subtree-depth-6-face)
+
+  (set-face-attribute 'dired-subtree-depth-1-face nil :background "#e495e5f4e1df")
+  (set-face-attribute 'dired-subtree-depth-2-face nil :background "#e495e5f4e1df")
+  (set-face-attribute 'dired-subtree-depth-3-face nil :background "#e495e5f4e1df")
+  (set-face-attribute 'dired-subtree-depth-4-face nil :background "#e495e5f4e1df")
+  (set-face-attribute 'dired-subtree-depth-5-face nil :background "#e495e5f4e1df")
+  (set-face-attribute 'dired-subtree-depth-6-face nil :background "#e495e5f4e1df")
+
+  )
 
 (use-package ls-lisp
   :after (dired)
@@ -1602,7 +1623,7 @@ most recent, and so on."
               ("C-c RET" . org-meta-return)
               ("C-c S-RET" . org-insert-todo-heading)
          :map evil-leader-state-map-extension
-              ("i t" . org-insert-time-id+)
+              ("i t" . insert-archive-id+)
               ("s l" . org-jump+)
               ("c +" . org-increase-number-at-point)
               ("c -" . org-decrease-number-at-point)
@@ -1728,6 +1749,13 @@ most recent, and so on."
  	   (time-id  (format "%s%s" (substring time 0 12) letter)))
       time-id))
 
+  (defun archive-id+ ()
+    (format-time-string "%Y%m%d%H%M"))
+
+  (defun insert-archive-id+ ()
+    (interactive)
+    (insert (archive-id+)))
+
   (defun org-insert-time-id+ ()
     (interactive)
     (insert (org-time-id+)))
@@ -1849,8 +1877,15 @@ most recent, and so on."
     (let* ((today (format-time-string "%y-%m-%m" (current-time)))
           (node  (org-roam-node-titled today)))
       (if node
-        (org-roam-node-open node)
-      (org-roam-node-create+ today)))))
+          (org-roam-node-open node)
+        (org-roam-node-create+ today)))))
+
+;; https://git.sr.ht/~casouri/xeft
+;; https://www.reddit.com/r/emacs/comments/10e705g/comment/j4yoecz/
+;; need to make a script to pull and build the module
+;; there isn't one for m1 macs
+;; (use-package xeft
+;;   :ensure t)
 
 (use-package markdown-mode
   :ensure t
@@ -2456,6 +2491,28 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
 (use-package simple-modeline
   :ensure t
   :hook (after-init-hook . simple-modeline-mode))
+
+(use-package gnu-apl-mode
+  :ensure t
+  :config
+  (defun em-gnu-apl-init ()
+  (setq buffer-face-mode-face 'gnu-apl-default)
+  (buffer-face-mode))
+
+  
+  
+  
+(add-hook 'gnu-apl-interactive-mode-hook 'em-gnu-apl-init)
+(add-hook 'gnu-apl-mode-hook 'em-gnu-apl-init))
+
+;; todo-txt start
+(defun tdt-find-todos ()
+  (interactive)
+  (let ((default-directory "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian")
+        (todo-lines (split-string (shell-command-to-string "grep ' *[+-] \\[[ xX]\\]' *.md") "\n")))
+    (message "%S" (length todo-lines))))
+(provide 'tdt)
+
 
 (defun uncheck-all ()
   (interactive)
