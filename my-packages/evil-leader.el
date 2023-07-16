@@ -27,10 +27,17 @@
 (setq evil-default-state 'leader)
 
 (setq evil-leader-state-map-extension (make-sparse-keymap))
+(define-key evil-leader-state-map (kbd "<escape>") 'evil-normal-state)
+(global-set-key (kbd "M-SPC") evil-leader-state-map-extension)
 (define-key evil-leader-state-map (kbd "SPC") evil-leader-state-map-extension)
 (define-key evil-normal-state-map (kbd "SPC") evil-leader-state-map-extension)
 (define-key evil-leader-state-map-extension (kbd "x") 'execute-extended-command)
 (define-key evil-leader-state-map-extension (kbd "q") 'save-buffers-kill-terminal)
+
+;; states
+(define-key evil-leader-state-map-extension (kbd ". n") 'evil-normal-state)
+(define-key evil-leader-state-map-extension (kbd ". e") 'evil-emacs-state)
+(define-key evil-leader-state-map-extension (kbd ". l") 'evil-leader-state)
 
 ;; buffers
 (define-key evil-leader-state-map-extension (kbd "b b") 'switch-to-buffer)
@@ -81,6 +88,7 @@
 (define-key evil-leader-state-map-extension (kbd "c q") 'query-replace)
 (define-key evil-leader-state-map-extension (kbd "c Q") 'query-replace-regexp)
 (define-key evil-leader-state-map-extension (kbd "c m") 'apply-macro-to-region-lines)
+(define-key evil-leader-state-map-extension (kbd "c SPC") 'just-one-space)
 
 ;; windows
 (define-key evil-leader-state-map-extension (kbd "t w") 'ace-window)
