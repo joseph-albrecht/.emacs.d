@@ -2513,6 +2513,13 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
     (message "%S" (length todo-lines))))
 (provide 'tdt)
 
+(setq atlassian-jira-stem "https://atlassian.net/browse/")
+
+(defun open-jira-id (id)
+  (interactive "sID: ")
+  (browse-url (format "%s%s" atlassian-jira-stem id)))
+
+(define-key evil-leader-state-map-extension (kbd "o j") 'open-jira-id)
 
 (defun uncheck-all ()
   (interactive)
