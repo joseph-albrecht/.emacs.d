@@ -1,3 +1,10 @@
+;; packages to try
+;; https://github.com/emacs-citar/citar
+;; debug something something for jira ticket number clicking
+;; try to fix vterm window sizing issue
+;; vertico float for ultra tall mode
+
+
 (setq debug-on-error t)
 
 (require 'package)
@@ -1480,13 +1487,14 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
          ("TAB 8" . tab-bar-switch-to-tab-8+)
          ("TAB 9" . tab-bar-switch-to-tab-9+))
   :config
-  (setq tab-bar-show nil)
+  (setq tab-bar-show t)
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-separator "  ")
   (setq tab-bar-new-button nil)
   (setq tab-bar-tab-hints t)
   (set-face-attribute 'tab-bar-tab nil :background "#273532" :foreground "#268bd2" :overline nil :underline nil :bold t)
   (set-face-attribute 'tab-bar-tab-inactive nil :bold t)
+  (set-face-attribute 'tab-bar nil :underline '("gray50" . (line . 2)))
   (defun tab-bar-switch-to-tab (name)
     "Switch to the tab by NAME.
 Default values are tab names sorted by recency, so you can use \
@@ -1546,7 +1554,7 @@ most recent, and so on."
       (9 . "⑨"))
     "Alist of integers to strings of circled unicode numbers.")
   (setq tab-bar-tab-name-format-function #'tab-bar-tab-name-format-default)
-  (tab-bar-mode 0)
+  (tab-bar-mode 1)
   (tab-bar-rename-tab "misc."))
 
 (use-package dumb-jump
@@ -1623,7 +1631,8 @@ most recent, and so on."
               ("C-c RET" . org-meta-return)
               ("C-c S-RET" . org-insert-todo-heading)
          :map evil-leader-state-map-extension
-              ("i t" . insert-archive-id+)
+              ("i i a" . insert-archive-id+)
+              ("i i t" . org-insert-time-id+)
               ("s l" . org-jump+)
               ("c +" . org-increase-number-at-point)
               ("c -" . org-decrease-number-at-point)
@@ -2527,5 +2536,29 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
     (goto-char (point-min))
     (while (search-forward "[X]" nil t)
       (replace-match "[ ]"))))
+
+(use-package ediff
+  :config
+  (defun ediff-setup-windows-tab (buffer-A buffer-B buffer-C control-buffer)
+    (call-interactively #'tab-bar-duplicate-tab)
+    (tab-bar-rename-tab "*ediff*")
+    (ediff-setup-windows-plain buffer-A buffer-B buffer-C control-buffer)
+
+    )
+
+  (setq ediff-split-window-function 'split-window-horizontally)
+  (setq ediff-window-setup-function 'ediff-setup-windows-tab)
+
+  (defun ediff-quit+ (reverse-default-keep-variants)
+    (interactive "P")
+    (ediff-quit reverse-default-keep-variants)
+    (tab-close))
+
+  (defun my-setup-ediff-keybindings ()
+    (define-key ediff-mode-map "q" 'ediff-quit+))
+
+  (add-hook 'ediff-keymap-setup-hook 'my-setup-ediff-keybindings)
+
+  )
 
 (setq debug-on-error nil)
