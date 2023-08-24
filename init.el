@@ -53,7 +53,6 @@
               ("c $" . shell-command-on-region+)
 	      ("c k" . keep-lines+)
               ("c f" . flush-lines+)
-	      ("f k" . kill-filepath)
 	      ("f w" . kill-filepath)
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
@@ -213,13 +212,13 @@
 
   (defun kill-filepath ()
     (interactive)
-    (let ((path (buffer-file-name)))
+    (let ((path (or (buffer-file-name) default-directory)))
       (kill-new path)
       (message "added to kill ring: %s" path)))
 
   (defun echo-filepath ()
     (interactive)
-    (message (buffer-file-name)))
+    (message (or (buffer-file-name) default-directory)))
 
   (defun eval-region+ ()
     (interactive)
