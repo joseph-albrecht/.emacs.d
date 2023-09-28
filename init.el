@@ -758,7 +758,8 @@
               ("C-c +" . vertico-show-more)
               ("C-c -" . vertico-show-less)
          :map evil-leader-state-map-extension
-              ("X" . vertico-repeat))
+              ("X" . vertico-repeat)
+              ("M-x" . vertico-repeat))
   :config
   (setq vertico-default-count 20)
   (setq vertico-count vertico-default-count)
