@@ -18,7 +18,9 @@
   (package-install 'use-package))
 
 (use-package use-package
-  :custom ((use-package-hook-name-suffix "")))
+  :custom ((use-package-hook-name-suffix "")
+           (use-package-debug t)
+           (use-package-verbose t)))
 
 (use-package emacs
   :after (evil-leader embark)
@@ -66,6 +68,7 @@
               ("s h u" . 'unhighlight-regexp)
               ("s h U" . 'unhighlight-regexp-all+)
               ("s h p" . 'highlight-phrase)
+              ("i r c" . 'insert-regexp-char-class)
               ("d x" . run-command-with-default-dir))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
@@ -155,10 +158,21 @@
     (split-window-right)
     (other-window 1))
 
+  (defun pred-width (height) (* height iosevka-height-to-width))
+
+  (setq ultrawide-34-ratio (/ 3440.0 1400))
+  (setq iosevka-rows-to-cols (/ 64.0 188))
+  (setq ultrawide-38-ratio (/ 3440.0 1400))
+  (setq mac-retina-ratio (/ 3440.0 1400))
+
   (setq monitor-attributes '(("ultrawide" . ((font-height . 170)
 					     (frame-width . 190)))
-			     ("mac-retina" . ((font-height . 140)
-					      (frame-width . 215)))))
+                             ("ultrawide demo" . ((font-height . 220)
+					          (frame-width . 165)))
+			     ("mac" . ((font-height . 140)
+				       (frame-width . 215)))
+                             ("mac demo" . ((font-height . 180)
+					    (frame-width . 180)))))
 
   (defun conform-frame-to-monitor ()
     (interactive)
@@ -212,7 +226,7 @@
 
   (defun kill-filepath ()
     (interactive)
-    (let ((path (or (buffer-file-name) default-directory)))
+    (let ((path (or (buffer-file-name) (expand-file-name default-directory))))
       (kill-new path)
       (message "added to kill ring: %s" path)))
 
@@ -347,7 +361,28 @@
       (message "waiting for command to run in dir: %s" dir)
       (call-interactively (funcall embark-prompter map #'indentity))))
 
-  )
+  (setq regexp-char-classes
+      '("[:ascii:]"
+        "[:alnum:]"
+        "[:alpha:]"
+        "[:blank:]"
+        "[:cntrl:]"
+        "[:digit:]"
+        "[:graph:]"
+        "[:lower:]"
+        "[:multibyte:]"
+        "[:nonascii:]"
+        "[:print:]"
+        "[:punct:]"
+        "[:space:]"
+        "[:unibyte:]"
+        "[:upper:]"
+        "[:word:]"
+        "[:xdigit:]"))
+
+  (defun insert-regexp-char-class ()
+    (interactive)
+    (insert (completing-read "regexp class: " regexp-char-classes))))
 
 (use-package solarized-theme
   :after (org orderless)
@@ -595,6 +630,50 @@
                      (cons 'vc root)
                    (list 'vc backend root)))))
 
+  ;; get current file name {path}/name{.extension}
+  ;; get all file paths in project
+  ;; look for a file with "test" in the path and the name in the filename
+  ;; if there is only 1, then jump to it
+  ;; if there are 2 then provide a choice
+
+  (defun project-jump-to-test ()
+    (let* ((target-base (file-name-base buffer-file-name))
+           (target-extension (file-name-extension buffer-file-name))
+           (all-files (project--files-in-directory (project-root (project-current)) nil))
+           (matching-files (seq-filter (lambda (file)
+                                         (let ((base (file-name-base file))
+                                               (extension (file-name-extension file)))
+                                           (and (s-contains-p target-base base)
+                                                (s-contains-p "test" base)
+                                                (s-equals-p target-extension extension)
+                                                (s-contains-p "test" (file-name-directory file)))))
+                                       all-files)))
+      (cond
+       ((= 1 (length matching-files)) (find-file (nth 0 matching-files)))
+       (t (find-file (completing-read "Pick test: " matching-files))))))
+
+  (defun project-jump-to-src ()
+    (defun project-jump-to-test ()
+    (let* ((target-base (file-name-base buffer-file-name))
+           (target-extension (file-name-extension buffer-file-name))
+           (all-files (project--files-in-directory (project-root (project-current)) nil))
+           (matching-files (seq-filter (lambda (file)
+                                         (let ((base (file-name-base file))
+                                               (extension (file-name-extension file)))
+                                           (and (s-contains-p target-base base)
+                                                (s-contains-p "test" base)
+                                                (s-equals-p target-extension extension)
+                                                (s-contains-p "test" (file-name-directory file)))))
+                                       all-files)))
+      (cond
+       ((= 1 (length matching-files)) (find-file (nth 0 matching-files)))
+       (t (find-file (completing-read "Pick test: " matching-files)))))))
+
+  (defun project-find-test-pair ()
+    (interactive)
+    (cond
+     ((not (s-contains-p "test" (file-name-base buffer-file-name))) (project-jump-to-test))))
+
   (defun find-file-under-dir ()
     (interactive)
     (project-find-file-no-ignores (read-directory-name "directory: ")))
@@ -622,11 +701,19 @@
 
 (use-package minibuffer
   :ensure nil
+  :demand t
+  ;; :after (evil-leader)
   :bind (:map minibuffer-mode-map
-              ("C-c z" . select-shell-history)
-              ("C-c SPC" . minibuffer-clear+))
+              ("C-c $" . select-shell-history)
+              ("C-c SPC" . minibuffer-clear+)
+         ;; :map evil-leader-state-map-extension
+         ;;      ("i $" . insert-shell-history)
+         ;;:map evil-ex-completion-map
+         ;;     ("C-c $" . select-shell-history)
+              ;;     ("C-c SPC" . minibuffer-clear+)
+	      )
   :config
-  (defun select-shell-history ()
+  (defun insert-shell-history ()
     (interactive)
     (let* ((zsh-hist     (shell-command-to-string "cat ~/.zsh_history  2> /dev/null"))
            (history (->> zsh-hist
@@ -638,16 +725,18 @@
       (if (> (length history) 0)
 	  (progn
 	    (let ((chosen-history (completing-read "history: " history)))
-	      (clear-line)
 	      (insert chosen-history))))))
+
+  (defun select-shell-history ()
+    (interactive)
+    (minibuffer-clear+)
+    (insert-shell-history))
 
   (defun minibuffer-clear+ ()
     (interactive)
-    (let ((start (progn (beginning-of-buffer)
-                        (move-end-of-line 1)
-                        (move-beginning-of-line 1)
+    (let ((start (progn (move-beginning-of-line 1)
                         (point)))
-          (end    (progn (end-of-buffer)
+          (end    (progn (move-end-of-line 1)
                          (point))))
       (delete-region start end))))
 
@@ -776,6 +865,7 @@
 
 (use-package marginalia
   :ensure t
+  :demand t
   :config
   (marginalia-mode 1))
 
@@ -812,6 +902,7 @@
 
 (use-package cape
   :ensure t
+  :demand t
   :bind (("M--" . nil)
          ("M-- f" . cape-file)
          ("M-- s" . cape-symbol)
@@ -824,6 +915,7 @@
 
 (use-package elisp-mode
   :after (cape)
+  :demand t
   :ensure nil
   :hook (emacs-lisp-mode-hook . (lambda ()
                                   (add-to-list 'completion-at-point-functions
@@ -851,16 +943,17 @@
    	      ("b C-B"   . ibuffer)
    	      ("s l"   . consult-outline)
    	      ("s s"   . consult-line)
-   	      ("s g"   . consult-git-grep+)
-   	      ("s G"   . consult-grep+)
+   	      ("s g"   . consult-grep)
+   	      ("s G"   . consult-git-grep)
+   	      ("s p"   . consult-ripgrep)
 	      ("s i"   . consult-imenu)
 	      ("s o"   . occur))
   :config
   (setq consult-preview-key (list "M-<return>" "M-n" "M-p"))
   (consult-customize consult-ripgrep consult-git-grep consult-grep :preview-key nil)
 
-  (defun consult-grep+ (case-sensitive)
-    (interactive "P")
+  (defun consult-grep+ (query)
+    (interactive (list ""))
     (if case-sensitive
         (let ((consult-grep-args "grep --null --line-buffered --color=never --line-number -I -r ."))
           (consult-grep))
@@ -907,6 +1000,7 @@
 
 (use-package embark-consult
   :ensure t
+  :demand t
   :after (embark consult))
 
 (use-package consult-dir
@@ -932,11 +1026,10 @@
    	      ("C-z" . embark-act-quit)
    	      ("M-z" . embark-act)
    	      ("C-M-z" . embark-act-all)
-   	      ("M-." . embark-become+)
+   	      ("C-c >" . embark-become+)
    	      ("C-c x" . embark-export)
    	      ("C-c c" . embark-collect)
-	 :map vertico-map
-   	      ("C-c C" . embark-export)
+   	      ("C-c x" . embark-export)
    	 :map embark-meta-map
    	      ("C-h" . nil)
    	      ("C-z" . embark-keymap-help)
@@ -1122,12 +1215,14 @@ not handle that themselves."
 
 (use-package undo-tree
   :ensure t
+  :demand t
   :config
   (setq undo-tree-auto-save-history nil)
   (global-undo-tree-mode))
 
 (use-package evil
   :ensure t
+  :demand t
   :config
   (setq evil-respect-visual-line-mode t)
   (setq-default evil-symbol-word-search t)
@@ -1188,6 +1283,7 @@ not handle that themselves."
 
 (use-package evil-escape
   :ensure t
+  :demand t
   :config
   (evil-escape-mode)
   (setq evil-escape-key-sequence "jk")
@@ -1195,7 +1291,8 @@ not handle that themselves."
   (setq evil-escape-delay .1))
 
 (use-package evil-baptism
-  :after evil
+  :after (evil)
+  :demand t
   :load-path my-package-dir)
 
 (use-package evil-leader
@@ -1207,6 +1304,7 @@ not handle that themselves."
 
 (use-package evil-surround
   :after evil
+  :demand t
   :ensure t
   :config
   (define-key evil-operator-state-map (kbd "$") #'evil-surround-edit)
@@ -1234,6 +1332,7 @@ not handle that themselves."
 
 (use-package lispyville
   :ensure t
+  :demand t
   :bind (("C-k" . lispy-kill))
   :hook ((prog-mode-hook   . lispyville-mode)))
 
@@ -1247,6 +1346,7 @@ not handle that themselves."
 
 (use-package magit
   :ensure t
+  :demand t
   :bind (:map magit-status-mode-map
               ("<" . magit-section-up)
          :map evil-leader-state-map-extension
@@ -1258,21 +1358,21 @@ not handle that themselves."
 
 (use-package magit-delta
   :ensure t
+  :demand t
   :init
   (shell-command "which delta || brew install git-delta")
   :hook (magit-mode-hook . (lambda () (magit-delta-mode +1))))
 
-(use-package forge
-  :after magit)
-
 (use-package avy
   :ensure t
+  :demand t
   :config
   (setq avy-keys (list ?a ?o ?e ?u ?h ?t ?n ?s)))
 
 (use-package dired
   :commands (find-grep-dired-default-dir)
   :hook (dired-mode-hook . dired-hide-details-mode)
+  :demand t
   :bind (:map evil-leader-state-map-extension
 	      ("s F" . find-grep-dired)
  	      ("s f" . find-grep-dired-default-dir)
@@ -1347,6 +1447,7 @@ not handle that themselves."
 (use-package dired-subtree
   :after (dired dired-sidebar)
   :ensure t
+  :demand t
   :bind (:map dired-mode-map
               ("TAB" . dired-subtree-cycle)
               ("^" . dired-subtree-up)
@@ -1382,6 +1483,7 @@ not handle that themselves."
   :commands (ace-copy-window ace-move-window ace-switch-buffer-other-window)
   :bind (:map evil-leader-state-map-extension
 	      ("t s" . ace-swap-window)
+	      ("t t" . ace-window)
 	      ("t k" . ace-delete-window)
 	      ("t K" . delete-window)
 	      ("t c" . ace-copy-window)
@@ -1465,7 +1567,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :config
   (winner-mode 1)
   (define-key evil-leader-state-map-extension (kbd "t u") 'winner-undo)
-  (define-key evil-leader-state-map-extension (kbd "t r") 'winner-redo))
+  (define-key evil-leader-state-map-extension (kbd "t r") 'winner-redo)
+  (define-key winner-mode-map [(control c) left] nil)
+  (define-key winner-mode-map [(control c) right] nil))
 
 (use-package tab-bar
   :ensure nil
@@ -1601,6 +1705,7 @@ most recent, and so on."
 
 (use-package org
   :ensure nil
+  :demand t
   :commands (open-log-file+ org-insert-timestamp+ org-open-some-buffer-link+)
   :hook ((org-mode-hook . visual-line-mode)
          (org-mode-hook . auto-revert-mode)
@@ -1899,9 +2004,21 @@ most recent, and so on."
   :ensure t
   :hook (markdown-mode-hook . (lambda ()
                                 (setq paragraph-start "[ \t]*$")
-                                (setq paragraph-separate "[ \t]*$")))
+                                (setq paragraph-separate "[ \t]*$")
+                                (markdown-toggle-url-hiding)))
   :config
-  (setq markdown-enable-wiki-links t))
+  (setq markdown-enable-wiki-links t)
+
+  (setq markdown-translate-filename-function (lambda (url) (string-replace "%20" " " url)))
+
+  (defun markdown-insert-zk-link ()
+    (interactive)
+    (let* ((files (seq-filter (lambda (x) (s-contains-p ".md" x)) (project--files-in-directory (project-root (project-current)) nil)))
+           (file  (completing-read "select file: " files))
+           (id    (when (string-match "\\([0-9]\\{12\\}\\)" file) (match-string 0 file))))
+      (if (not id)
+          (message "No zk ID found")
+        (insert (concat "[" id "]" "(" (string-replace " " "%20" (file-name-base file)) ")"))))))
 
 ;; TODO: read through this package
 ;; (use-package ob-http
@@ -2144,6 +2261,7 @@ most recent, and so on."
               ("o T" . vterm)
               ("o t" . vterm+))
   :config
+  (setq vterm-shell "/bin/zsh")
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
 
   (defun vterm-fix-evil-cursor ()
@@ -2507,9 +2625,9 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (setq buffer-face-mode-face 'gnu-apl-default)
   (buffer-face-mode))
 
-  
-  
-  
+
+
+
 (add-hook 'gnu-apl-interactive-mode-hook 'em-gnu-apl-init)
 (add-hook 'gnu-apl-mode-hook 'em-gnu-apl-init))
 
@@ -2556,8 +2674,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (defun my-setup-ediff-keybindings ()
     (define-key ediff-mode-map "q" 'ediff-quit+))
 
-  (add-hook 'ediff-keymap-setup-hook 'my-setup-ediff-keybindings)
+  (add-hook 'ediff-keymap-setup-hook 'my-setup-ediff-keybindings))
 
-  )
 
 (setq debug-on-error nil)
