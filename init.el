@@ -702,16 +702,15 @@
 (use-package minibuffer
   :ensure nil
   :demand t
-  ;; :after (evil-leader)
+  :after (evil-leader)
   :bind (:map minibuffer-mode-map
               ("C-c $" . select-shell-history)
               ("C-c SPC" . minibuffer-clear+)
-         ;; :map evil-leader-state-map-extension
-         ;;      ("i $" . insert-shell-history)
-         ;;:map evil-ex-completion-map
-         ;;     ("C-c $" . select-shell-history)
-              ;;     ("C-c SPC" . minibuffer-clear+)
-	      )
+              :map evil-leader-state-map-extension
+              ("i $" . insert-shell-history)
+              :map evil-ex-completion-map
+              ("C-c $" . select-shell-history)
+              ("C-c SPC" . minibuffer-clear+))
   :config
   (defun insert-shell-history ()
     (interactive)
