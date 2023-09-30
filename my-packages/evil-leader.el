@@ -44,7 +44,11 @@
 (define-key evil-leader-state-map-extension (kbd "b D") 'dired-jump)
 (define-key evil-leader-state-map-extension (kbd "b k") 'kill-buffer)
 (define-key evil-leader-state-map-extension (kbd "b K") 'kill-this-buffer)
-(define-key evil-leader-state-map-extension (kbd "b .") 'mode-line-other-buffer)
+(defun last-buffer ()
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) t) nil t))
+
+(define-key evil-leader-state-map-extension (kbd "b .") 'last-buffer)
 (define-key evil-leader-state-map-extension (kbd "b r") 'rename-buffer)
 
 ;; files
