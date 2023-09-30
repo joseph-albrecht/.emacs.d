@@ -59,8 +59,8 @@
 	      ("e L" . eval-expression-and-replace)
               ("e $" . shell-command-on-region+)
               ("c $" . shell-command-on-region+)
-	      ("c k" . keep-lines+)
-              ("c f" . flush-lines+)
+	      ("c k" . keep-lines)
+              ("c f" . flush-lines)
 	      ("f w" . kill-filepath)
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
@@ -334,22 +334,6 @@
                                buffer
                                (equal output 'replace))
       (when (equal output 'buffer) (pop-to-buffer buffer))))
-
-  (defun keep-lines+ (start end regexp)
-    (interactive (list (cond ((region-active-p) (region-beginning))
-                             (current-prefix-arg (point))
-                             (t (point-min)))
-                       (if (region-active-p) (region-end) (point-max))
-                       (read-string "regexp: ")))
-    (save-excursion (keep-lines regexp start end t)))
-
-  (defun flush-lines+ (start end regexp)
-    (interactive (list (cond ((region-active-p) (region-beginning))
-                             (current-prefix-arg (point))
-                             (t (point-min)))
-                       (if (region-active-p) (region-end)       (point-max))
-                       (read-string "regexp: ")))
-    (save-excursion (flush-lines regexp start end t)))
 
   (defadvice align-regexp (around align-regexp-with-spaces activate)
     (let ((indent-tabs-mode nil))
