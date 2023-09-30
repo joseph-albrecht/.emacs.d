@@ -75,7 +75,7 @@
               ("s h U" . 'unhighlight-regexp-all+)
               ("s h p" . 'highlight-phrase)
               ("i r c" . 'insert-regexp-char-class)
-              ("d x" . run-command-with-default-dir))
+              ("D" . run-command-with-default-dir))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   (defun unhighlight-regexp-all+ ()
@@ -1014,9 +1014,7 @@
   :demand t
   :after (consult)
   :bind (:map minibuffer-mode-map
-              ("C-c d" . consult-dir)
-         :map evil-leader-state-map-extension
-              ("d M-d" . consult-dir)))
+              ("C-c d" . consult-dir)))
 
 ;; https://karthinks.com/software/fifteen-ways-to-use-embark/
 ;; TODO: remove confirmation from kill-buffer
