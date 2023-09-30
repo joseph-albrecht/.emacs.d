@@ -3,7 +3,13 @@
 ;; debug something something for jira ticket number clicking
 ;; try to fix vterm window sizing issue
 ;; vertico float for ultra tall mode
-
+;; some things that are going into evil-leader should be on the local map
+;;   to have consistency I should create a "programming" map that I can apply
+;;   whenever I need access and then i'll still have consistent bindings
+;;     flymake
+;;     java
+;;     lsp
+;;     dap
 
 (setq debug-on-error t)
 
