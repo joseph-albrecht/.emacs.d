@@ -737,7 +737,7 @@
 	   (vertico-sort-override-function #'identity))
       (if (> (length history) 0)
 	  (progn
-	    (let ((chosen-history (completing-read "history: " history)))
+	    (let ((chosen-history (completing-read "shell history: " history)))
 	      (insert chosen-history))))))
 
   (defun select-shell-history ()
