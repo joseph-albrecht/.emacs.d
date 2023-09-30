@@ -2009,6 +2009,9 @@ most recent, and so on."
                                 (setq paragraph-start "[ \t]*$")
                                 (setq paragraph-separate "[ \t]*$")
                                 (markdown-toggle-url-hiding)))
+  :bind (:map markdown-mode-map
+              ("C-c C-l" . markdown-insert-zk-link)
+              ("C-c l" . markdown-open-some-buffer-link+ )
   :config
   (setq markdown-enable-wiki-links t)
 
@@ -2021,7 +2024,24 @@ most recent, and so on."
            (id    (when (string-match "\\([0-9]\\{12\\}\\)" file) (match-string 0 file))))
       (if (not id)
           (message "No zk ID found")
-        (insert (concat "[" id "]" "(" (string-replace " " "%20" (file-name-base file)) ")"))))))
+        (insert (concat "[" id "]" "(" (string-replace " " "%20" (file-name-base file)) "." (file-name-extension file) ")")))))
+
+  (defun collect-markdown-links ()
+    "Collect all Markdown links from the current buffer."
+    (interactive)
+    (let ((link-regex "\\[.*?\\](\\(.*?\\))")
+          links)
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward link-regex nil t)
+          (push (match-string-no-properties 1) links)))
+      (reverse links)))
+
+  (defun markdown-open-some-buffer-link+ ()
+    (interactive)
+    (let* ((links (collect-markdown-links))
+           (link (completing-read "links: " (seq-map (lambda (link) (string-replace "%20" " " link)) links))))
+      (markdown--browse-url (string-replace " " "%20" link)))))
 
 ;; TODO: read through this package
 ;; (use-package ob-http
