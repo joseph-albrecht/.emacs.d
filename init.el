@@ -594,7 +594,7 @@
   :commands (project-dir-.emacs.d
 	     project-switch-current)
   :bind (:map evil-leader-state-map-extension
-              ("f F" . find-file-under-dir)
+              ("f F" . find-file-no-ignores)
               ("p b" . project-switch-to-buffer)
               ("C-p" . project-run-command+)
               ("p x" . project-current-run-command+)
@@ -684,20 +684,19 @@
        ((= 1 (length matching-files)) (find-file (nth 0 matching-files)))
        (t (find-file (completing-read "Pick test: " matching-files)))))))
 
-  (defun project-find-test-pair ()
+  (defun project-find-test-pair (file-path)
     (interactive)
+    (let ((file-path (or file-path buffer-file-name))))
     (cond
-     ((not (s-contains-p "test" (file-name-base buffer-file-name))) (project-jump-to-test))))
+     ((not (s-contains-p "test" (file-name-base file-path))) (project-jump-to-test))))
 
-  (defun find-file-under-dir ()
-    (interactive)
-    (project-find-file-no-ignores (read-directory-name "directory: ")))
-
-  (defun project-find-file-no-ignores ()
-    (interactive)
-    (find-file-no-ignores (project-root (project-current))))
+  (defun project-find-file-no-ignores (project)
+    (interactive (list nil))
+    (let ((project (or project (project-current))))
+      (find-file-no-ignores (project-root project))))
 
   (defun find-file-no-ignores (&optional dir)
+    (interactive (list nil))
     (find-file (funcall project-read-file-name-function
                         "Find file" (project--files-in-directory (or dir default-directory) nil) nil nil)))
 
