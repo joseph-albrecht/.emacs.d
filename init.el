@@ -373,14 +373,7 @@
   (defun insert-regexp-char-class ()
     (interactive)
     (insert (completing-read "regexp class: " regexp-char-classes)))
-
-  (defun quit-window (&optional kill window)
-    (interactive "P")
-    (with-current-buffer (window-buffer (window-normalize-window window))
-      (run-hooks 'quit-window-hook))
-    (quit-restore-window window kill))
-
-  )
+)
 
 
 (use-package solarized-theme
