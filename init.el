@@ -1500,6 +1500,12 @@ not handle that themselves."
   (setq aw-keys '(?u ?h ?e ?t))
   (setq aw-dispatch-always nil))
 
+(use-package ace-link
+  :ensure t
+  :demand t
+  :config
+  (ace-link-setup-default))
+
 (use-package yasnippet
   :ensure t
   :demand t
