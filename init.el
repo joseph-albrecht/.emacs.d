@@ -860,7 +860,32 @@
 ;;                                      (org-jump+ reverse)
 ;;                                      (recompile+ reverse (vertico-resize . t))
 ;;                                      (select-from-history reverse (vertico-resize . t))
-;;                                      (select-shell-history reverse (vertico-resize . t)))))
+;;                                      (select-shell-history reverse (vertico-resize . t))))
+;; (defun +vertico-highlight-directory (file)
+;;   "If FILE ends with a slash, highlight it as a directory."
+;;   (let* ((base (file-name-nondirectory file))
+;;          (dir  (file-name-directory file))
+;;          (highlighted-dir (if dir
+;;                               (propertize dir 'face 'marginalia-file-priv-dir)
+;;                             "")))
+;;     (message "hello")
+;;     (concat highlighted-dir base)))
+
+;; (defvar vertico-transform-functions nil)
+;; (setq vertico-multiform-categories nil)
+
+;; (add-to-list 'vertico-multiform-categories
+;;              '(file
+;;                ;; this is also defined in the wiki, uncomment if used
+;;                ;; (vertico-sort-function . sort-directories-first)
+;;                (+vertico-transform-functions . +vertico-highlight-directory)))
+
+;; (cl-defmethod vertico--format-candidate :around
+;;   (cand prefix suffix index start &context ((not +vertico-transform-functions) null))
+;;   (dolist (fun (ensure-list +vertico-transform-functions))
+;;     (setq cand (funcall fun cand)))
+;;   (cl-call-next-method cand prefix suffix index start)))
+
 
 (use-package marginalia
   :ensure t
