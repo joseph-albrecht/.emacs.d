@@ -1030,10 +1030,9 @@
    	      ("C-z" . embark-act-quit)
    	      ("M-z" . embark-act)
    	      ("C-M-z" . embark-act-all)
-   	      ("C-c >" . embark-become+)
+   	      ("C-c b" . embark-become+)
    	      ("C-c x" . embark-export)
    	      ("C-c c" . embark-collect)
-   	      ("C-c x" . embark-export)
    	 :map embark-meta-map
    	      ("C-h" . nil)
    	      ("C-z" . embark-keymap-help)
