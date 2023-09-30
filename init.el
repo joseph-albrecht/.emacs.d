@@ -589,7 +589,8 @@
 	      ("p G" . consult-grep+)
               ("p d" . project-find-dir)
               ("p D" . project-dired)
-              ("p m" . project-make+))
+              ("p m" . project-make+)
+              ("P" . project-current-run-command+))
   :config
   (defun lines-in-file-matching-re (file regexp)
     (with-temp-buffer
