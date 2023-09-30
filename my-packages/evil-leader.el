@@ -48,7 +48,12 @@
   (interactive)
   (switch-to-buffer (other-buffer (current-buffer) t) nil t))
 
+(defun switch-to-buried-buffer ()
+  (interactive)
+  (switch-to-buffer (car (last (buffer-list))) nil t))
+
 (define-key evil-leader-state-map-extension (kbd "b .") 'last-buffer)
+(define-key evil-leader-state-map-extension (kbd "b ,") 'switch-to-buried-buffer)
 (define-key evil-leader-state-map-extension (kbd "b r") 'rename-buffer)
 
 ;; files
