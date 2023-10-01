@@ -2017,7 +2017,7 @@ most recent, and so on."
                                 (markdown-toggle-url-hiding)))
   :bind (:map markdown-mode-map
               ("C-c C-l" . markdown-insert-zk-link)
-              ("C-c l" . markdown-open-some-buffer-link+ )
+              ("C-c l" . markdown-open-some-buffer-link+ ))
   :config
   (setq markdown-enable-wiki-links t)
 
