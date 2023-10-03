@@ -2204,7 +2204,14 @@ most recent, and so on."
   :ensure t)
 
 (use-package burly
-  :ensure t)
+  :after (evil-leader)
+  :ensure t
+  :bind (:map evil-leader-state-map-extension
+              ("t b" . burly-open-bookmark)
+              ("t B" . burly-bookmark-windows))
+  :config
+  (setq bookmark-automatically-show-annotations nil)
+  (setq bookmark-set-fringe-mark nil))
 
 (use-package corkboard
   :after (evil-leader)
@@ -2704,6 +2711,5 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
     (define-key ediff-mode-map "q" 'ediff-quit+))
 
   (add-hook 'ediff-keymap-setup-hook 'my-setup-ediff-keybindings))
-
 
 (setq debug-on-error nil)
