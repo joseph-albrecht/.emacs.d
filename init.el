@@ -1355,7 +1355,8 @@ not handle that themselves."
          :map evil-leader-state-map-extension
 	      ("g g" . magit-status)
               ("g c" . magit-clone)
-              ("g d" . magit-file-dispatch))
+              ("g d" . magit-file-dispatch)
+              ("f g" . magit-file-dispatch))
   :config
   (setq magit-save-repository-buffers 'dontask))
 
