@@ -320,12 +320,14 @@
             current-prefix-arg)))
 
   (defun shell-command-on-region+ (start end command &optional output)
-    (interactive (list (if (region-active-p) (region-beginning) (point))
-                       (if (region-active-p) (region-end)       (point))
-                       (read-shell-command "Shell command on region: ")
-                       (if current-prefix-arg
+    (interactive (let ((start (if (region-active-p) (region-beginning) (point)))
+                       (end (if (region-active-p) (region-end)       (point)))
+                       (output (if current-prefix-arg
                            (intern (completing-read "output: " '(buffer echo replace)))
-                         'replace)))
+                         'replace))
+                       (command (read-shell-command "Shell command on region: "))
+                       )
+                   (list start end command output)))
     (let ((buffer (when (equal output 'buffer)
                     (get-buffer-create (format "*shell-command* (%s) %s"
                                                (buffer-name)
