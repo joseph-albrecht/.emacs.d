@@ -1316,6 +1316,11 @@ not handle that themselves."
   (define-key evil-operator-state-map (kbd "M-$") #'evil-Surround-edit)
   (define-key evil-visual-state-map (kbd "$") #'evil-surround-region)
   (define-key evil-visual-state-map (kbd "M-$") #'evil-Surround-region)
+  (defun evil-surround-read-string ()
+    (let ((delimiter (if (evil-operator-state-p)
+                         (save-restriction (widen) (read-string "delimiter: "))
+                       (read-string "delimiter: "))))
+      (cons delimiter delimiter)))
 
   (setq evil-surround-pairs-alist
         '((?\) . ("( " . " )"))
@@ -1330,6 +1335,7 @@ not handle that themselves."
           (?b . ("(" . ")"))
           (?B . ("{" . "}"))
           (?> . ("<" . ">"))
+          (?s . evil-surround-read-string)
           (?t . evil-surround-read-tag)
           (?< . evil-surround-read-tag)
           (?\C-f . evil-surround-prefix-function)
