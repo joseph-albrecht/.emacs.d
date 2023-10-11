@@ -2759,7 +2759,3 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (add-hook 'ediff-keymap-setup-hook 'my-setup-ediff-keybindings))
 
 (setq debug-on-error nil)
-
-;; f   find-grep-dired-default-dir     
-;; b lF   find-grep-dired
-;; r   xref-find-references
