@@ -69,11 +69,11 @@
 	      ("v e" . setenv)
               ("t C" . 'copy-window)
               ("h g" . 'open-guide)
-              ("s h ." . 'highlight-symbol-at-point)
-              ("s h r" . 'highlight-lines-matching-regexp)
-              ("s h u" . 'unhighlight-regexp)
-              ("s h U" . 'unhighlight-regexp-all+)
-              ("s h p" . 'highlight-phrase)
+              ("b h ." . 'highlight-symbol-at-point)
+              ("b h r" . 'highlight-lines-matching-regexp)
+              ("b h u" . 'unhighlight-regexp)
+              ("b h U" . 'unhighlight-regexp-all+)
+              ("b h p" . 'highlight-phrase)
               ("i r c" . 'insert-regexp-char-class)
               ("D" . run-command-with-default-dir))
   :config
@@ -375,6 +375,15 @@
   (defun insert-regexp-char-class ()
     (interactive)
     (insert (completing-read "regexp class: " regexp-char-classes)))
+
+  (defun toggle-window-dedicated-p (&optional window)
+    "Toggle WINDOW's dedicated flag.
+Also set its `no-delete-other-windows' parameter to match."
+    (interactive)
+    (set-window-dedicated-p window (not (window-dedicated-p window)))
+    (set-window-parameter window 'no-delete-other-windows
+                          (window-dedicated-p window))
+    (message "Dedicated: %s" (window-dedicated-p window)))
 )
 
 
@@ -950,12 +959,12 @@
    	      ("b e"   . consult-buffer-ein)
    	      ("b c"   . consult-buffer-compilation)
    	      ("b C-B"   . ibuffer)
-   	      ("s l"   . consult-outline)
-   	      ("s s"   . consult-line)
-   	      ("s g"   . consult-grep+)
-   	      ("s p"   . consult-git-grep+)
-	      ("s i"   . consult-imenu)
-	      ("s o"   . occur))
+   	      ("b L"   . consult-outline)
+   	      ("b l"   . consult-line)
+   	      ("d g"   . consult-grep+)
+   	      ("d p"   . consult-git-grep+)
+	      ("b i"   . consult-imenu)
+	      ("b o"   . occur))
   :config
   (setq consult-preview-key (list "M-<return>" "M-n" "M-p"))
   (consult-customize consult-ripgrep consult-git-grep consult-grep :preview-key nil)
@@ -1322,24 +1331,22 @@ not handle that themselves."
                        (read-string "delimiter: "))))
       (cons delimiter delimiter)))
 
-  (setq evil-surround-pairs-alist
-        '((?\) . ("( " . " )"))
-          (?\] . ("[ " . " ]"))
-          (?\} . ("{ " . " }"))
+  (setq-default evil-surround-pairs-alist
+                '((?\) . ("( " . " )"))
+                  (?\] . ("[ " . " ]"))
+                  (?\} . ("{ " . " }"))
 
-          (?\( . ("(" . ")"))
-          (?\[ . ("[" . "]"))
-          (?\{ . ("{" . "}"))
+                  (?\( . ("(" . ")"))
+                  (?\[ . ("[" . "]"))
+                  (?\{ . ("{" . "}"))
 
-          (?# . ("#{" . "}"))
-          (?b . ("(" . ")"))
-          (?B . ("{" . "}"))
-          (?> . ("<" . ">"))
-          (?s . evil-surround-read-string)
-          (?t . evil-surround-read-tag)
-          (?< . evil-surround-read-tag)
-          (?\C-f . evil-surround-prefix-function)
-          (?f . evil-surround-function))))
+                  (?# . ("#{" . "}"))
+                  (?b . ("(" . ")"))
+                  (?B . ("{" . "}"))
+                  (?> . ("<" . ">"))
+                  (?s . evil-surround-read-string)
+                  (?t . evil-surround-read-tag)
+                  (?f . evil-surround-function))))
 
 (use-package lispyville
   :ensure t
@@ -1513,6 +1520,20 @@ not handle that themselves."
   (defun ace-switch-buffer-other-window ()
     (interactive)
     (aw-select #'aw-switch-buffer-other-window))
+  (defun toggle-window-dedicated (&optional window)
+    "Toggle WINDOW's dedicated flag.
+Also set its `no-delete-other-windows' parameter to match."
+    (interactive)
+    (set-window-dedicated-p window (not (window-dedicated-p window)))
+    (set-window-parameter window 'no-delete-other-windows
+                          (window-dedicated-p window))
+    (message "Dedicated: %s" (window-dedicated-p window)))
+
+  (defun ace-window-dedicate ()
+    (interactive)
+    (aw-select " Ace - Delete Window"
+               #'toggle-window-dedicated))
+  
 
   (setq aw-keys '(?u ?h ?e ?t))
   (setq aw-dispatch-always nil))
@@ -1753,8 +1774,8 @@ most recent, and so on."
               ("C-c RET" . org-meta-return)
               ("C-c S-RET" . org-insert-todo-heading)
          :map evil-leader-state-map-extension
-              ("i i a" . insert-archive-id+)
-              ("i i t" . org-insert-time-id+)
+              ("i z" . insert-archive-id+)
+              ("i t" . org-insert-time-id+)
               ("s l" . org-jump+)
               ("c +" . org-increase-number-at-point)
               ("c -" . org-decrease-number-at-point)
@@ -1764,7 +1785,7 @@ most recent, and so on."
               ("n f" . find-file-notebox)
               ("n c" . org-capture)
               ("n d" . open-log-file+))
-  :config
+  :config 
   (defun org-open-todos () (interactive) (find-file org-todo-file))
   (setq org-startup-folded 'showeverything)
   (setq org-property-format  "%-12s %s")
@@ -2023,11 +2044,29 @@ most recent, and so on."
   :hook (markdown-mode-hook . (lambda ()
                                 (setq paragraph-start "[ \t]*$")
                                 (setq paragraph-separate "[ \t]*$")
-                                (markdown-toggle-url-hiding)))
+                                (markdown-toggle-url-hiding)
+                                (my-markdown-add-highlighting)))
   :bind (:map markdown-mode-map
               ("C-c C-l" . markdown-insert-zk-link)
               ("C-c l" . markdown-open-some-buffer-link+ ))
   :config
+  (defface my-markdown-highlight-face
+    '((t (:background "yellow")))
+    "Face for highlighted text in markdown mode."
+    :group 'markdown-faces)
+
+  (defvar my-markdown-highlight-keyword
+    '(("\\(==\\)\\([^=\n]+\\)\\(==\\)"
+       (1 'default t) ; don't highlight the == delimiters
+       (2 'my-markdown-highlight-face t)
+       (3 'default t)))
+    "Keyword for highlighting text in markdown mode.")
+
+  (defun my-markdown-add-highlighting ()
+    (interactive)
+    "Add my custom markdown highlighting."
+    (font-lock-add-keywords nil my-markdown-highlight-keyword))
+  
   (setq markdown-enable-wiki-links t)
 
   (setq markdown-translate-filename-function (lambda (url) (string-replace "%20" " " url)))
@@ -2109,9 +2148,7 @@ most recent, and so on."
 (use-package xref
   :after (evil-leader)
   :ensure nil
-  :bind (:map evil-leader-state-map-extension
-              ("s r"   . xref-find-references)
-         :map xref--xref-buffer-mode-map
+  :bind (:map xref--xref-buffer-mode-map
               ("n"   . xref-next-line-no-show)
               ("p"   . xref-prev-line-no-show)
               ("M-n" . xref-next-line)
@@ -2722,3 +2759,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (add-hook 'ediff-keymap-setup-hook 'my-setup-ediff-keybindings))
 
 (setq debug-on-error nil)
+
+;; f   find-grep-dired-default-dir     
+;; b lF   find-grep-dired
+;; r   xref-find-references
