@@ -918,21 +918,27 @@ Also set its `no-delete-other-windows' parameter to match."
       (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
                   corfu-popupinfo-delay nil)
       (corfu-mode 1)))
-  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer)
-  )
+  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer))
 
 (use-package cape
   :ensure t
   :demand t
-  :bind (("M--" . nil)
-         ("M-- f" . cape-file)
-         ("M-- s" . cape-symbol)
-         ("M-- l" . cape-line))
+  :bind (("C-," . nil)
+         ("C-, C-," . completion-at-point)
+         ("C-, s" . cape-symbol)
+         ("C-, d" . cape-dabbrev)
+         ;; ("C-, h" . cape-history)
+         ("C-, f" . cape-file)
+         ("C-, s" . cape-elisp-symbol)
+         ("C-, l" . cape-line))
+  :hook (emacs-lisp-mode-hook . (lambda () (setq-local completion-at-point-functions
+                                                       (list #'cape-symbol
+                                                             #'cape-dabbrev))))
   :init
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   :config
-  (add-to-list 'completion-at-point-functions
-               (cape-company-to-capf #'company-yasnippet)))
+  (setq completion-at-point-functions
+              (list #'cape-dabbrev)))
 
 (use-package elisp-mode
   :after (cape)
