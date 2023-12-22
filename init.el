@@ -1475,6 +1475,7 @@ not handle that themselves."
   :ensure t
   :demand t
   :config
+  (setq avy-single-candidate-jump nil)
   (setq avy-keys (list ?a ?o ?e ?u ?h ?t ?n ?s)))
 
 (use-package dired
