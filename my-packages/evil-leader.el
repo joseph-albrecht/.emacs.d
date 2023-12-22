@@ -52,16 +52,20 @@
   (interactive)
   (switch-to-buffer (car (last (buffer-list))) nil t))
 
+(defun revert-buffer-by-force ()
+  (interactive)
+  (revert-buffer nil t))
+
 (define-key evil-leader-state-map-extension (kbd "b .") 'last-buffer)
 (define-key evil-leader-state-map-extension (kbd "b ,") 'switch-to-buried-buffer)
 (define-key evil-leader-state-map-extension (kbd "b r") 'rename-buffer)
+(define-key evil-leader-state-map-extension (kbd "b v") 'revert-buffer-by-force)
 
 ;; files
 (define-key evil-leader-state-map-extension (kbd "f f") 'find-file)
 (define-key evil-leader-state-map-extension (kbd "f s") 'save-buffer)
 (define-key evil-leader-state-map-extension (kbd "f S") 'save-some-buffers)
 (define-key evil-leader-state-map-extension (kbd "f w") 'write-file)
-(define-key evil-leader-state-map-extension (kbd "f r") 'revert-buffer)
 
 (defun dired-default-directory+ ()
   (interactive)

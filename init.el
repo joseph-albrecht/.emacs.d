@@ -31,6 +31,7 @@
 (use-package emacs
   :after (evil-leader embark)
   :demand t
+  :hook (text-mode-hook . toggle-show-trailing-whitespace)
   :commands (insert-time-id
              eval-region+
              eval-buffer+
@@ -50,6 +51,7 @@
 	      ("M-n" . nil)
               ("C-c e" . edit-minibuffer)
 	      ("C-c h" . select-from-history)
+	      ("C-c D" . select-subdirectory+)
 	      :map evil-leader-state-map-extension
 	      ("C-c" . server-edit)
 	      ("e r" . eval-region+)
@@ -61,6 +63,7 @@
               ("c $" . shell-command-on-region+)
 	      ("c k" . keep-lines)
               ("c f" . flush-lines)
+              ("c w" . delete-trailing-whitespace)
 	      ("f w" . kill-filepath)
 	      ("f e" . echo-filepath)
 	      ("v w" . toggle-show-trailing-whitespace)
@@ -384,7 +387,16 @@ Also set its `no-delete-other-windows' parameter to match."
     (set-window-parameter window 'no-delete-other-windows
                           (window-dedicated-p window))
     (message "Dedicated: %s" (window-dedicated-p window)))
-)
+  (defun select-subdirectory+ ()
+    "Select a subdirectory under default-directory."
+    (interactive)
+    (let* ((all-dirs (ignore-errors
+                       (directory-files-recursively default-directory "" t)))
+           (dir (and all-dirs (completing-read "Select directory: " all-dirs))))
+      (if (and dir (file-directory-p dir))
+          (insert dir)
+        (message "Not a valid directory!"))))
+  (global-hl-line-mode t))
 
 
 (use-package solarized-theme
@@ -932,8 +944,7 @@ Also set its `no-delete-other-windows' parameter to match."
          ("C-, s" . cape-elisp-symbol)
          ("C-, l" . cape-line))
   :hook (emacs-lisp-mode-hook . (lambda () (setq-local completion-at-point-functions
-                                                       (list #'cape-symbol
-                                                             #'cape-dabbrev))))
+                                                       (list #'cape-symbol))))
   :init
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   :config
@@ -1044,21 +1055,93 @@ Also set its `no-delete-other-windows' parameter to match."
    	 :map minibuffer-mode-map
    	      ("TAB" . minibuffer-force-complete)
    	      ("SPC" . nil)
-   	      ("C-z" . embark-act-quit)
-   	      ("M-z" . embark-act)
+   	      ("C-z" . embark-act)
+   	      ("M-z" . embark-select-next-line)
+   	      ("C-c a" . embark-select-all-vertico)
+   	      ("C-c u" . embark-unselect-all-vertico)
+   	      ("C-c t" . embark-select-toggle-vertico)
    	      ("C-M-z" . embark-act-all)
    	      ("C-c b" . embark-become+)
    	      ("C-c x" . embark-export)
    	      ("C-c c" . embark-collect)
    	 :map embark-meta-map
    	      ("C-h" . nil)
-   	      ("C-z" . embark-keymap-help)
+   	      ("C-z" . embark-act)
 	 :map embark-collect-mode-map
+	      ("m" . embark-select-forward-button)
 	      ("d" . embark-collect-delete+)
 	      ("D" . embark-collect-delete-no-select+)
 	      ("M-n" . forward-button-click+)
 	      ("M-p" . backward-button-click+))
   :config
+
+  (defun embark-select-forward-button ()
+    "Select the candidate and move to the next candidate."
+    (interactive)
+    (embark-select)
+    (forward-button 1))
+
+  (defun embark-select-next-line ()
+    "Select the candidate and move to the next candidate."
+    (interactive)
+    (embark-select)
+    (vertico-next))
+
+  (defun embark-select-toggle-vertico ()
+    "Select all of the filtered candidates"
+    (interactive)
+    (let ((next-command (if (equal major-mode 'vertico)
+                           #'embark-select-next-line
+                          #'embark-select-forward-button))
+          (last-index -1))
+      (vertico-first)
+      (when (= last-index -1)
+        (vertico-next))
+      (while (> vertico--index last-index)
+        (setq last-index vertico--index)
+        (embark-select-next-line))
+      (vertico-first)))
+
+  (defun embark-select-all-vertico ()
+    "Select all of the filtered candidates"
+    (interactive)
+    (let ((next-command (if (equal major-mode 'vertico)
+                            #'embark-select-next-line
+                          #'embark-select-forward-button))
+          (last-index -1)
+          (last-count (length embark--selection)))
+      (vertico-first)
+      (when (= vertico--index -1)
+        (vertico-next))
+      (while (> vertico--index last-index)
+        (setq last-index vertico--index)
+        (setq last-count (length embark--selection))
+        (embark-select)
+        (when (<= (length embark--selection) last-count)
+          (embark-select))
+        (vertico-next))
+      (vertico-first)))
+
+  (defun embark-unselect-all-vertico ()
+    "Select all of the filtered candidates"
+    (interactive)
+    (let ((next-command (if (equal major-mode 'vertico)
+                            #'embark-select-next-line
+                          #'embark-select-forward-button))
+          (last-index -1)
+          (last-count (length embark--selection)))
+      (vertico-first)
+      (when (= vertico--index -1)
+        (vertico-next))
+      (while (> vertico--index last-index)
+        (setq last-index vertico--index)
+        (setq last-count (length embark--selection))
+        (embark-select)
+        (when (> (length embark--selection) last-count)
+          (embark-select))
+        (vertico-next))
+      (vertico-first)))
+
   (defun embark-become+ ()
     (interactive)
     (evil-normal-state)
@@ -1092,7 +1175,7 @@ Also set its `no-delete-other-windows' parameter to match."
   (defun embark-act-quit ()
     (interactive)
     (let ((embark-quit-after-action t))
-      (embark-act)))
+      (funcall-interactively #'embark-act)))
 
   (setq prefix-help-command #'embark-prefix-help-command)
   (setq embark-quit-after-action nil)
@@ -2054,7 +2137,8 @@ most recent, and so on."
                                 (my-markdown-add-highlighting)))
   :bind (:map markdown-mode-map
               ("C-c C-l" . markdown-insert-zk-link)
-              ("C-c l" . markdown-open-some-buffer-link+ ))
+              ("C-c l" . markdown-open-some-buffer-link+ )
+              ("C-c o" . markdown-follow-thing-at-point))
   :config
   (defface my-markdown-highlight-face
     '((t (:background "yellow")))
@@ -2763,5 +2847,21 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
     (define-key ediff-mode-map "q" 'ediff-quit+))
 
   (add-hook 'ediff-keymap-setup-hook 'my-setup-ediff-keybindings))
+
+(use-package archive-search
+  :load-path my-package-dir
+  :bind (:map evil-leader-state-map-extension
+	      ("n s" . archive-interactive-search)
+              ("n S" . archive-search)))
+
+;; (use-package helpful
+;;   :ensure t
+;;   :bind (("C-h f" . helpful-callable)
+;;          ("C-h v" . helpful-variable)
+;;          ("C-h k" . helpful-key)
+;;          :map evil-leader-state-map-extension
+;;               ("h f" . helpful-callable)
+;;               ("h v" . helpful-variable)
+;;               ("h k" . helpful-key)))
 
 (setq debug-on-error nil)
