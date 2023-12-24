@@ -1790,8 +1790,8 @@ most recent, and so on."
       (9 . "⑨"))
     "Alist of integers to strings of circled unicode numbers.")
   (setq tab-bar-tab-name-format-function #'tab-bar-tab-name-format-default)
-  (tab-bar-mode 1)
-  (tab-bar-rename-tab "misc."))
+  (tab-bar-rename-tab "misc.")
+  (tab-bar-mode -1))
 
 (use-package dumb-jump
   :ensure t
