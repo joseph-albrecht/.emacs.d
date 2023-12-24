@@ -12,3 +12,13 @@
 /backups-and-autosaves
 /.org-id-locations
 /.lsp*
+.apl.history
+.compile-commands.el
+.dap-breakpoints
+.ipynb_checkpoints/
+.python-version
+bookmarks
+devdocs/
+eshell/
+org-roam.db
+request/
