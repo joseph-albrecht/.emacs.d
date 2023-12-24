@@ -396,7 +396,8 @@ Also set its `no-delete-other-windows' parameter to match."
       (if (and dir (file-directory-p dir))
           (insert dir)
         (message "Not a valid directory!"))))
-  (global-hl-line-mode t))
+  (global-hl-line-mode t)
+  (setq hl-line-sticky-flag nil))
 
 
 (use-package solarized-theme
@@ -1330,6 +1331,7 @@ not handle that themselves."
   :demand t
   :config
   (setq evil-respect-visual-line-mode t)
+  (setq evil-echo-state nil)
   (setq-default evil-symbol-word-search t)
   (setq evil-mode-line-format nil)
   (evil-set-undo-system 'undo-tree)
@@ -1628,7 +1630,7 @@ Also set its `no-delete-other-windows' parameter to match."
   
 
   (setq aw-keys '(?u ?h ?e ?t))
-  (setq aw-dispatch-always nil))
+  (setq aw-dispatch-always t))
 
 (use-package ace-link
   :ensure t
@@ -2789,10 +2791,6 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
          (url (concat stub (s-replace " " "+" query))))
     (browse-url url)))
 
-(use-package simple-modeline
-  :ensure t
-  :hook (after-init-hook . simple-modeline-mode))
-
 (use-package gnu-apl-mode
   :ensure t
   :config
@@ -2867,4 +2865,15 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
 ;;               ("h v" . helpful-variable)
 ;;               ("h k" . helpful-key)))
 
+(use-package spacious-padding
+  :ensure t
+  :config
+  (setq spacious-padding-subtle-mode-line t)
+  (spacious-padding-mode t)
+  (spacious-padding-mode nil)
+  (spacious-padding-mode t)
+  (set-face-attribute 'mode-line nil :height 1.2 :underline nil :bold t)
+  (set-face-attribute 'mode-line-inactive nil :height 1.2 :underline nil))
+
+(kill-buffer "*scratch*")
 (setq debug-on-error nil)
