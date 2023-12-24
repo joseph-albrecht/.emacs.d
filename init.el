@@ -1075,6 +1075,8 @@ Also set its `no-delete-other-windows' parameter to match."
 	      ("M-p" . backward-button-click+))
   :config
 
+  (setq embark-confirm-act-all nil)
+
   (defun embark-select-forward-button ()
     "Select the candidate and move to the next candidate."
     (interactive)
