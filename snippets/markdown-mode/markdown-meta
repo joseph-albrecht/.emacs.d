@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: markdown-meta
+# key: markdown
+# --
+---
+id:    `(let ((filename (file-name-nondirectory (buffer-file-name))))
+           (string-match "\\([0-9]\\{12\\}\\).*" filename)
+           (match-string 1 filename))`
+title: `(let ((filename (file-name-nondirectory (buffer-file-name))))
+           (string-match "[0-9]\\{12\\} \\(.*\\).md" filename)
+           (match-string 1 filename))`
+tags:  #z/new
+---
