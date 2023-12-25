@@ -58,8 +58,10 @@ or not."
 
 (defvar-local mode-line-buffer-modified+
     '(:eval 
-      (when (and (buffer-modified-p)
-                 (buffer-file-name)) " ●"))
+      (if (and (buffer-modified-p)
+                 (buffer-file-name))
+        "●"
+        "○"))
     "Mode line construct to display if the buffer has been modified.") 
 
 (put 'mode-line-buffer-modified+ 'risky-local-variable t)
@@ -98,36 +100,45 @@ or not."
       (when (and (mode-line-sesman-system+)
                  (mode-line-sesman-repls)
                  (sesman--linked-sessions (sesman--system)))
-        (format "  ⎶ %s" (mode-line-sesman-repls))
+        (format "⎶" (mode-line-sesman-repls))
         ))
     "Mode line construct to display if the current buffer has a linked sesman session.")
 
 (put 'mode-line-sesman+ 'risky-local-variable t)
 
+
+(defvar-local mode-line-lsp+
+    '(:eval
+      (when (lsp-workspaces)
+        " ⏿"))
+    "Mode line construct to display if the current buffer has a linked sesman session.")
+
+(put 'mode-line-lsp+ 'risky-local-variable t)
+
+mode-line-lsp+
 (setq-default mode-line-format
               '("%e"
-                mode-line-buffer-modified+
+                " "
                 mode-line-kbd-macro+
-                mode-line-save-status+
+                mode-line-lsp+
+                mode-line-sesman+
+                mode-line-buffer-modified+
                 ;; mode-line-evil-mode+
                 mode-line-buffer-name+
                 mode-line-major-mode+
                 mode-line-git-branch+
-                mode-line-sesman+
-                ;; mode-line-lsp+
                 ;; mode-line-flymake+
                 ))
 
 (setq-default mode-line-format
               '("%e"
-                mode-line-buffer-modified+
                 mode-line-kbd-macro+
-                mode-line-save-status+
+                mode-line-lsp+
+                mode-line-sesman+
+                mode-line-buffer-modified+
                 ;; mode-line-evil-mode+
                 mode-line-buffer-name+
                 mode-line-major-mode+
                 mode-line-git-branch+
-                mode-line-sesman+
-                ;; mode-line-lsp+
                 ;; mode-line-flymake+
                 ))
