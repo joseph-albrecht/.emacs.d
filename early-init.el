@@ -57,12 +57,10 @@ or not."
 (put 'mode-line-buffer-name+ 'risky-local-variable t)
 
 (defvar-local mode-line-buffer-modified+
-    '(:eval 
-      (if (and (buffer-modified-p)
-                 (buffer-file-name))
-        "●"
-        "○"))
-    "Mode line construct to display if the buffer has been modified.") 
+  '(:eval
+    (when (buffer-file-name)
+      (if (buffer-modified-p) "●" "○")))
+  "Mode line construct to display if the buffer has been modified.")
 
 (put 'mode-line-buffer-modified+ 'risky-local-variable t)
 
