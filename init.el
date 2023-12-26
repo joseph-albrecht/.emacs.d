@@ -96,7 +96,7 @@
         (shell-command "open -a iTerm"))))
 
   (setq warning-minimum-level :error)
-
+  (setq read-minibuffer-restore-windows nil)
   (advice-add 'server-edit :after #'server-edit-back-to-terminal+)
 
   (setq emacs-binary-path "/opt/homebrew/Cellar/emacs-plus@28/28.1/Emacs.app/Contents/MacOS/Emacs")
