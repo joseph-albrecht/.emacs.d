@@ -12,6 +12,7 @@
 ;;     dap
 
 (setq debug-on-error t)
+(setq debugger-stack-frame-as-list t)
 
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
