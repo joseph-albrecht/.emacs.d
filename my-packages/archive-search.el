@@ -35,7 +35,7 @@
                                    initial-grep-command))
          (results '()))
     ;; Run grep and process output
-    
+
     (with-temp-buffer
      (insert (shell-command-to-string combined-grep-command))
       (goto-char (point-min))
@@ -135,5 +135,13 @@
                            (my-search-results input)))
                         :prompt "Select a note file: "
                         :initial "%")))))
+
+(defvar archive-directory "/Users/joey/Library/Mobile\\ Documents/iCloud~md~obsidian/Documents/obsidian/")
+
+(defun archive-insert-tag ()
+  (interactive)
+  (let* ((shell-output (shell-command-to-string (format "grep -rh 'tags:' %s | grep -Eoh '##?[^ #]+' " archive-directory)))
+         (tags (split-string (s-trim shell-output) "\n")))
+    (insert (completing-read "Choose a tag: " tags))))
 
 (provide 'archive-search)
