@@ -2875,5 +2875,9 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (set-face-attribute 'mode-line nil :height 1.2 :underline nil :bold nil)
   (set-face-attribute 'mode-line-inactive nil :height 1.2 :underline nil))
 
+(use-package expand-region
+  :ensure t
+  :bind ("C-=" . er/expand-region))
+
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)
