@@ -59,7 +59,7 @@ or not."
 (defvar-local mode-line-buffer-modified+
   '(:eval
     (when (buffer-file-name)
-      (if (buffer-modified-p) "●" "○")))
+      (if (buffer-modified-p) " ●" " ○")))
   "Mode line construct to display if the buffer has been modified.")
 
 (put 'mode-line-buffer-modified+ 'risky-local-variable t)
@@ -98,7 +98,7 @@ or not."
       (when (and (mode-line-sesman-system+)
                  (mode-line-sesman-repls)
                  (sesman--linked-sessions (sesman--system)))
-        (format "⎶" (mode-line-sesman-repls))
+        (format " ⎶" (mode-line-sesman-repls))
         ))
     "Mode line construct to display if the current buffer has a linked sesman session.")
 
@@ -108,7 +108,7 @@ or not."
 (defvar-local mode-line-lsp+
     '(:eval
       (when (lsp-workspaces)
-        " ⧈ ")) ;; ⏿ is not available on Menlo
+        " ⧈")) ;; ⏿ is not available on Menlo
     "Mode line construct to display if the current buffer has a linked sesman session.")
 
 (put 'mode-line-lsp+ 'risky-local-variable t)
