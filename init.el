@@ -127,8 +127,7 @@
 	   (display-buffer-reuse-window display-buffer-in-previous-window display-buffer-pop-up-window)
 	   (side . right))
 	  ("\\*Embark Collect"
-	   (display-buffer-reuse-window)
-	   (side . bottom))
+	   (display-buffer-reuse-window))
 	  ;; ("\\*Embark Export"
 	  ;;  (display-buffer-reuse-window display-buffer-pop-up-window)
 	  ;;  (inhibit-same-window . t))
