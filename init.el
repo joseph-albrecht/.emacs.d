@@ -73,6 +73,7 @@
 	      ("v h" . global-hl-line-mode)
 	      ("v m" . conform-frame-to-monitor)
 	      ("v e" . setenv)
+	      ("v l" . display-line-numbers-mode)
               ("t C" . 'copy-window)
               ("h g" . 'open-guide)
               ("b h ." . 'highlight-symbol-at-point)
