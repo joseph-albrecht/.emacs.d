@@ -45,7 +45,9 @@
              keep-lines+
              flush-lines+
              isearch-abort+)
-  :bind (:map isearch-mode-map
+  :bind (("M-n" . open-next-file-in-directory+)
+         ("M-p" . open-previous-file-in-directory+)
+         :map isearch-mode-map
               ("C-g" . isearch-abort+)
               :map minibuffer-mode-map
 	      ("M-p" . nil)
@@ -97,7 +99,7 @@
 
   (setq warning-minimum-level :error)
   (setq read-minibuffer-restore-windows nil)
-  (advice-add 'server-edit :after #'server-edit-back-to-terminal+)
+  (advice-remove 'server-edit #'server-edit-back-to-terminal+)
 
   (setq emacs-binary-path "/opt/homebrew/Cellar/emacs-plus@28/28.1/Emacs.app/Contents/MacOS/Emacs")
 
@@ -397,7 +399,33 @@ Also set its `no-delete-other-windows' parameter to match."
           (insert dir)
         (message "Not a valid directory!"))))
   (global-hl-line-mode t)
-  (setq hl-line-sticky-flag nil))
+  (setq hl-line-sticky-flag nil)
+
+  (defun open-next-file-in-directory+ ()
+    "Open the next file in the current directory."
+    (interactive)
+    (let* ((current-file (buffer-file-name))
+           (all-files (directory-files (file-name-directory current-file) t))
+           (sorted-files (cl-sort (cl-remove-if-not #'file-regular-p all-files) 'string<))
+           (current-index (cl-position current-file sorted-files :test 'string=)))
+      (if current-index
+          (let* ((next-index (mod (1+ current-index) (length sorted-files)))
+                 (next-file (nth next-index sorted-files)))
+            (find-file next-file))
+        (message "Current file is not in the directory listing."))))
+
+  (defun open-previous-file-in-directory+ ()
+    "Open the next file in the current directory."
+    (interactive)
+    (let* ((current-file (buffer-file-name))
+           (all-files (directory-files (file-name-directory current-file) t))
+           (sorted-files (cl-sort (cl-remove-if-not #'file-regular-p all-files) 'string<))
+           (current-index (cl-position current-file sorted-files :test 'string=)))
+      (if current-index
+          (let* ((next-index (mod (1- current-index) (length sorted-files)))
+                 (next-file (nth next-index sorted-files)))
+            (find-file next-file))
+        (message "Current file is not in the directory listing.")))))
 
 
 (use-package solarized-theme
@@ -599,7 +627,7 @@ Also set its `no-delete-other-windows' parameter to match."
               ("C-p" . project-run-command+)
               ("f a" . find-file-no-ignores)
               ("f p" . project-find-file)
-              ("b p" . project-switch-to-buffer)
+              ("b p" . consult-project-buffer)
               ("d p" . project-find-dir))
   :config
   (defun lines-in-file-matching-re (file regexp)
@@ -693,12 +721,12 @@ Also set its `no-delete-other-windows' parameter to match."
   (defun find-file-no-ignores (&optional dir)
     (interactive (list nil))
     (find-file (funcall project-read-file-name-function
-                        "Find file" (project--files-in-directory (or dir default-directory) nil) nil nil)))
+                        "Find file" (project--files-in-directory default-directory nil) nil 'file-name-history "default")))
 
   (defun project-run-command+ (dir)
     (interactive (list (project-prompt-project-dir)))
     (let ((default-directory dir)
-          (project-current-inhibit-prompt t)
+          (project-current-directory-override nil)
           (map (make-composed-keymap evil-leader-state-map (current-global-map))))
       (message "waiting for command to run in project: %s" dir)
       (call-interactively (funcall embark-prompter map #'indentity))))
@@ -749,7 +777,7 @@ Also set its `no-delete-other-windows' parameter to match."
       (delete-region start end))))
 
 (use-package vertico
-  :after (evil-leader)
+  :after (evil-leader consult)
   :ensure t
   :demand t
   :bind (("C-M-x" . vertico-repeat)
@@ -766,6 +794,11 @@ Also set its `no-delete-other-windows' parameter to match."
               ("M-h" . vertico-directory-up)
               ("C-c +" . vertico-show-more)
               ("C-c -" . vertico-show-less)
+              ("C-c s a" . vertico-alphabetic-sort+)
+              ("C-c s u" . vertico-default-sort+)
+              ("C-c s h" . vertico-history-sort+)
+              ("C-c s l" . vertico-length-sort+)
+              ("C-c s r" . vertico-reverse-alpha-sort+)
          :map evil-leader-state-map-extension
               ("X" . vertico-repeat)
               ("M-x" . vertico-repeat))
@@ -846,7 +879,43 @@ Also set its `no-delete-other-windows' parameter to match."
     (cond
      (vertico-unobtrusive-mode (call-interactively #'vertico-multiform-reverse))
      (vertico-reverse-mode     (call-interactively #'vertico-next))
-     (t                        (call-interactively #'vertico-previous)))))
+     (t                        (call-interactively #'vertico-previous))))
+
+  (defun vertico-alphabetic-sort+ ()
+    (interactive)
+    (setq-local vertico-sort-override-function #'vertico-sort-alpha)
+    (consult--vertico-refresh))
+
+  (defun vertico-history-sort+ ()
+    (interactive)
+    (setq-local vertico-sort-override-function #'vertico-sort-history-alpha)
+    (consult--vertico-refresh))
+
+  (defun vertico-length-sort+ ()
+    (interactive)
+    (setq-local vertico-sort-override-function #'vertico-sort-length-alpha)
+    (consult--vertico-refresh))
+
+  (defun vertico-default-sort+ ()
+    (interactive)
+    (setq-local vertico-sort-override-function nil)
+    (consult--vertico-refresh))
+  
+  (vertico--define-sort (reversed-alpha) 32 (if (equal % "") 0 (/ (aref % 0) 4)) string> string>)
+
+  (defun vertico-sort-reversed-alpha (candidates)
+    (sort candidates #'string>))
+
+  ;; if this is so easy... why do they provide the vertico--define-sort function?
+  (defun vertico-sort-alpha (candidates)
+    (sort candidates #'string<))
+
+  (defun vertico-reverse-alpha-sort+ ()
+    (interactive)
+    (setq-local vertico-sort-override-function #'vertico-sort-reversed-alpha)
+    (consult--vertico-refresh))
+
+  )
 
 ;; (use-package vertico-multiform
 ;;   :ensure nil
@@ -1394,7 +1463,7 @@ not handle that themselves."
   :config
   (evil-escape-mode)
   (setq evil-escape-key-sequence "jk")
-  (setq evil-escape-unordered-key-sequence nil)
+  (setq evil-escape-unordered-key-sequence t)
   (setq evil-escape-delay .1))
 
 (use-package evil-baptism
@@ -1487,12 +1556,16 @@ not handle that themselves."
   :hook (dired-mode-hook . dired-hide-details-mode)
   :demand t
   :bind (:map evil-leader-state-map-extension
+	      ("d o" . open-in-finder)
 	      ("s F" . find-grep-dired)
  	      ("s f" . find-grep-dired-default-dir)
+              ("d D" . dired+)
   	 :map dired-mode-map
  	      ("C-M-n" . nil)
  	      ("C-M-p" . nil)
- 	      ("<" . dired-up-directory)
+ 	      ("^" . dired-up-directory)
+ 	      ("<" . dired-goto-first-item)
+ 	      (">" . end-of-buffer)
  	      ("M-s f C-s" . nil)
   	      ("M-s f ESC" . nil)
  	      ("M-s f" . nil)
@@ -1502,6 +1575,23 @@ not handle that themselves."
 	      ("M-<return>" . dired-preview))
   :config
   (setq dired-listing-switches "-Al")
+
+  (defun dired+ ()
+    (interactive)
+    (let* ((filepath (buffer-file-name))
+           (filename (when filepath (concat " " (file-name-base filepath) "\\." (file-name-extension filepath))))
+           (prefix "[0-9]\\{2\\}[-:][0-9]\\{2\\}"))
+      (dired-default-directory+)
+      (goto-char (point-min))
+      (dired-next-line 1)
+      (when (and filepath (search-forward-regexp (concat prefix filename) nil t))
+        (dired-next-line 1)
+        (dired-previous-line 1))))
+
+  (defun dired-goto-first-item ()
+    (interactive)
+    (beginning-of-buffer)
+    (dired-next-line 1))
 
   (defun find-grep-dired-default-dir ()
     (interactive)
@@ -1524,7 +1614,13 @@ not handle that themselves."
   (defun dired-preview-next ()
     (interactive)
     (dired-next-line 1)
-    (dired-preview)))
+    (dired-preview))
+
+  (defun open-in-finder ()
+    "Open the current buffer's directory in Finder."
+    (interactive)
+    (shell-command (concat "open " (shell-quote-argument (expand-file-name default-directory)))))
+  )
 
 
 (use-package dired-narrow
@@ -1641,7 +1737,8 @@ Also set its `no-delete-other-windows' parameter to match."
 (use-package yasnippet
   :ensure t
   :demand t
-  :bind (:map evil-leader-state-map-extension
+  :bind (("C-, y" . yas-insert-snippet)
+         :map evil-leader-state-map-extension
               ("i y" . yas-insert-snippet))
   :config
   (yas-global-mode 1))
@@ -1850,10 +1947,13 @@ most recent, and so on."
                             (setq-local help-at-pt-timer-delay .3)
                             (help-at-pt-set-timer)))
          (org-mode-hook . org-show-all))
-  :bind (:map org-mode-map
+  :bind (("C-, z" . insert-archive-id+)
+         :map org-mode-map
 	      ("C-c o"  . org-open-at-point)
 	      ("M-n"  . org-next-visible-heading)
 	      ("M-p"  . org-previous-visible-heading)
+	      ("M-n"  . nil)
+	      ("M-p"  . nil)
 	      ("C-c ."  . org-insert-timestamp+)
 	      ("C-c c"  . org-cycle)
 	      ("C-c l"  . org-open-some-buffer-link+)
@@ -1996,15 +2096,15 @@ most recent, and so on."
       time-id))
 
   (defun archive-id+ ()
-    (format-time-string "%Y%m%d%H%M"))
+    (format-time-string "%y%m%d%H%M"))
 
   (defun insert-archive-id+ ()
     (interactive)
-    (insert (archive-id+)))
+    (insert (org-time-id+)))
 
   (defun org-insert-time-id+ ()
     (interactive)
-    (insert (org-time-id+)))
+    (insert (format-time-string "%y.%m%d.%H%M")))
 
   (setq org-link-frame-setup '((vm . vm-visit-folder-other-frame)
                                (vm-imap . vm-visit-imap-folder-other-frame)
@@ -2169,8 +2269,9 @@ most recent, and so on."
   (defun markdown-insert-zk-link ()
     (interactive)
     (let* ((files (seq-filter (lambda (x) (s-contains-p ".md" x)) (project--files-in-directory (project-root (project-current)) nil)))
-           (file  (completing-read "select file: " files))
-           (id    (when (string-match "\\([0-9]\\{12\\}\\)" file) (match-string 0 file))))
+           (titles (seq-map (lambda (path) (s-chop-prefix "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/" path)) files))
+           (file  (completing-read "select file: " titles))
+           (id    (when (string-match "\\([0-9.a-z]\\{11,13\\}\\)" file) (match-string 0 file))))
       (if (not id)
           (message "No zk ID found")
         (insert (concat "[" id "]" "(" (string-replace " " "%20" (file-name-base file)) "." (file-name-extension file) ")")))))
@@ -2851,7 +2952,8 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
 
 (use-package archive-search
   :load-path my-package-dir
-  :bind (:map evil-leader-state-map-extension
+  :bind (("C-, t" . archive-insert-tag)
+         :map evil-leader-state-map-extension
 	      ("n s" . archive-interactive-search)
               ("n S" . archive-search)))
 
@@ -2873,11 +2975,14 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (spacious-padding-mode nil)
   (spacious-padding-mode t)
   (set-face-attribute 'mode-line nil :height 1.2 :underline nil :bold nil)
+  (set-face-attribute 'mode-line-active nil :height 1.2 :underline nil :bold nil)
   (set-face-attribute 'mode-line-inactive nil :height 1.2 :underline nil))
 
 (use-package expand-region
   :ensure t
   :bind ("C-=" . er/expand-region))
+
+
 
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)

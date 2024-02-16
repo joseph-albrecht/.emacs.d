@@ -171,6 +171,8 @@
 (define-key evil-leader-state-map-extension (kbd "o i") 'open-init)
 (define-key evil-leader-state-map-extension (kbd "o g") 'open-guide)
 
+(define-key evil-leader-state-map-extension (kbd "RET") 'open-guide)
+
 ;; local
 (define-key evil-leader-state-map-extension (kbd "SPC") 'evil-leader-call-local-map)
 

@@ -76,9 +76,9 @@ or not."
 ;;       not tracked?
 (defvar-local mode-line-git-branch+
     '(:eval
-      (when (and (magit-get-current-branch)
+      (when (and t
                  (buffer-file-name))
-        (format "  %s %s" (char-to-string #xE0A0) (magit-get-current-branch))))
+        (format "  %s %s" (char-to-string #xE0A0) "branch")))
     "Mode line construct to display the buffer's git branch.")
 
 (put 'mode-line-git-branch+ 'risky-local-variable t)

@@ -114,12 +114,6 @@
       (insert "\n"))))
   (setq buffer-read-only t))
 
-  (defun archive-search (query)
-  "Search for QUERY in markdown files."
-  (interactive "sSearch query: ")
-  (let ((results (search-files query "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/")))
-    (my-display-search-results results query)))
-
 (defun my-search-results (query)
   "Search for QUERY in markdown files."
   (search-files query "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"))
@@ -141,7 +135,9 @@
 (defun archive-insert-tag ()
   (interactive)
   (let* ((shell-output (shell-command-to-string (format "grep -rh 'tags:' %s | grep -Eoh '##?[^ #]+' " archive-directory)))
-         (tags (split-string (s-trim shell-output) "\n")))
-    (insert (completing-read "Choose a tag: " tags))))
+         (tags (split-string (s-trim shell-output) "\n"))
+         (chosen-tags (completing-read-multiple "Choose a tag: " tags))
+         (tag-string (apply #'s-concat (-interpose " " chosen-tags))))
+    (insert tag-string)))
 
 (provide 'archive-search)
