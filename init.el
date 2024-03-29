@@ -76,13 +76,14 @@
 	      ("v l" . display-line-numbers-mode)
               ("t C" . 'copy-window)
               ("h g" . 'open-guide)
+              ("r"   . 'random-line)
               ("b h ." . 'highlight-symbol-at-point)
               ("b h r" . 'highlight-lines-matching-regexp)
               ("b h u" . 'unhighlight-regexp)
               ("b h U" . 'unhighlight-regexp-all+)
               ("b h p" . 'highlight-phrase)
               ("i r c" . 'insert-regexp-char-class)
-              ("D" . run-command-with-default-dir))
+              ("C-d" . run-command-with-default-dir))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   (defun unhighlight-regexp-all+ ()
@@ -221,9 +222,19 @@
   (setq kill-buffer-query-functions nil)
 
   (defun clear-line ()
-    (move-beginning-of-line 1)
-    (ignore-errors (kill-line)
-		   (pop kill-ring)))
+    (interactive)
+    (let ((start (progn (move-beginning-of-line 1)
+                        (point)))
+          (end   (progn (move-end-of-line 1)
+                        (point))))
+      (delete-region start end)))
+
+  (defun clear-input ()
+    (interactive)
+    (let ((start (progn (move-beginning-of-line 1)
+                        (point)))
+          (end   (point-max)))
+      (delete-region start end)))
 
   (defun select-from-history ()
     (interactive)
@@ -232,7 +243,7 @@
 	  (vertico-sort-override-function #'identity))
       (if (> (length history) 0)
 	  (let ((chosen-history (completing-read "input history: " history)))
-	    (clear-line)
+	    (clear-input)
 	    (insert chosen-history))
 	(message "no history items"))))
 
@@ -426,7 +437,23 @@ Also set its `no-delete-other-windows' parameter to match."
           (let* ((next-index (mod (1- current-index) (length sorted-files)))
                  (next-file (nth next-index sorted-files)))
             (find-file next-file))
-        (message "Current file is not in the directory listing.")))))
+        (message "Current file is not in the directory listing."))))
+
+  (defun random-line (start end)
+    (interactive (if (region-active-p)
+                     (region-bounds)
+                     (list (point-max)
+                           (point-min))))
+    (let* ((content (s-trim (buffer-substring start end)))
+           (command (concat "   echo " (shell-quote-argument content)
+                            " | grep -v '~~.*~~'"
+                            " | grep -v '__.*__'"
+                            " | grep -v '^\w*$'"
+                            " | grep -v '\\*\\*.*\\*\\*'"
+                            " | grep '^\\+'"
+                            " | sort -R"
+                            " | head -n 1")))
+      (message (shell-command-to-string command)))))
 
 
 (use-package solarized-theme
@@ -488,6 +515,7 @@ Also set its `no-delete-other-windows' parameter to match."
 	      ("p C" . project-compile-menu)
               ("e c" . compile)
               ("e C" . recompile)
+              ("e M-c" . recompile+)
          :map compilation-mode-map
 	      ("n" . next-line)
 	      ("p" . previous-line)
@@ -629,7 +657,8 @@ Also set its `no-delete-other-windows' parameter to match."
               ("f a" . find-file-no-ignores)
               ("f p" . project-find-file)
               ("b p" . consult-project-buffer)
-              ("d p" . project-find-dir))
+              ("d p" . project-find-dir)
+              ("c C-q" . project-query-replace-regexp))
   :config
   (defun lines-in-file-matching-re (file regexp)
     (with-temp-buffer
@@ -1111,9 +1140,11 @@ Also set its `no-delete-other-windows' parameter to match."
 (use-package consult-dir
   :ensure t
   :demand t
-  :after (consult)
+  :after (consult evil-leader)
   :bind (:map minibuffer-mode-map
-              ("C-c d" . consult-dir)))
+              ("C-c d" . consult-dir)
+         :map evil-leader-state-map-extension
+              ("D" . consult-dir)))
 
 ;; https://karthinks.com/software/fifteen-ways-to-use-embark/
 ;; TODO: remove confirmation from kill-buffer
@@ -1300,15 +1331,41 @@ not handle that themselves."
       (embark--become-command embark--command (minibuffer-contents))))
 
   (set-face-attribute 'embark-target nil :bold t)
-  )
+
+  (defun embark--collect (buffer-name)
+    "Create an Embark Collect buffer named BUFFER-NAME.
+
+The function `generate-new-buffer-name' is used to ensure the
+buffer has a unique name."
+    (let ((buffer (generate-new-buffer buffer-name))
+          (rerun (embark--rerun-function #'embark-collect)))
+      (with-current-buffer buffer
+        ;; we'll run the mode hooks once the buffer is displayed, so
+        ;; the hooks can make use of the window
+        (delay-mode-hooks (embark-collect-mode)))
+
+      (embark--cache-info buffer)
+      (unless (embark-collect--update-candidates buffer)
+        (user-error "No candidates to collect"))
+
+      (with-current-buffer buffer
+        (setq tabulated-list-use-header-line nil ; default to no header
+              header-line-format nil
+              tabulated-list--header-string nil)
+        (setq embark--rerun-function rerun))
+
+      (let ((window (display-buffer buffer)))
+        (with-selected-window window
+          (run-mode-hooks)
+          (tabulated-list-revert))
+        buffer))))
 
 (use-package embark-maps
   :after (embark evil-leader)
   :demand t
   :load-path my-package-dir
   :config
-  (define-key embark-general-map (kbd "SPC") evil-leader-state-map-extension)
-  )
+  (define-key embark-general-map (kbd "SPC") evil-leader-state-map-extension))
 
 (use-package orderless
   :ensure t
@@ -2987,3 +3044,14 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
 
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)
+
+
+(debug-on-entry 'set-window-dedicated-p)
+(cancel-debug-on-entry 'set-window-dedicated-p)
+
+
+(defun make-non-dedicated-window ()
+  (message "no more dedicate %S" (selected-window))
+  (set-window-dedicated-p (selected-window) nil))
+
+(add-hook 'embark-collect-mode-hook #'make-non-dedicated-window)
