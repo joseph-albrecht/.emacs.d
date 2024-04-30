@@ -2,6 +2,7 @@
 ;; make the search use consult and then an export to archive-search mode
 ;; make archive-search have a top editable bar and live update like the archive
 ;; make a consult command to select a #tag present in my note collection
+(require 'consult)
 
 (define-derived-mode archive-search fundamental-mode "Search"
   "Major mode for searching markdown files."
@@ -11,6 +12,9 @@
     (define-key map (kbd "p")   'my-search-backward-button)
     (define-key map (kbd "M-n") 'my-search-preview-next-button)
     (define-key map (kbd "M-p") 'my-search-preview-previous-button)))
+
+(defun archive-format-cands (cands)
+  (seq-map (lambda (path) (cons (s-chop-prefix dir path) path)) cands))
 
 (defun search-files (query dir)
   "Search recursively in DIR for files containing all words in QUERY."
@@ -33,17 +37,21 @@
          (combined-grep-command (if (cdr words)
                                    (concat initial-grep-command " | " additional-grep-commands " | sort")
                                    initial-grep-command))
-         (results '()))
+         (grep-results (shell-command-to-string combined-grep-command))
+         (cands (seq-remove #'s-blank? (s-lines grep-results)))
+         (results (archive-format-cands cands)))
+    
+
     ;; Run grep and process output
 
-    (with-temp-buffer
-     (insert (shell-command-to-string combined-grep-command))
-      (goto-char (point-min))
-      (while (not (eobp))
-        (let ((file-path (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
-          (unless (string= file-path "")
-            (push (cons (file-name-nondirectory file-path) file-path) results))
-        (forward-line 1))))
+    ;; (with-temp-buffer
+    ;;  (insert (shell-command-to-string combined-grep-command))
+    ;;   (goto-char (point-min))
+    ;;   (while (not (eobp))
+    ;;     (let ((file-path (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+    ;;       (unless (string= file-path "")
+    ;;         (push (cons (file-name-nondirectory file-path) file-path) results))
+    ;;     (forward-line 1))))
     results))
 
 (defun my-search-forward-button ()
@@ -116,19 +124,25 @@
 
 (defun my-search-results (query)
   "Search for QUERY in markdown files."
-  (search-files query "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"))
+  (if (s-blank? query)
+      (progn
+        (message "my-search-results empty query")
+        (archive-format-cands (project-files (project-current))))
+      (search-files query "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/")))
 
 
 (defun archive-interactive-search ()
   (interactive)
-  (let ((vertico-sort-override-function #'identity))
+  (let ((vertico-sort-override-function #'identity)
+        (default-directory "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"))
     (find-file (concat "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"
                        (consult--read
                         (consult--dynamic-collection
                          (lambda (input)
                            (my-search-results input)))
                         :prompt "Select a note file: "
-                        :initial "%")))))
+                        :initial "%"
+                        :state (project--file-preview  "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"))))))
 
 (defvar archive-directory "/Users/joey/Library/Mobile\\ Documents/iCloud~md~obsidian/Documents/obsidian/")
 
