@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;; packages to try
 ;; https://github.com/emacs-citar/citar
 ;; debug something something for jira ticket number clicking
@@ -47,6 +48,12 @@
              isearch-abort+)
   :bind (("M-n" . open-next-file-in-directory+)
          ("M-p" . open-previous-file-in-directory+)
+         ("C-x >" . scroll-left)
+         ("C-x <" . scroll-right)
+         ("s-l" . windmove-right)
+         ("s-h" . windmove-left)
+         ("s-p" . windmove-up)
+         ("s-n" . windmove-down)
          :map isearch-mode-map
               ("C-g" . isearch-abort+)
               :map minibuffer-mode-map
@@ -76,7 +83,8 @@
 	      ("v l" . display-line-numbers-mode)
               ("t C" . 'copy-window)
               ("h g" . 'open-guide)
-              ("r"   . 'random-line)
+              ("r"   . 'random-line-jump)
+              ("R"   . 'random-line)
               ("b h ." . 'highlight-symbol-at-point)
               ("b h r" . 'highlight-lines-matching-regexp)
               ("b h u" . 'unhighlight-regexp)
@@ -144,8 +152,17 @@
   (menu-bar-mode -1)
   (fringe-mode nil)
 
+  ;; brew search font-
+  ;; brew install font-
+  ;; Terminus (TTF)
+  ;; Agave
+  ;; Iosevka
+  ;; Iosevka Comfy
+  ;; Input Mono
+  ;; Cascadia Mono
+  ;; Hack
   (condition-case nil
-      (set-face-attribute 'default nil :font "iosevka" :height 120)
+      (set-face-attribute 'default nil :font "Iosevka Comfy" :height 140)
     (error (set-face-attribute 'default nil :height 120)))
 
   (set-face-attribute 'region nil :background "#A0F5F4")
@@ -453,8 +470,17 @@ Also set its `no-delete-other-windows' parameter to match."
                             " | grep '^\\+'"
                             " | sort -R"
                             " | head -n 1")))
-      (message (shell-command-to-string command)))))
+      (message (shell-command-to-string command))))
 
+  (defun remove-all-properties (str)
+    "Remove all text properties from the given string STR."
+    (set-text-properties 0 (length str) nil str)
+    str)
+
+  
+
+
+  )
 
 (use-package solarized-theme
   :after (org orderless)
@@ -1084,6 +1110,7 @@ Also set its `no-delete-other-windows' parameter to match."
 	      ("b o"   . occur))
   :config
   (setq consult-preview-key (list "M-<return>" "M-n" "M-p"))
+  (setq consult-async-min-input 0)
   (consult-customize consult-ripgrep consult-git-grep consult-grep :preview-key nil)
 
   (defun consult-grep+ (query &optional case-sensitive)
@@ -1130,7 +1157,173 @@ Also set its `no-delete-other-windows' parameter to match."
       (funcall-interactively #'consult-buffer nil "*compilation* ")))
 
   (evil-add-command-properties 'consult-line :jump t)
-  (evil-add-command-properties 'consult-imenu :jump t))
+  (evil-add-command-properties 'consult-imenu :jump t)
+
+  (defun project--file-preview (dir)
+    "Buffer preview function."
+    (let ((orig-buf (current-buffer))
+          (orig-prev (copy-sequence (window-prev-buffers)))
+          (orig-next (copy-sequence (window-next-buffers)))
+          files-to-close)
+      (lambda (action cand)
+        (let ((path (expand-file-name (concat dir cand))))
+          (pcase action
+            ('exit
+             (seq-map #'kill-buffer (seq-uniq files-to-close))
+             (set-window-prev-buffers (selected-window) orig-prev)
+             (set-window-next-buffers (selected-window) orig-next)
+             (switch-to-buffer orig-buf))
+            ('preview
+             (let ((buf-open? (get-file-buffer path))
+                   (buf (or (get-file-buffer path) (find-file-noselect path))))
+               (with-selected-window (selected-window)
+                 (unless (or orig-prev orig-next)
+                   (setq orig-prev (copy-sequence (window-prev-buffers))
+                         orig-next (copy-sequence (window-next-buffers))))
+                 (switch-to-buffer buf 'norecord)
+                 (when (not buf-open?)
+                   (setq files-to-close (append (list buf) files-to-close)))))))))))
+
+  (defun read-file-name-default (prompt &optional dir default-filename mustmatch initial predicate)
+  "Default method for reading file names.
+See `read-file-name' for the meaning of the arguments."
+  (unless dir (setq dir (or default-directory "~/")))
+  (unless (file-name-absolute-p dir) (setq dir (expand-file-name dir)))
+  (unless default-filename
+    (setq default-filename
+          (cond
+           ((null initial) buffer-file-name)
+           ;; Special-case "" because (expand-file-name "" "/tmp/") returns
+           ;; "/tmp" rather than "/tmp/" (bug#39057).
+           ((equal "" initial) dir)
+           (t (expand-file-name initial dir)))))
+  ;; If dir starts with user's homedir, change that to ~.
+  (setq dir (abbreviate-file-name dir))
+  ;; Likewise for default-filename.
+  (if default-filename
+      (setq default-filename
+	    (if (consp default-filename)
+		(mapcar 'abbreviate-file-name default-filename)
+	      (abbreviate-file-name default-filename))))
+  (let ((insdef (cond
+                 ((and insert-default-directory (stringp dir))
+                  (if initial
+                      (cons (minibuffer-maybe-quote-filename (concat dir initial))
+                            (length (minibuffer-maybe-quote-filename dir)))
+                    (minibuffer-maybe-quote-filename dir)))
+                 (initial (cons (minibuffer-maybe-quote-filename initial) 0)))))
+
+    (let ((ignore-case read-file-name-completion-ignore-case)
+          (minibuffer-completing-file-name t)
+          (pred (or predicate 'file-exists-p))
+          (add-to-history nil))
+
+      (let* ((val
+              (if (or (not (next-read-file-uses-dialog-p))
+                      ;; Graphical file dialogs can't handle remote
+                      ;; files (Bug#99).
+                      (file-remote-p dir))
+                  ;; We used to pass `dir' to `read-file-name-internal' by
+                  ;; abusing the `predicate' argument.  It's better to
+                  ;; just use `default-directory', but in order to avoid
+                  ;; changing `default-directory' in the current buffer,
+                  ;; we don't let-bind it.
+                  (let ((dir (file-name-as-directory
+                              (expand-file-name dir))))
+                    (minibuffer-with-setup-hook
+                        (lambda ()
+                          (setq default-directory dir)
+                          ;; When the first default in `minibuffer-default'
+                          ;; duplicates initial input `insdef',
+                          ;; reset `minibuffer-default' to nil.
+                          (when (equal (or (car-safe insdef) insdef)
+                                       (or (car-safe minibuffer-default)
+                                           minibuffer-default))
+                            (setq minibuffer-default
+                                  (cdr-safe minibuffer-default)))
+                          (setq-local completion-ignore-case ignore-case)
+                          ;; On the first request on `M-n' fill
+                          ;; `minibuffer-default' with a list of defaults
+                          ;; relevant for file-name reading.
+                          (setq-local minibuffer-default-add-function
+                               (lambda ()
+                                 (with-current-buffer
+                                     (window-buffer (minibuffer-selected-window))
+				   (read-file-name--defaults dir initial))))
+			  (set-syntax-table minibuffer-local-filename-syntax))
+                      (consult--read 'read-file-name-internal
+                                     :prompt prompt
+                                     :predicate pred
+                                     :state (project--file-preview "")
+                                     :require-match mustmatch
+                                     :initial insdef
+                                     :history 'file-name-history
+                                     :default default-filename)))
+                ;; If DEFAULT-FILENAME not supplied and DIR contains
+                ;; a file name, split it.
+                (let ((file (file-name-nondirectory dir))
+                      ;; When using a dialog, revert to nil and non-nil
+                      ;; interpretation of mustmatch. confirm options
+                      ;; need to be interpreted as nil, otherwise
+                      ;; it is impossible to create new files using
+                      ;; dialogs with the default settings.
+                      (dialog-mustmatch
+                       (not (memq mustmatch
+                                  '(nil confirm confirm-after-completion)))))
+                  (when (and (not default-filename)
+                             (not (zerop (length file))))
+                    (setq default-filename file)
+                    (setq dir (file-name-directory dir)))
+                  (when default-filename
+                    (setq default-filename
+                          (expand-file-name (if (consp default-filename)
+                                                (car default-filename)
+                                              default-filename)
+                                            dir)))
+                  (setq add-to-history t)
+                  (x-file-dialog prompt dir default-filename
+                                 dialog-mustmatch
+                                 (eq predicate 'file-directory-p)))))
+
+             (replace-in-history (eq (car-safe file-name-history) val)))
+        ;; If completing-read returned the inserted default string itself
+        ;; (rather than a new string with the same contents),
+        ;; it has to mean that the user typed RET with the minibuffer empty.
+        ;; In that case, we really want to return ""
+        ;; so that commands such as set-visited-file-name can distinguish.
+        (when (consp default-filename)
+          (setq default-filename (car default-filename)))
+        (when (eq val default-filename)
+          ;; In this case, completing-read has not added an element
+          ;; to the history.  Maybe we should.
+          (if (not replace-in-history)
+              (setq add-to-history t))
+          (setq val ""))
+        (unless val (error "No file name specified"))
+
+        (if (and default-filename
+                 (string-equal val (if (consp insdef) (car insdef) insdef)))
+            (setq val default-filename))
+        (setq val (substitute-in-file-name val))
+
+        (if replace-in-history
+            ;; Replace what Fcompleting_read added to the history
+            ;; with what we will actually return.  As an exception,
+            ;; if that's the same as the second item in
+            ;; file-name-history, it's really a repeat (Bug#4657).
+            (let ((val1 (minibuffer-maybe-quote-filename val)))
+              (if history-delete-duplicates
+                  (setcdr file-name-history
+                          (delete val1 (cdr file-name-history))))
+              (if (string= val1 (cadr file-name-history))
+                  (pop file-name-history)
+                (setcar file-name-history val1)))
+          (when add-to-history
+            (add-to-history 'file-name-history
+                            (minibuffer-maybe-quote-filename val))))
+	val))))
+
+  )
 
 (use-package embark-consult
   :ensure t
@@ -1541,10 +1734,6 @@ buffer has a unique name."
   :demand t
   :ensure t
   :config
-  (define-key evil-operator-state-map (kbd "$") #'evil-surround-edit)
-  (define-key evil-operator-state-map (kbd "M-$") #'evil-Surround-edit)
-  (define-key evil-visual-state-map (kbd "$") #'evil-surround-region)
-  (define-key evil-visual-state-map (kbd "M-$") #'evil-Surround-region)
   (defun evil-surround-read-string ()
     (let ((delimiter (if (evil-operator-state-p)
                          (save-restriction (widen) (read-string "delimiter: "))
@@ -1566,7 +1755,17 @@ buffer has a unique name."
                   (?> . ("<" . ">"))
                   (?s . evil-surround-read-string)
                   (?t . evil-surround-read-tag)
-                  (?f . evil-surround-function))))
+                  (?f . evil-surround-function)))
+
+(evil-define-command evil-sandwich (char)
+  (interactive (evil-surround-input-char))
+  (call-interactively
+   (pcase char
+     (?c #'evil-surround-change)
+     (?k #'evil-surround-delete))))
+
+(define-key evil-normal-state-map (kbd "$") 'evil-sandwich)
+(define-key evil-visual-state-map (kbd "$") 'evil-surround-region))
 
 (use-package lispyville
   :ensure t
@@ -1585,10 +1784,12 @@ buffer has a unique name."
 (use-package magit
   :ensure t
   :demand t
-  :bind (:map magit-status-mode-map
+  :bind (("s-g" . magit-status)
+         :map magit-status-mode-map
               ("<" . magit-section-up)
          :map evil-leader-state-map-extension
 	      ("g g" . magit-status)
+	      ("g b" . magit-blame)
               ("g c" . magit-clone)
               ("g d" . magit-file-dispatch)
               ("f g" . magit-file-dispatch))
@@ -1599,7 +1800,7 @@ buffer has a unique name."
   :ensure t
   :demand t
   :init
-  (shell-command "which delta || brew install git-delta")
+  (shell-command "which delta || brew install git-delta" nil)
   :hook (magit-mode-hook . (lambda () (magit-delta-mode +1))))
 
 (use-package avy
@@ -1695,8 +1896,6 @@ buffer has a unique name."
   :commands (dired-sidebar-toggle-sidebar)
   :bind (:map evil-leader-state-map-extension
               ("d s" . dired-sidebar-toggle-sidebar)
-         :map dired-mode-map
-              ("<" . dired-up-directory)
               ("^" . nil)
          :map dired-sidebar-mode-map
          ("^" . nil))
@@ -1866,6 +2065,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
          ("C-}" . tab-bar-switch-to-prev-tab)
          ("C-M-{" . tab-bar-move-tab)
          ("C-M-}" . tab-bar-move-tab-backward)
+         ("C-s-l" . tab-bar-switch-to-next-tab)
+         ("C-s-h" . tab-bar-switch-to-prev-tab)
          :map evil-leader-state-map-extension
          ("TAB m" . tab-bar-goto-misc+)
          ("TAB 1" . tab-bar-switch-to-tab-1+)
@@ -1906,7 +2107,7 @@ most recent, and so on."
     (interactive)
     (tab-bar-switch-to-tab "misc."))
 
-  (defun tab-bar-switch-to-tab-1+  () (interactive) (tab-bar-select-tab 1))
+  (defun tab-bar-switch-to-tab-1+  () (interactive) (tab-bar-select-tab 0))
   (defun tab-bar-switch-to-tab-2+  () (interactive) (tab-bar-select-tab 2))
   (defun tab-bar-switch-to-tab-3+  () (interactive) (tab-bar-select-tab 3))
   (defun tab-bar-switch-to-tab-4+  () (interactive) (tab-bar-select-tab 4))
@@ -2301,6 +2502,10 @@ most recent, and so on."
   :bind (:map markdown-mode-map
               ("C-c C-l" . markdown-insert-zk-link)
               ("C-c l" . markdown-open-some-buffer-link+ )
+              ("C-c -" . mark-task-complete)
+              ("C-c r" . random-line-jump)
+              ("C-c a" . add-task-to-list)
+              ("C-c d" . duplicate-task-at-point)
               ("C-c o" . markdown-follow-thing-at-point))
   :config
   (defface my-markdown-highlight-face
@@ -2337,19 +2542,91 @@ most recent, and so on."
   (defun collect-markdown-links ()
     "Collect all Markdown links from the current buffer."
     (interactive)
-    (let ((link-regex "\\[.*?\\](\\(.*?\\))")
+    (let ((brace-regex "\\[.*?\\](\\(.*?\\))")
+          (http-regex "[^(]\\(https?://[^ \n]*\\)")
           links)
-      (save-excursion
-        (goto-char (point-min))
-        (while (re-search-forward link-regex nil t)
-          (push (match-string-no-properties 1) links)))
+      (seq-doseq (regex `(,brace-regex ,http-regex))
+        (save-excursion
+          (goto-char (point-min))
+          (while (re-search-forward regex nil t)
+            (push (match-string-no-properties 1) links))))
       (reverse links)))
 
   (defun markdown-open-some-buffer-link+ ()
     (interactive)
     (let* ((links (collect-markdown-links))
-           (link (completing-read "links: " (seq-map (lambda (link) (string-replace "%20" " " link)) links))))
-      (markdown--browse-url (string-replace " " "%20" link)))))
+           (link (consult--read (seq-map (lambda (link) (string-replace "%20" " " link)) links) :prompt "links: " :sort nil)))
+      (markdown--browse-url (string-replace " " "%20" link))))
+
+  (defun random-line-jump (start end)
+    (interactive (if (region-active-p)
+                     (region-bounds)
+                   (list (point-max) (point-min))))
+    (let* ((content (s-trim (buffer-substring start end)))
+           (lines (seq-reduce (lambda (acc line)
+                                (let ((line-number (or (caar acc) 0)))
+                                  (append (list (cons (1+ line-number) (remove-all-properties line))) acc)))
+                              (s-split "\n" content)
+                              nil))
+           (todos (thread-last lines
+                               (seq-filter (lambda (line) (s-starts-with? "+" (cdr line))))
+                               (seq-remove (lambda (line) (s-contains? "~~" (cdr line))))))
+           (todo (seq-random-elt todos)))
+      (goto-line (car todo)
+                 )
+      (message (cdr todo))
+      )
+    )
+
+  (defun mark-task-complete ()
+    (interactive)
+    (save-excursion
+      (beginning-of-line)
+      (search-forward-regexp "[[:alpha:]]")
+      (backward-char 1)
+      (insert "~~")
+      ;; (end-of-line)
+      (if (search-forward-regexp "\\( \\+[[:alpha:]]\\| \\[?http\\| \\[.+\\](.+)\\)" (save-excursion (end-of-line) (point)) t)
+          (search-backward-regexp "\\( \\+[[:alpha:]]\\| \\[?http\\| \\[.+\\](.+)\\)" (save-excursion (beginning-of-line) (point)) t)
+        (end-of-line))
+      (insert "~~")
+      ))
+
+  (defun duplicate-task-at-point ()
+    (interactive)
+    (append-task-to-list (buffer-substring (save-excursion (beginning-of-line) (point))
+                                           (save-excursion (end-of-line) (point)))))
+
+  (defun add-task-to-list (task)
+    (interactive (list (format "+ %s" (read-string "Task to add: "))))
+    (save-excursion
+      (goto-char (point-min))
+      (search-forward-regexp "^\\+")
+      (backward-char 1)
+      (insert (format "%s\n" task))))
+
+  (defun markdown-font-lock-gtd-project ()
+    "Add custom font-lock keywords for markdown files with 'gtd' in the title."
+    (font-lock-add-keywords nil
+                            '(("\\b\\(P\\)[[:digit:]]+\\b" 1 'gnus-emphasis-underline-bold)
+                              ("\\bP\\([[:digit:]]+\\b\\)" 1 'success))))
+
+  (defun markdown-font-lock-tags ()
+    "Add custom font-lock keywords for markdown files with 'gtd' in the title."
+    (font-lock-add-keywords nil
+                            '(("\\(?:^\\|\\s-\\)\\(#\\)[[:alnum:]/]+\\b" 1 'gnus-emphasis-underline-bold)
+                              ("\\(?:^\\|\\s-\\)#\\([[:alnum:]/]+\\b\\)" 1 'success))))
+
+  (defun markdown-font-lock-gtd-contexts ()
+    "Add custom font-lock keywords for markdown files with 'gtd' in the title."
+    (font-lock-add-keywords nil
+                            '(("\\(?:^\\|\\s-\\)\\(@\\)[[:alnum:]/]+\\b" 1 'gnus-emphasis-underline-bold)
+                              ("\\(?:^\\|\\s-\\)@\\([[:alnum:]/]+\\b\\)" 1 'success))))
+
+  (add-hook 'markdown-mode-hook #'markdown-font-lock-gtd-project)
+  (add-hook 'markdown-mode-hook #'markdown-font-lock-tags)
+  (add-hook 'markdown-mode-hook #'markdown-font-lock-gtd-contexts)
+  )
 
 ;; TODO: read through this package
 ;; (use-package ob-http
@@ -2415,9 +2692,7 @@ most recent, and so on."
               ("l l" . lsp)
               ("l k" . lsp-shutdown-workspace)
               ("l r" . lsp-rename))
-  :hook ((java-mode-hook . lsp)
-         (python-mode-hook . lsp)
-         (lsp-completion-mode-hook . my/lsp-mode-setup-completion))
+  :hook ((lsp-completion-mode-hook . my/lsp-mode-setup-completion))
   :config
   (defun my/orderless-dispatch-flex-first (_pattern index _total)
     (and (eq index 0) 'orderless-flex))
@@ -2506,6 +2781,7 @@ most recent, and so on."
 (use-package burly
   :after (evil-leader)
   :ensure t
+  :demand t
   :bind (:map evil-leader-state-map-extension
               ("t b" . burly-open-bookmark)
               ("t B" . burly-bookmark-windows))
@@ -2548,9 +2824,10 @@ most recent, and so on."
 (use-package pulsar
   :ensure t
   :bind (:map evil-leader-state-map-extension
-              ("RET" . pulsar-pulse-line))
+              ("RET" . pulsar-pulse-line)
+              ("v p" . pulsar-global-mode))
   :custom
-  (pulsar-pulse-functions '(recenter-top-bottom move-to-window-line-top-bottom reposition-window bookmark-jump other-window delete-window delete-other-windows forward-page backward-page scroll-up-command scroll-down-command windmove-right windmove-left windmove-up windmove-down windmove-swap-states-right windmove-swap-states-left windmove-swap-states-up windmove-swap-states-down tab-new tab-close tab-next org-next-visible-heading org-previous-visible-heading org-forward-heading-same-level org-backward-heading-same-level outline-backward-same-level outline-forward-same-level outline-next-visible-heading outline-previous-visible-heading outline-up-heading copy-window imenu switch-to-buffer magit-status open-init consult-buffer evil-goto-first-line evil-goto-line evil-jump-backward evil-jump-forward))
+  (pulsar-pulse-functions '(recenter-top-bottom move-to-window-line-top-bottom reposition-window bookmark-jump other-window delete-window delete-other-windows forward-page backward-page scroll-up-command scroll-down-command windmove-right windmove-left windmove-up windmove-down windmove-swap-states-right windmove-swap-states-left windmove-swap-states-up windmove-swap-states-down tab-new tab-close tab-next org-next-visible-heading org-previous-visible-heading org-forward-heading-same-level org-backward-heading-same-level outline-backward-same-level outline-forward-same-level outline-next-visible-heading outline-previous-visible-heading outline-up-heading copy-window imenu switch-to-buffer magit-status open-init consult-buffer evil-goto-first-line evil-goto-line evil-jump-backward evil-jump-forward last-buffer elfeed))
   :hook (focus-in-hook . pulsar-pulse-line)
   :config
 
@@ -2558,9 +2835,9 @@ most recent, and so on."
   (advice-add 'consult-imenu :after #'pulsar-recenter-middle)
 
   (setq pulsar-pulse t)
-  (setq pulsar-delay 0.04)
-  (setq pulsar-iterations 10)
-  (setq pulsar-face 'pulsar-magenta)
+  (setq pulsar-delay 0.02)
+  (setq pulsar-iterations 20)
+  (setq pulsar-face 'pulsar-green)
   (setq pulsar-highlight-face 'pulsar-yellow)
   (pulsar-global-mode 1))
 
@@ -2991,9 +3268,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (defun ediff-setup-windows-tab (buffer-A buffer-B buffer-C control-buffer)
     (call-interactively #'tab-bar-duplicate-tab)
     (tab-bar-rename-tab "*ediff*")
-    (ediff-setup-windows-plain buffer-A buffer-B buffer-C control-buffer)
-
-    )
+    (ediff-setup-windows-plain buffer-A buffer-B buffer-C control-buffer))
 
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-window-setup-function 'ediff-setup-windows-tab)
@@ -3010,6 +3285,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
 
 (use-package archive-search
   :load-path my-package-dir
+  :after (consult)
   :bind (("C-, t" . archive-insert-tag)
          :map evil-leader-state-map-extension
 	      ("n s" . archive-interactive-search)
@@ -3055,3 +3331,4 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   (set-window-dedicated-p (selected-window) nil))
 
 (add-hook 'embark-collect-mode-hook #'make-non-dedicated-window)
+(put 'scroll-left 'disabled nil)
