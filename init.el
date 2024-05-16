@@ -12,6 +12,9 @@
 ;;     lsp
 ;;     dap
 
+;; install brew from: https://brew.sh
+;; `brew tap d12frosted/emacs-plus`
+;; `brew install emacs-plus@29 --with-native-comp`
 (setq debug-on-error t)
 (setq debugger-stack-frame-as-list t)
 
@@ -54,6 +57,11 @@
          ("s-h" . windmove-left)
          ("s-p" . windmove-up)
          ("s-n" . windmove-down)
+         ("s-f" . find-file)
+         ("s-." . mode-line-other-buffer)
+         ("s--" . delete-other-windows )
+         ("s-+" . copy-window)
+
          :map isearch-mode-map
               ("C-g" . isearch-abort+)
               :map minibuffer-mode-map
@@ -1042,7 +1050,7 @@ Also set its `no-delete-other-windows' parameter to match."
   :config
   (defun corfu-move-to-minibuffer ()
     (interactive)
-    (let ((completion-extra-properties corfu--extra)
+    (let (;;(completion-extra-properties corfu--extra)
           completion-cycle-threshold completion-cycling)
       (apply #'consult-completion-in-region completion-in-region--data)))
   (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer)
@@ -1063,8 +1071,7 @@ Also set its `no-delete-other-windows' parameter to match."
   :demand t
   :bind (("C-," . nil)
          ("C-, C-," . completion-at-point)
-         ("C-, s" . cape-symbol)
-         ("C-, d" . cape-dabbrev)
+         ("C-, d" . cape-dabbr)
          ;; ("C-, h" . cape-history)
          ("C-, f" . cape-file)
          ("C-, s" . cape-elisp-symbol)
@@ -1095,6 +1102,9 @@ Also set its `no-delete-other-windows' parameter to match."
              consult-buffer-compilation
              consult-grep-dir-case-sensitive)
   :bind (("C-M-y" . consult-yank-from-kill-ring)
+         ("s-b" . consult-buffer)
+         ("s-s" . consult-line)
+         ("s-i" . consult-imenu)
          :map evil-leader-state-map-extension
    	      ("b b"   . consult-buffer)
    	      ("b B"   . switch-to-buffer)
@@ -2206,7 +2216,7 @@ most recent, and so on."
                             (setq-local help-at-pt-timer-delay .3)
                             (help-at-pt-set-timer)))
          (org-mode-hook . org-show-all))
-  :bind (("C-, z" . insert-archive-id+)
+  :bind (("C-, c" . insert-archive-id+)
          :map org-mode-map
 	      ("C-c o"  . org-open-at-point)
 	      ("M-n"  . org-next-visible-heading)
@@ -2227,7 +2237,7 @@ most recent, and so on."
               ("C-c RET" . org-meta-return)
               ("C-c S-RET" . org-insert-todo-heading)
          :map evil-leader-state-map-extension
-              ("i z" . insert-archive-id+)
+              ("i c" . insert-archive-id+)
               ("i t" . org-insert-time-id+)
               ("s l" . org-jump+)
               ("c +" . org-increase-number-at-point)
@@ -2614,8 +2624,8 @@ most recent, and so on."
   (defun markdown-font-lock-tags ()
     "Add custom font-lock keywords for markdown files with 'gtd' in the title."
     (font-lock-add-keywords nil
-                            '(("\\(?:^\\|\\s-\\)\\(#\\)[[:alnum:]/]+\\b" 1 'gnus-emphasis-underline-bold)
-                              ("\\(?:^\\|\\s-\\)#\\([[:alnum:]/]+\\b\\)" 1 'success))))
+                            '(("\\(?:^\\|\\s-\\)\\(##?\\)[[:alnum:]-/]+\\b" 1 'gnus-emphasis-underline-bold)
+                              ("\\(?:^\\|\\s-\\)##?\\([[:alnum:]-/]+\\b\\)" 1 'success))))
 
   (defun markdown-font-lock-gtd-contexts ()
     "Add custom font-lock keywords for markdown files with 'gtd' in the title."
@@ -2626,6 +2636,69 @@ most recent, and so on."
   (add-hook 'markdown-mode-hook #'markdown-font-lock-gtd-project)
   (add-hook 'markdown-mode-hook #'markdown-font-lock-tags)
   (add-hook 'markdown-mode-hook #'markdown-font-lock-gtd-contexts)
+  (defun markdown-display-inline-images ()
+  "Add inline image overlays to image links in the buffer.
+This can be toggled with `markdown-toggle-inline-images'
+or \\[markdown-toggle-inline-images]."
+  (interactive)
+  (unless (display-images-p)
+    (error "Cannot show images"))
+  (save-excursion
+    (save-restriction
+      (widen)
+      (goto-char (point-min))
+      (while (re-search-forward markdown-regex-link-inline nil t)
+        (let* ((start (match-beginning 0))
+               (imagep (match-beginning 1))
+               (end (match-end 0))
+               (file (match-string-no-properties 6))
+               (resize (ignore-error t
+                         (thread-last (match-string 3)
+                            (s-split "|")
+                            cadr
+                            (s-split "x")
+                            (seq-map #'string-to-number)
+                            ((lambda (x) (cons (car x) (cadr x))))))))
+          (message "%S %S" (match-string 3) resize)
+          (when (and imagep
+                     (not (zerop (length file))))
+            (unless (file-exists-p file)
+              (let* ((download-file (funcall markdown-translate-filename-function file))
+                     (valid-url (ignore-errors
+                                  (member (downcase (url-type (url-generic-parse-url download-file)))
+                                          markdown-remote-image-protocols))))
+                (if (and markdown-display-remote-images valid-url)
+                    (setq file (markdown--get-remote-image download-file))
+                  (when (not valid-url)
+                    ;; strip query parameter
+                    (setq file (replace-regexp-in-string "?.+\\'" "" file))
+                    (unless (file-exists-p file)
+                      (setq file (url-unhex-string file)))))))
+            (when (file-exists-p file)
+              (let* ((abspath (if (file-name-absolute-p file)
+                                  file
+                                (concat default-directory file)))
+                     (image
+                      (cond ((and markdown-max-image-size
+                                  (image-type-available-p 'imagemagick))
+                             (create-image
+                              abspath 'imagemagick nil
+                              :max-width (car markdown-max-image-size)
+                              :max-height (cdr markdown-max-image-size)))
+                            (markdown-max-image-size
+                             (create-image abspath nil nil
+                                           :max-width (car markdown-max-image-size)
+                                           :max-height (cdr markdown-max-image-size)))
+                            (resize
+                             (create-image abspath nil nil
+                                           :max-width (car resize)
+                                           :max-height (cdr resize)))
+                            (t (create-image abspath)))))
+                (when image
+                  (let ((ov (make-overlay start end)))
+                    (overlay-put ov 'display image)
+                    (overlay-put ov 'face 'default)
+                    (push ov markdown-inline-image-overlays)))))))))))
   )
 
 ;; TODO: read through this package

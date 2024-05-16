@@ -131,8 +131,8 @@
       (search-files query "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/")))
 
 
-(defun archive-interactive-search ()
-  (interactive)
+(defun archive-interactive-search (&optional initial)
+  (interactive (list ""))
   (let ((vertico-sort-override-function #'identity)
         (default-directory "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"))
     (find-file (concat "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"
@@ -141,17 +141,43 @@
                          (lambda (input)
                            (my-search-results input)))
                         :prompt "Select a note file: "
-                        :initial "%"
+                        :add-history (list (thing-at-point 'symbol) isearch-string)
+
+                        :require-match t
+                        :initial (concat "%" (or initial ""))
                         :state (project--file-preview  "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"))))))
 
-(defvar archive-directory "/Users/joey/Library/Mobile\\ Documents/iCloud~md~obsidian/Documents/obsidian/")
+(defvar archive-directory-shell "/Users/joey/Library/Mobile\\ Documents/iCloud~md~obsidian/Documents/obsidian")
+(defvar archive-directory "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian")
 
 (defun archive-insert-tag ()
   (interactive)
-  (let* ((shell-output (shell-command-to-string (format "grep -rh 'tags:' %s | grep -Eoh '##?[^ #]+' " archive-directory)))
-         (tags (split-string (s-trim shell-output) "\n"))
+  (let* ((shell-output (shell-command-to-string (format "grep -rh 'tags:' %s | grep -Eoh '##?[^ #]+' " archive-directory-shell)))
+         (tags (seq-uniq (split-string (s-trim shell-output) "\n")))
          (chosen-tags (completing-read-multiple "Choose a tag: " tags))
          (tag-string (apply #'s-concat (-interpose " " chosen-tags))))
     (insert tag-string)))
+
+(defun archive-dnd (uri action)
+  (let* ((media-dir (format "%s/media" archive-directory))
+         (uri (s-chop-prefix "file:" uri))
+         (default-name (format "%s.%s" (file-name-base uri) (file-name-extension uri)))
+         (file-name (read-string "file name: " default-name))
+         (new-path (s-replace "\\" "" (format "%s/%s" media-dir file-name))))
+    (f-copy uri new-path)
+    (insert (format "![%s](media/%s)" file-name file-name))))
+
+(defun conditionally-add-archive-dnd ()
+  (message "conditially adding archive dnd...")
+  (when (s-contains? archive-directory default-directory)
+    (setq-local dnd-protocol-alist
+                (cons (cons "file:" #'archive-dnd)
+                      dnd-protocol-alist))))
+
+(defun archive-open-media-in-finder ()
+  (interactive)
+  (shell-command (format "open '%s/media'" archive-directory)))
+
+(add-hook 'markdown-mode-hook #'conditionally-add-archive-dnd)
 
 (provide 'archive-search)
