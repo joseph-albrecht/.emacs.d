@@ -29,8 +29,10 @@
 (setq evil-leader-state-map-extension (make-sparse-keymap))
 (define-key evil-leader-state-map (kbd "<escape>") 'evil-normal-state)
 (global-set-key (kbd "M-SPC") evil-leader-state-map-extension)
+(global-set-key (kbd "C-t") evil-leader-state-map-extension)
 (define-key evil-leader-state-map (kbd "SPC") evil-leader-state-map-extension)
 (define-key evil-normal-state-map (kbd "SPC") evil-leader-state-map-extension)
+(define-key evil-normal-state-map (kbd "C-t") evil-leader-state-map-extension)
 (define-key evil-leader-state-map-extension (kbd "x") 'execute-extended-command)
 (define-key evil-leader-state-map-extension (kbd "q") 'save-buffers-kill-terminal)
 
