@@ -3130,58 +3130,15 @@ or \\[markdown-toggle-inline-images]."
   :bind (("C-s-p" . move-text-up)
          ("C-s-n" . move-text-down)))
 
+(use-package gptel
+  :ensure t
+  :config)
+
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)
 
-
 (debug-on-entry 'set-window-dedicated-p)
 (cancel-debug-on-entry 'set-window-dedicated-p)
-
-
-(defun make-non-dedicated-window ()
-  (message "no more dedicate %S" (selected-window))
-  (set-window-dedicated-p (selected-window) nil))
-
-(defun open-application+ (application)
-  (lambda () (interactive) (shell-command (concat "open -a " (app-to-exec application)))))
-
-(funcall (open-application+ "Safari"))
-
-(defun app-to-exec (app)
-  (alist-get app '(("Kindle"   . "Amazon Kindle")
-                   ("Emacs" . "/opt/homebrew/opt/emacs-plus@29/Emacs.app/Contents/MacOS/Emacs"))
-             app nil #'equal))
-
-(defun list-open-applications ()
-  (->> (shell-command-to-string "osascript -e 'tell application \"System Events\" to get the name of every application process whose visible is true'")
-       (s-split ",")
-       (seq-map #'s-trim)))
-
-(setq applications
-      '("Safari" "Emacs" "Messages" "Finder" "BetterTouchTool" "Calendar" "Discord" "Kindle" "Terminal" "Spotify" "Activity Monitor"))
-
-(defun switch-application (application)
-  (interactive (list (->> (if current-prefix-arg applications (list-open-applications))
-                          (completing-read "Application: ")
-                          app-to-exec)))
-  (shell-command (format "open -a '%s'" application)))
-
-
-(setq application-switch-map (make-sparse-keymap))
-(define-key application-switch-map (kbd "m") (open-application+ "Messages"))
-(define-key application-switch-map (kbd "s") (open-application+ "Safari"))
-(define-key application-switch-map (kbd "p") (open-application+ "Spotify"))
-(define-key evil-leader-state-map-extension (kbd "O") application-switch-map)
-
-(defun application-switcher ()
-  (interactive)
-  (set-transient-map application-switch-map))
-
-(use-package gptel
-  :ensure t
-  :config
-  )
-
 
 (add-hook 'embark-collect-mode-hook #'make-non-dedicated-window)
 (put 'scroll-left 'disabled nil)
