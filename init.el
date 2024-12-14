@@ -51,6 +51,7 @@
              isearch-abort+)
   :bind (("M-n" . open-next-file-in-directory+)
          ("M-p" . open-previous-file-in-directory+)
+         ("C-x f" . find-file)
          ("C-x >" . scroll-left)
          ("C-x <" . scroll-right)
          ("s-l" . windmove-right)
@@ -58,48 +59,49 @@
          ("s-p" . windmove-up)
          ("s-n" . windmove-down)
          ("s-f" . find-file)
-         ("s-." . mode-line-other-buffer)
-         ("s--" . delete-other-windows )
+         ("s-," . mode-line-other-buffer)
+         ("s-." . delete-other-windows)
+         ("s--" . delete-window)
          ("s-+" . copy-window)
 
          :map isearch-mode-map
-              ("C-g" . isearch-abort+)
-              :map minibuffer-mode-map
-	      ("M-p" . nil)
-	      ("M-n" . nil)
-              ("C-c e" . edit-minibuffer)
-	      ("C-c h" . select-from-history)
-	      ("C-c D" . select-subdirectory+)
-	      :map evil-leader-state-map-extension
-	      ("C-c" . server-edit)
-	      ("e r" . eval-region+)
-	      ("e b" . eval-buffer+)
-	      ("v +" . text-scale-increase)
-	      ("v -" . text-scale-decrease)
-	      ("e L" . eval-expression-and-replace)
-              ("e $" . shell-command-on-region+)
-              ("c $" . shell-command-on-region+)
-	      ("c k" . keep-lines)
-              ("c f" . flush-lines)
-              ("c w" . delete-trailing-whitespace)
-	      ("f w" . kill-filepath)
-	      ("f e" . echo-filepath)
-	      ("v w" . toggle-show-trailing-whitespace)
-	      ("v h" . global-hl-line-mode)
-	      ("v m" . conform-frame-to-monitor)
-	      ("v e" . setenv)
-	      ("v l" . display-line-numbers-mode)
-              ("t C" . 'copy-window)
-              ("h g" . 'open-guide)
-              ("r"   . 'random-line-jump)
-              ("R"   . 'random-line)
-              ("b h ." . 'highlight-symbol-at-point)
-              ("b h r" . 'highlight-lines-matching-regexp)
-              ("b h u" . 'unhighlight-regexp)
-              ("b h U" . 'unhighlight-regexp-all+)
-              ("b h p" . 'highlight-phrase)
-              ("i r c" . 'insert-regexp-char-class)
-              ("C-d" . run-command-with-default-dir))
+         ("C-g" . isearch-abort+)
+         :map minibuffer-mode-map
+	 ("M-p" . nil)
+	 ("M-n" . nil)
+         ("C-c e" . edit-minibuffer)
+	 ("C-c h" . select-from-history)
+	 ("C-c D" . select-subdirectory+)
+	 :map evil-leader-state-map-extension
+	 ("C-c" . server-edit)
+	 ("e r" . eval-region+)
+	 ("e b" . eval-buffer+)
+	 ("v +" . text-scale-increase)
+	 ("v -" . text-scale-decrease)
+	 ("e L" . eval-expression-and-replace)
+         ("e $" . shell-command-on-region+)
+         ("c $" . shell-command-on-region+)
+	 ("c k" . keep-lines)
+         ("c f" . flush-lines)
+         ("c w" . delete-trailing-whitespace)
+	 ("f w" . kill-filepath)
+	 ("f e" . echo-filepath)
+	 ("v w" . toggle-show-trailing-whitespace)
+	 ("v h" . global-hl-line-mode)
+	 ("v m" . conform-frame-to-monitor)
+	 ("v e" . setenv)
+	 ("v l" . display-line-numbers-mode)
+         ("t C" . 'copy-window)
+         ("h g" . 'open-guide)
+         ("r"   . 'random-line-jump)
+         ("R"   . 'random-line)
+         ("b h ." . 'highlight-symbol-at-point)
+         ("b h r" . 'highlight-lines-matching-regexp)
+         ("b h u" . 'unhighlight-regexp)
+         ("b h U" . 'unhighlight-regexp-all+)
+         ("b h p" . 'highlight-phrase)
+         ("i r c" . 'insert-regexp-char-class)
+         ("C-d" . run-command-with-default-dir))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   (defun unhighlight-regexp-all+ ()
@@ -170,7 +172,7 @@
   ;; Cascadia Mono
   ;; Hack
   (condition-case nil
-      (set-face-attribute 'default nil :font "Iosevka Comfy" :height 140)
+      (set-face-attribute 'default nil :font "Iosevka comfy" :height 160)
     (error (set-face-attribute 'default nil :height 120)))
 
   (set-face-attribute 'region nil :background "#A0F5F4")
@@ -365,8 +367,8 @@
     (interactive (let ((start (if (region-active-p) (region-beginning) (point)))
                        (end (if (region-active-p) (region-end)       (point)))
                        (output (if current-prefix-arg
-                           (intern (completing-read "output: " '(buffer echo replace)))
-                         'replace))
+                                   (intern (completing-read "output: " '(buffer echo replace)))
+                                 'replace))
                        (command (read-shell-command "Shell command on region: "))
                        )
                    (list start end command output)))
@@ -396,23 +398,23 @@
       (call-interactively (funcall embark-prompter map #'indentity))))
 
   (setq regexp-char-classes
-      '("[:ascii:]"
-        "[:alnum:]"
-        "[:alpha:]"
-        "[:blank:]"
-        "[:cntrl:]"
-        "[:digit:]"
-        "[:graph:]"
-        "[:lower:]"
-        "[:multibyte:]"
-        "[:nonascii:]"
-        "[:print:]"
-        "[:punct:]"
-        "[:space:]"
-        "[:unibyte:]"
-        "[:upper:]"
-        "[:word:]"
-        "[:xdigit:]"))
+        '("[:ascii:]"
+          "[:alnum:]"
+          "[:alpha:]"
+          "[:blank:]"
+          "[:cntrl:]"
+          "[:digit:]"
+          "[:graph:]"
+          "[:lower:]"
+          "[:multibyte:]"
+          "[:nonascii:]"
+          "[:print:]"
+          "[:punct:]"
+          "[:space:]"
+          "[:unibyte:]"
+          "[:upper:]"
+          "[:word:]"
+          "[:xdigit:]"))
 
   (defun insert-regexp-char-class ()
     (interactive)
@@ -467,8 +469,8 @@ Also set its `no-delete-other-windows' parameter to match."
   (defun random-line (start end)
     (interactive (if (region-active-p)
                      (region-bounds)
-                     (list (point-max)
-                           (point-min))))
+                   (list (point-max)
+                         (point-min))))
     (let* ((content (s-trim (buffer-substring start end)))
            (command (concat "   echo " (shell-quote-argument content)
                             " | grep -v '~~.*~~'"
@@ -546,20 +548,21 @@ Also set its `no-delete-other-windows' parameter to match."
   :bind (("C-M-n" . next-error)
          ("C-M-p" . previous-error)
          :map evil-leader-state-map-extension
-	      ("p C" . project-compile-menu)
-              ("e c" . compile)
-              ("e C" . recompile)
-              ("e M-c" . recompile+)
+	 ("p C" . project-compile-menu)
+         ("e c" . compile)
+         ("e C" . recompile)
+         ("e M-c" . recompile+)
          :map compilation-mode-map
-	      ("n" . next-line)
-	      ("p" . previous-line)
-	      ("M-n" . next-error+)
-	      ("M-p" . previous-error+)
-              ("M-<return>" . compile-goto-error-no-select)
-	      ("d" . compile-delete-line+)
-              ("D" . compile-delete-line-no-select+))
+	 ("n" . next-line)
+	 ("p" . previous-line)
+	 ("M-n" . next-error+)
+	 ("M-p" . previous-error+)
+         ("M-<return>" . compile-goto-error-no-select)
+	 ("d" . compile-delete-line+)
+         ("D" . compile-delete-line-no-select+))
   :config
   (setq compilation-environment '("TERM=tmux-256color"))
+  (setq compilation-scroll-output t)
 
   (defun compile-goto-error-no-select ()
     (interactive)
@@ -615,7 +618,7 @@ Also set its `no-delete-other-windows' parameter to match."
     (interactive)
     (let* ((dir (or compilation-directory default-directory)))
       (let ((default-directory dir))
-            (call-interactively #'compile))))
+        (call-interactively #'compile))))
 
   (defun compile+ (current-dir)
     "Select a directory, enter a command, then run it in compile buffer."
@@ -629,8 +632,8 @@ Also set its `no-delete-other-windows' parameter to match."
     (let* ((dir-text (propertize "DIR" 'face 'bold))
            (command-text (propertize "COMMAND" 'face 'bold))
            (max-dir-length (apply 'max (mapcar (lambda (pair)
-                                               (length (format "%s%s" (project-root (project-current)) (car pair))))
-                                             command-list))))
+                                                 (length (format "%s%s" (project-root (project-current)) (car pair))))
+                                               command-list))))
       (mapcar (lambda (pair)
                 (let* ((dir (format "%s%s" (project-root (project-current)) (car pair)))
                        (cmd (cdr pair))
@@ -756,20 +759,20 @@ Also set its `no-delete-other-windows' parameter to match."
 
   (defun project-jump-to-src ()
     (defun project-jump-to-test ()
-    (let* ((target-base (file-name-base buffer-file-name))
-           (target-extension (file-name-extension buffer-file-name))
-           (all-files (project--files-in-directory (project-root (project-current)) nil))
-           (matching-files (seq-filter (lambda (file)
-                                         (let ((base (file-name-base file))
-                                               (extension (file-name-extension file)))
-                                           (and (s-contains-p target-base base)
-                                                (s-contains-p "test" base)
-                                                (s-equals-p target-extension extension)
-                                                (s-contains-p "test" (file-name-directory file)))))
-                                       all-files)))
-      (cond
-       ((= 1 (length matching-files)) (find-file (nth 0 matching-files)))
-       (t (find-file (completing-read "Pick test: " matching-files)))))))
+      (let* ((target-base (file-name-base buffer-file-name))
+             (target-extension (file-name-extension buffer-file-name))
+             (all-files (project--files-in-directory (project-root (project-current)) nil))
+             (matching-files (seq-filter (lambda (file)
+                                           (let ((base (file-name-base file))
+                                                 (extension (file-name-extension file)))
+                                             (and (s-contains-p target-base base)
+                                                  (s-contains-p "test" base)
+                                                  (s-equals-p target-extension extension)
+                                                  (s-contains-p "test" (file-name-directory file)))))
+                                         all-files)))
+        (cond
+         ((= 1 (length matching-files)) (find-file (nth 0 matching-files)))
+         (t (find-file (completing-read "Pick test: " matching-files)))))))
 
   (defun project-find-test-pair (file-path)
     (interactive)
@@ -836,7 +839,8 @@ Also set its `no-delete-other-windows' parameter to match."
     (interactive)
     (let ((start (progn (move-beginning-of-line 1)
                         (point)))
-          (end    (progn (move-end-of-line 1)
+          (end    (progn (end-of-buffer)
+                         (move-end-of-line 1)
                          (point))))
       (delete-region start end))))
 
@@ -846,26 +850,27 @@ Also set its `no-delete-other-windows' parameter to match."
   :demand t
   :bind (("C-M-x" . vertico-repeat)
 	 :map vertico-map
-	      ("C-p" . vertico-C-p-or-reverse)
-	      ("C-M-n" . vertico-next-group)
-	      ("C-M-p" . vertico-previous-group)
-	      ("M-n" . vertico-next+)
-	      ("M-p" . vertico-previous+)
-	      ("C-M-n" . vertico-next-group)
-	      ("C-M-p" . vertico-previous-group)
-	      ("C-<return>" . vertico-exit-input)
-	      ("C-^" . vertico-directory-up)
-              ("M-h" . vertico-directory-up)
-              ("C-c +" . vertico-show-more)
-              ("C-c -" . vertico-show-less)
-              ("C-c s a" . vertico-alphabetic-sort+)
-              ("C-c s u" . vertico-default-sort+)
-              ("C-c s h" . vertico-history-sort+)
-              ("C-c s l" . vertico-length-sort+)
-              ("C-c s r" . vertico-reverse-alpha-sort+)
+	 ("s-t" . vertico-quick-insert)
+	 ("C-p" . vertico-C-p-or-reverse)
+	 ("C-M-n" . vertico-next-group)
+	 ("C-M-p" . vertico-previous-group)
+	 ("M-n" . vertico-next+)
+	 ("M-p" . vertico-previous+)
+	 ("C-M-n" . vertico-next-group)
+	 ("C-M-p" . vertico-previous-group)
+	 ("C-<return>" . vertico-exit-input)
+	 ("C-^" . vertico-directory-up)
+         ("M-h" . vertico-directory-up)
+         ("C-c +" . vertico-show-more)
+         ("C-c -" . vertico-show-less)
+         ("C-c s a" . vertico-alphabetic-sort+)
+         ("C-c s u" . vertico-default-sort+)
+         ("C-c s h" . vertico-history-sort+)
+         ("C-c s l" . vertico-length-sort+)
+         ("C-c s r" . vertico-reverse-alpha-sort+)
          :map evil-leader-state-map-extension
-              ("X" . vertico-repeat)
-              ("M-x" . vertico-repeat))
+         ("X" . vertico-repeat)
+         ("M-x" . vertico-repeat))
   :config
   (setq vertico-default-count 20)
   (setq vertico-count vertico-default-count)
@@ -1082,7 +1087,7 @@ Also set its `no-delete-other-windows' parameter to match."
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   :config
   (setq completion-at-point-functions
-              (list #'cape-dabbrev)))
+        (list #'cape-dabbrev)))
 
 (use-package elisp-mode
   :after (cape)
@@ -1106,18 +1111,18 @@ Also set its `no-delete-other-windows' parameter to match."
          ("s-s" . consult-line)
          ("s-i" . consult-imenu)
          :map evil-leader-state-map-extension
-   	      ("b b"   . consult-buffer)
-   	      ("b B"   . switch-to-buffer)
-   	      ("b t"   . consult-buffer-terminal)
-   	      ("b e"   . consult-buffer-ein)
-   	      ("b c"   . consult-buffer-compilation)
-   	      ("b C-B"   . ibuffer)
-   	      ("b L"   . consult-outline)
-   	      ("b l"   . consult-line)
-   	      ("d g"   . consult-grep+)
-   	      ("d p"   . consult-git-grep+)
-	      ("b i"   . consult-imenu)
-	      ("b o"   . occur))
+   	 ("b b"   . consult-buffer)
+   	 ("b B"   . switch-to-buffer)
+   	 ("b t"   . consult-buffer-terminal)
+   	 ("b e"   . consult-buffer-ein)
+   	 ("b c"   . consult-buffer-compilation)
+   	 ("b C-B"   . ibuffer)
+   	 ("b L"   . consult-outline)
+   	 ("b l"   . consult-line)
+   	 ("d g"   . consult-grep+)
+   	 ("d p"   . consult-git-grep+)
+	 ("b i"   . consult-imenu)
+	 ("b o"   . occur))
   :config
   (setq consult-preview-key (list "M-<return>" "M-n" "M-p"))
   (setq consult-async-min-input 0)
@@ -1195,143 +1200,143 @@ Also set its `no-delete-other-windows' parameter to match."
                    (setq files-to-close (append (list buf) files-to-close)))))))))))
 
   (defun read-file-name-default (prompt &optional dir default-filename mustmatch initial predicate)
-  "Default method for reading file names.
+    "Default method for reading file names.
 See `read-file-name' for the meaning of the arguments."
-  (unless dir (setq dir (or default-directory "~/")))
-  (unless (file-name-absolute-p dir) (setq dir (expand-file-name dir)))
-  (unless default-filename
-    (setq default-filename
-          (cond
-           ((null initial) buffer-file-name)
-           ;; Special-case "" because (expand-file-name "" "/tmp/") returns
-           ;; "/tmp" rather than "/tmp/" (bug#39057).
-           ((equal "" initial) dir)
-           (t (expand-file-name initial dir)))))
-  ;; If dir starts with user's homedir, change that to ~.
-  (setq dir (abbreviate-file-name dir))
-  ;; Likewise for default-filename.
-  (if default-filename
+    (unless dir (setq dir (or default-directory "~/")))
+    (unless (file-name-absolute-p dir) (setq dir (expand-file-name dir)))
+    (unless default-filename
       (setq default-filename
-	    (if (consp default-filename)
-		(mapcar 'abbreviate-file-name default-filename)
-	      (abbreviate-file-name default-filename))))
-  (let ((insdef (cond
-                 ((and insert-default-directory (stringp dir))
-                  (if initial
-                      (cons (minibuffer-maybe-quote-filename (concat dir initial))
-                            (length (minibuffer-maybe-quote-filename dir)))
-                    (minibuffer-maybe-quote-filename dir)))
-                 (initial (cons (minibuffer-maybe-quote-filename initial) 0)))))
+            (cond
+             ((null initial) buffer-file-name)
+             ;; Special-case "" because (expand-file-name "" "/tmp/") returns
+             ;; "/tmp" rather than "/tmp/" (bug#39057).
+             ((equal "" initial) dir)
+             (t (expand-file-name initial dir)))))
+    ;; If dir starts with user's homedir, change that to ~.
+    (setq dir (abbreviate-file-name dir))
+    ;; Likewise for default-filename.
+    (if default-filename
+        (setq default-filename
+	      (if (consp default-filename)
+		  (mapcar 'abbreviate-file-name default-filename)
+	        (abbreviate-file-name default-filename))))
+    (let ((insdef (cond
+                   ((and insert-default-directory (stringp dir))
+                    (if initial
+                        (cons (minibuffer-maybe-quote-filename (concat dir initial))
+                              (length (minibuffer-maybe-quote-filename dir)))
+                      (minibuffer-maybe-quote-filename dir)))
+                   (initial (cons (minibuffer-maybe-quote-filename initial) 0)))))
 
-    (let ((ignore-case read-file-name-completion-ignore-case)
-          (minibuffer-completing-file-name t)
-          (pred (or predicate 'file-exists-p))
-          (add-to-history nil))
+      (let ((ignore-case read-file-name-completion-ignore-case)
+            (minibuffer-completing-file-name t)
+            (pred (or predicate 'file-exists-p))
+            (add-to-history nil))
 
-      (let* ((val
-              (if (or (not (next-read-file-uses-dialog-p))
-                      ;; Graphical file dialogs can't handle remote
-                      ;; files (Bug#99).
-                      (file-remote-p dir))
-                  ;; We used to pass `dir' to `read-file-name-internal' by
-                  ;; abusing the `predicate' argument.  It's better to
-                  ;; just use `default-directory', but in order to avoid
-                  ;; changing `default-directory' in the current buffer,
-                  ;; we don't let-bind it.
-                  (let ((dir (file-name-as-directory
-                              (expand-file-name dir))))
-                    (minibuffer-with-setup-hook
-                        (lambda ()
-                          (setq default-directory dir)
-                          ;; When the first default in `minibuffer-default'
-                          ;; duplicates initial input `insdef',
-                          ;; reset `minibuffer-default' to nil.
-                          (when (equal (or (car-safe insdef) insdef)
-                                       (or (car-safe minibuffer-default)
-                                           minibuffer-default))
-                            (setq minibuffer-default
-                                  (cdr-safe minibuffer-default)))
-                          (setq-local completion-ignore-case ignore-case)
-                          ;; On the first request on `M-n' fill
-                          ;; `minibuffer-default' with a list of defaults
-                          ;; relevant for file-name reading.
-                          (setq-local minibuffer-default-add-function
-                               (lambda ()
-                                 (with-current-buffer
-                                     (window-buffer (minibuffer-selected-window))
-				   (read-file-name--defaults dir initial))))
-			  (set-syntax-table minibuffer-local-filename-syntax))
-                      (consult--read 'read-file-name-internal
-                                     :prompt prompt
-                                     :predicate pred
-                                     :state (project--file-preview "")
-                                     :require-match mustmatch
-                                     :initial insdef
-                                     :history 'file-name-history
-                                     :default default-filename)))
-                ;; If DEFAULT-FILENAME not supplied and DIR contains
-                ;; a file name, split it.
-                (let ((file (file-name-nondirectory dir))
-                      ;; When using a dialog, revert to nil and non-nil
-                      ;; interpretation of mustmatch. confirm options
-                      ;; need to be interpreted as nil, otherwise
-                      ;; it is impossible to create new files using
-                      ;; dialogs with the default settings.
-                      (dialog-mustmatch
-                       (not (memq mustmatch
-                                  '(nil confirm confirm-after-completion)))))
-                  (when (and (not default-filename)
-                             (not (zerop (length file))))
-                    (setq default-filename file)
-                    (setq dir (file-name-directory dir)))
-                  (when default-filename
-                    (setq default-filename
-                          (expand-file-name (if (consp default-filename)
-                                                (car default-filename)
-                                              default-filename)
-                                            dir)))
-                  (setq add-to-history t)
-                  (x-file-dialog prompt dir default-filename
-                                 dialog-mustmatch
-                                 (eq predicate 'file-directory-p)))))
+        (let* ((val
+                (if (or (not (next-read-file-uses-dialog-p))
+                        ;; Graphical file dialogs can't handle remote
+                        ;; files (Bug#99).
+                        (file-remote-p dir))
+                    ;; We used to pass `dir' to `read-file-name-internal' by
+                    ;; abusing the `predicate' argument.  It's better to
+                    ;; just use `default-directory', but in order to avoid
+                    ;; changing `default-directory' in the current buffer,
+                    ;; we don't let-bind it.
+                    (let ((dir (file-name-as-directory
+                                (expand-file-name dir))))
+                      (minibuffer-with-setup-hook
+                          (lambda ()
+                            (setq default-directory dir)
+                            ;; When the first default in `minibuffer-default'
+                            ;; duplicates initial input `insdef',
+                            ;; reset `minibuffer-default' to nil.
+                            (when (equal (or (car-safe insdef) insdef)
+                                         (or (car-safe minibuffer-default)
+                                             minibuffer-default))
+                              (setq minibuffer-default
+                                    (cdr-safe minibuffer-default)))
+                            (setq-local completion-ignore-case ignore-case)
+                            ;; On the first request on `M-n' fill
+                            ;; `minibuffer-default' with a list of defaults
+                            ;; relevant for file-name reading.
+                            (setq-local minibuffer-default-add-function
+                                        (lambda ()
+                                          (with-current-buffer
+                                              (window-buffer (minibuffer-selected-window))
+				            (read-file-name--defaults dir initial))))
+			    (set-syntax-table minibuffer-local-filename-syntax))
+                        (consult--read 'read-file-name-internal
+                                       :prompt prompt
+                                       :predicate pred
+                                       :state (project--file-preview "")
+                                       :require-match mustmatch
+                                       :initial insdef
+                                       :history 'file-name-history
+                                       :default default-filename)))
+                  ;; If DEFAULT-FILENAME not supplied and DIR contains
+                  ;; a file name, split it.
+                  (let ((file (file-name-nondirectory dir))
+                        ;; When using a dialog, revert to nil and non-nil
+                        ;; interpretation of mustmatch. confirm options
+                        ;; need to be interpreted as nil, otherwise
+                        ;; it is impossible to create new files using
+                        ;; dialogs with the default settings.
+                        (dialog-mustmatch
+                         (not (memq mustmatch
+                                    '(nil confirm confirm-after-completion)))))
+                    (when (and (not default-filename)
+                               (not (zerop (length file))))
+                      (setq default-filename file)
+                      (setq dir (file-name-directory dir)))
+                    (when default-filename
+                      (setq default-filename
+                            (expand-file-name (if (consp default-filename)
+                                                  (car default-filename)
+                                                default-filename)
+                                              dir)))
+                    (setq add-to-history t)
+                    (x-file-dialog prompt dir default-filename
+                                   dialog-mustmatch
+                                   (eq predicate 'file-directory-p)))))
 
-             (replace-in-history (eq (car-safe file-name-history) val)))
-        ;; If completing-read returned the inserted default string itself
-        ;; (rather than a new string with the same contents),
-        ;; it has to mean that the user typed RET with the minibuffer empty.
-        ;; In that case, we really want to return ""
-        ;; so that commands such as set-visited-file-name can distinguish.
-        (when (consp default-filename)
-          (setq default-filename (car default-filename)))
-        (when (eq val default-filename)
-          ;; In this case, completing-read has not added an element
-          ;; to the history.  Maybe we should.
-          (if (not replace-in-history)
-              (setq add-to-history t))
-          (setq val ""))
-        (unless val (error "No file name specified"))
+               (replace-in-history (eq (car-safe file-name-history) val)))
+          ;; If completing-read returned the inserted default string itself
+          ;; (rather than a new string with the same contents),
+          ;; it has to mean that the user typed RET with the minibuffer empty.
+          ;; In that case, we really want to return ""
+          ;; so that commands such as set-visited-file-name can distinguish.
+          (when (consp default-filename)
+            (setq default-filename (car default-filename)))
+          (when (eq val default-filename)
+            ;; In this case, completing-read has not added an element
+            ;; to the history.  Maybe we should.
+            (if (not replace-in-history)
+                (setq add-to-history t))
+            (setq val ""))
+          (unless val (error "No file name specified"))
 
-        (if (and default-filename
-                 (string-equal val (if (consp insdef) (car insdef) insdef)))
-            (setq val default-filename))
-        (setq val (substitute-in-file-name val))
+          (if (and default-filename
+                   (string-equal val (if (consp insdef) (car insdef) insdef)))
+              (setq val default-filename))
+          (setq val (substitute-in-file-name val))
 
-        (if replace-in-history
-            ;; Replace what Fcompleting_read added to the history
-            ;; with what we will actually return.  As an exception,
-            ;; if that's the same as the second item in
-            ;; file-name-history, it's really a repeat (Bug#4657).
-            (let ((val1 (minibuffer-maybe-quote-filename val)))
-              (if history-delete-duplicates
-                  (setcdr file-name-history
-                          (delete val1 (cdr file-name-history))))
-              (if (string= val1 (cadr file-name-history))
-                  (pop file-name-history)
-                (setcar file-name-history val1)))
-          (when add-to-history
-            (add-to-history 'file-name-history
-                            (minibuffer-maybe-quote-filename val))))
-	val))))
+          (if replace-in-history
+              ;; Replace what Fcompleting_read added to the history
+              ;; with what we will actually return.  As an exception,
+              ;; if that's the same as the second item in
+              ;; file-name-history, it's really a repeat (Bug#4657).
+              (let ((val1 (minibuffer-maybe-quote-filename val)))
+                (if history-delete-duplicates
+                    (setcdr file-name-history
+                            (delete val1 (cdr file-name-history))))
+                (if (string= val1 (cadr file-name-history))
+                    (pop file-name-history)
+                  (setcar file-name-history val1)))
+            (when add-to-history
+              (add-to-history 'file-name-history
+                              (minibuffer-maybe-quote-filename val))))
+	  val))))
 
   )
 
@@ -1346,7 +1351,7 @@ See `read-file-name' for the meaning of the arguments."
   :after (consult evil-leader)
   :bind (:map minibuffer-mode-map
               ("C-c d" . consult-dir)
-         :map evil-leader-state-map-extension
+              :map evil-leader-state-map-extension
               ("D" . consult-dir)))
 
 ;; https://karthinks.com/software/fifteen-ways-to-use-embark/
@@ -1358,26 +1363,26 @@ See `read-file-name' for the meaning of the arguments."
   :commands (embark-act-quit forward-button-click+ backward-button-click+ embark-collect-delete+)
   :bind (("C-z" . embark-act)
    	 :map minibuffer-mode-map
-   	      ("TAB" . minibuffer-force-complete)
-   	      ("SPC" . nil)
-   	      ("C-z" . embark-act)
-   	      ("M-z" . embark-select-next-line)
-   	      ("C-c a" . embark-select-all-vertico)
-   	      ("C-c u" . embark-unselect-all-vertico)
-   	      ("C-c t" . embark-select-toggle-vertico)
-   	      ("C-M-z" . embark-act-all)
-   	      ("C-c b" . embark-become+)
-   	      ("C-c x" . embark-export)
-   	      ("C-c c" . embark-collect)
+   	 ("TAB" . minibuffer-force-complete)
+   	 ("SPC" . nil)
+   	 ("C-z" . embark-act)
+   	 ("M-z" . embark-select-next-line)
+   	 ("C-c a" . embark-select-all-vertico)
+   	 ("C-c u" . embark-unselect-all-vertico)
+   	 ("C-c t" . embark-select-toggle-vertico)
+   	 ("C-M-z" . embark-act-all)
+   	 ("C-c b" . embark-become+)
+   	 ("C-c x" . embark-export)
+   	 ("C-c c" . embark-collect)
    	 :map embark-meta-map
-   	      ("C-h" . nil)
-   	      ("C-z" . embark-act)
+   	 ("C-h" . nil)
+   	 ("C-z" . embark-act)
 	 :map embark-collect-mode-map
-	      ("m" . embark-select-forward-button)
-	      ("d" . embark-collect-delete+)
-	      ("D" . embark-collect-delete-no-select+)
-	      ("M-n" . forward-button-click+)
-	      ("M-p" . backward-button-click+))
+	 ("m" . embark-select-forward-button)
+	 ("d" . embark-collect-delete+)
+	 ("D" . embark-collect-delete-no-select+)
+	 ("M-n" . forward-button-click+)
+	 ("M-p" . backward-button-click+))
   :config
 
   (setq embark-confirm-act-all nil)
@@ -1398,7 +1403,7 @@ See `read-file-name' for the meaning of the arguments."
     "Select all of the filtered candidates"
     (interactive)
     (let ((next-command (if (equal major-mode 'vertico)
-                           #'embark-select-next-line
+                            #'embark-select-next-line
                           #'embark-select-forward-button))
           (last-index -1))
       (vertico-first)
@@ -1767,42 +1772,42 @@ buffer has a unique name."
                   (?t . evil-surround-read-tag)
                   (?f . evil-surround-function)))
 
-(evil-define-command evil-sandwich (char)
-  (interactive (evil-surround-input-char))
-  (call-interactively
-   (pcase char
-     (?c #'evil-surround-change)
-     (?k #'evil-surround-delete))))
+  (evil-define-command evil-sandwich (char)
+    (interactive (evil-surround-input-char))
+    (call-interactively
+     (pcase char
+       (?c #'evil-surround-change)
+       (?k #'evil-surround-delete))))
 
-(define-key evil-normal-state-map (kbd "$") 'evil-sandwich)
-(define-key evil-visual-state-map (kbd "$") 'evil-surround-region))
+  (define-key evil-normal-state-map (kbd "$") 'evil-sandwich)
+  (define-key evil-visual-state-map (kbd "$") 'evil-surround-region))
 
-(use-package lispyville
-  :ensure t
-  :demand t
-  :bind (("C-k" . lispy-kill))
-  :hook ((prog-mode-hook   . lispyville-mode)))
+;; (use-package lispyville
+;;   :ensure t
+;;   :demand t
+;;   :bind (("C-k" . lispy-kill))
+;;   :hook ((prog-mode-hook   . lispyville-mode)))
 
-(use-package elec-pair
-  :hook ((text-mode-hook   . electric-pair-local-mode)
-         (prog-mode-hook   . electric-pair-local-mode)
-         (python-mode-hook . electric-pair-local-mode)
-         (java-mode-hook   . electric-pair-local-mode)
-         (scala-mode-hook  . electric-pair-local-mode)
-         (emacs-lisp-mode  . electric-pair-local-mode)))
+;; (use-package elec-pair
+;;   :hook ((text-mode-hook   . electric-pair-local-mode)
+;;          (prog-mode-hook   . electric-pair-local-mode)
+;;          (python-mode-hook . electric-pair-local-mode)
+;;          (java-mode-hook   . electric-pair-local-mode)
+;;          (scala-mode-hook  . electric-pair-local-mode)
+;;          (emacs-lisp-mode  . electric-pair-local-mode)))
 
 (use-package magit
   :ensure t
   :demand t
   :bind (("s-g" . magit-status)
          :map magit-status-mode-map
-              ("<" . magit-section-up)
+         ("<" . magit-section-up)
          :map evil-leader-state-map-extension
-	      ("g g" . magit-status)
-	      ("g b" . magit-blame)
-              ("g c" . magit-clone)
-              ("g d" . magit-file-dispatch)
-              ("f g" . magit-file-dispatch))
+	 ("g g" . magit-status)
+	 ("g b" . magit-blame)
+         ("g c" . magit-clone)
+         ("g d" . magit-file-dispatch)
+         ("f g" . magit-file-dispatch))
   :config
   (setq magit-save-repository-buffers 'dontask))
 
@@ -1829,9 +1834,11 @@ buffer has a unique name."
 	      ("s F" . find-grep-dired)
  	      ("s f" . find-grep-dired-default-dir)
               ("d D" . dired+)
-  	 :map dired-mode-map
+              ("D" . dired+)
+  	      :map dired-mode-map
  	      ("C-M-n" . nil)
  	      ("C-M-p" . nil)
+ 	      ("C-t" . nil)
  	      ("^" . dired-up-directory)
  	      ("<" . dired-goto-first-item)
  	      (">" . end-of-buffer)
@@ -1907,8 +1914,8 @@ buffer has a unique name."
   :bind (:map evil-leader-state-map-extension
               ("d s" . dired-sidebar-toggle-sidebar)
               ("^" . nil)
-         :map dired-sidebar-mode-map
-         ("^" . nil))
+              :map dired-sidebar-mode-map
+              ("^" . nil))
   :config
   (setq dired-sidebar-width 45)
 
@@ -1926,9 +1933,9 @@ buffer has a unique name."
   :demand t
   :bind (:map dired-mode-map
               ("TAB" . dired-subtree-cycle)
-              ("^" . dired-subtree-up)
-         :map dired-sidebar-mode-map
-         ("^" . dired-subtree-up))
+              ("^" . dired-up-directory)
+              :map dired-sidebar-mode-map
+              ("^" . dired-subtree-up))
   :config
   (copy-face 'default 'dired-subtree-depth-1-face)
   (copy-face 'default 'dired-subtree-depth-2-face)
@@ -2006,7 +2013,7 @@ Also set its `no-delete-other-windows' parameter to match."
   :demand t
   :bind (("C-, y" . yas-insert-snippet)
          :map evil-leader-state-map-extension
-              ("i y" . yas-insert-snippet))
+         ("i y" . yas-insert-snippet))
   :config
   (yas-global-mode 1))
 
@@ -2170,7 +2177,7 @@ most recent, and so on."
   :commands (wgrep-change-to-wgrep-mode)
   :bind (:map grep-mode-map
 	      ("e" . wgrep-change-to-wgrep-mode)
-	 :map wgrep-mode-map
+	      :map wgrep-mode-map
 	      ("C-c C-e" . nil)
 	      ("C-x C-s" . nil)
 	      ("C-c C-c" . wgrep-finish-edit)))
@@ -2218,36 +2225,37 @@ most recent, and so on."
          (org-mode-hook . org-show-all))
   :bind (("C-, c" . insert-archive-id+)
          :map org-mode-map
-	      ("C-c o"  . org-open-at-point)
-	      ("M-n"  . org-next-visible-heading)
-	      ("M-p"  . org-previous-visible-heading)
-	      ("M-n"  . nil)
-	      ("M-p"  . nil)
-	      ("C-c ."  . org-insert-timestamp+)
-	      ("C-c c"  . org-cycle)
-	      ("C-c l"  . org-open-some-buffer-link+)
-	      ("C-c r"  . org-refile)
-	      ("C-c t"  . org-todo)
-	      ("C-c s t"  . org-show-tree)
-	      ("C-c i g"  . org-set-tags-command)
-	      ("C-c i t"  . org-insert-todo-heading)
-	      ("C-c i h"  . org-insert-heading)
-	      ("TAB"  . org-cycle)
-	      ("S-TAB"  . org-shifttab)
-              ("C-c RET" . org-meta-return)
-              ("C-c S-RET" . org-insert-todo-heading)
+	 ("C-c o"  . org-open-at-point)
+	 ("M-n"  . org-next-visible-heading)
+	 ("M-p"  . org-previous-visible-heading)
+	 ("M-n"  . nil)
+	 ("M-p"  . nil)
+	 ("C-c ."  . org-insert-timestamp+)
+	 ("C-c c"  . org-cycle)
+	 ("C-c l"  . org-open-some-buffer-link+)
+	 ("C-c r"  . org-refile)
+	 ("C-c t"  . org-todo)
+	 ("C-c s t"  . org-show-tree)
+	 ("C-c i g"  . org-set-tags-command)
+	 ("C-c i t"  . org-insert-todo-heading)
+	 ("C-c i h"  . org-insert-heading)
+	 ("TAB"  . org-cycle)
+	 ("S-TAB"  . org-shifttab)
+         ("C-c RET" . org-meta-return)
+         ("C-c S-RET" . org-insert-todo-heading)
          :map evil-leader-state-map-extension
-              ("i c" . insert-archive-id+)
-              ("i t" . org-insert-time-id+)
-              ("s l" . org-jump+)
-              ("c +" . org-increase-number-at-point)
-              ("c -" . org-decrease-number-at-point)
-              ("o l" . open-log-file+)
-              ("n p" . project-dir-notes)
-              ("n t" . org-open-todos )
-              ("n f" . find-file-notebox)
-              ("n c" . org-capture)
-              ("n d" . open-log-file+))
+         ("i c" . insert-archive-id+)
+         ("i i" . org-insert-time-id+)
+         ("i t" . org-insert-time+)
+         ("s l" . org-jump+)
+         ("c +" . org-increase-number-at-point)
+         ("c -" . org-decrease-number-at-point)
+         ("o l" . open-log-file+)
+         ("n p" . project-dir-notes)
+         ("n t" . org-open-todos )
+         ("n f" . find-file-notebox)
+         ("n c" . org-capture)
+         ("n d" . open-log-file+))
   :config 
   (defun org-open-todos () (interactive) (find-file org-todo-file))
   (setq org-startup-folded 'showeverything)
@@ -2364,12 +2372,21 @@ most recent, and so on."
  	   (time-id  (format "%s%s" (substring time 0 12) letter)))
       time-id))
 
+  (defun org-time-id-full+ ()
+    (let* ((alphabet "abcdefghijklmnopqrstuvwxyz")
+ 	   (time     (format-time-string "%y.%m%d.%H:%M:%S")))
+      time))
+
   (defun archive-id+ ()
     (format-time-string "%y%m%d%H%M"))
 
   (defun insert-archive-id+ ()
     (interactive)
     (insert (org-time-id+)))
+
+  (defun org-insert-time+ ()
+    (interactive)
+    (insert (format-time-string "%H:%M")))
 
   (defun org-insert-time-id+ ()
     (interactive)
@@ -2490,7 +2507,7 @@ most recent, and so on."
   (defun org-roam-goto-today+ ()
     (interactive)
     (let* ((today (format-time-string "%y-%m-%m" (current-time)))
-          (node  (org-roam-node-titled today)))
+           (node  (org-roam-node-titled today)))
       (if node
           (org-roam-node-open node)
         (org-roam-node-create+ today)))))
@@ -2538,6 +2555,11 @@ most recent, and so on."
   (setq markdown-enable-wiki-links t)
 
   (setq markdown-translate-filename-function (lambda (url) (string-replace "%20" " " url)))
+
+  (defun markdown-next-link-show+ ()
+    (interactive)
+    (when (call-interactively #'markdown-next-link)
+      (markdown-follow-thing-at-point t)))
 
   (defun markdown-insert-zk-link ()
     (interactive)
@@ -2630,75 +2652,75 @@ most recent, and so on."
   (defun markdown-font-lock-gtd-contexts ()
     "Add custom font-lock keywords for markdown files with 'gtd' in the title."
     (font-lock-add-keywords nil
-                            '(("\\(?:^\\|\\s-\\)\\(@\\)[[:alnum:]/]+\\b" 1 'gnus-emphasis-underline-bold)
-                              ("\\(?:^\\|\\s-\\)@\\([[:alnum:]/]+\\b\\)" 1 'success))))
+                            '(("\\(?:^\\|\\s-\\)\\(@\\)[[:alnum:]/\.]+\\b" 1 'gnus-emphasis-underline-bold)
+                              ("\\(?:^\\|\\s-\\)@\\([[:alnum:]/\.]+\\b\\)" 1 'success))))
 
   (add-hook 'markdown-mode-hook #'markdown-font-lock-gtd-project)
   (add-hook 'markdown-mode-hook #'markdown-font-lock-tags)
   (add-hook 'markdown-mode-hook #'markdown-font-lock-gtd-contexts)
   (defun markdown-display-inline-images ()
-  "Add inline image overlays to image links in the buffer.
+    "Add inline image overlays to image links in the buffer.
 This can be toggled with `markdown-toggle-inline-images'
 or \\[markdown-toggle-inline-images]."
-  (interactive)
-  (unless (display-images-p)
-    (error "Cannot show images"))
-  (save-excursion
-    (save-restriction
-      (widen)
-      (goto-char (point-min))
-      (while (re-search-forward markdown-regex-link-inline nil t)
-        (let* ((start (match-beginning 0))
-               (imagep (match-beginning 1))
-               (end (match-end 0))
-               (file (match-string-no-properties 6))
-               (resize (ignore-error t
-                         (thread-last (match-string 3)
-                            (s-split "|")
-                            cadr
-                            (s-split "x")
-                            (seq-map #'string-to-number)
-                            ((lambda (x) (cons (car x) (cadr x))))))))
-          (message "%S %S" (match-string 3) resize)
-          (when (and imagep
-                     (not (zerop (length file))))
-            (unless (file-exists-p file)
-              (let* ((download-file (funcall markdown-translate-filename-function file))
-                     (valid-url (ignore-errors
-                                  (member (downcase (url-type (url-generic-parse-url download-file)))
-                                          markdown-remote-image-protocols))))
-                (if (and markdown-display-remote-images valid-url)
-                    (setq file (markdown--get-remote-image download-file))
-                  (when (not valid-url)
-                    ;; strip query parameter
-                    (setq file (replace-regexp-in-string "?.+\\'" "" file))
-                    (unless (file-exists-p file)
-                      (setq file (url-unhex-string file)))))))
-            (when (file-exists-p file)
-              (let* ((abspath (if (file-name-absolute-p file)
-                                  file
-                                (concat default-directory file)))
-                     (image
-                      (cond ((and markdown-max-image-size
-                                  (image-type-available-p 'imagemagick))
-                             (create-image
-                              abspath 'imagemagick nil
-                              :max-width (car markdown-max-image-size)
-                              :max-height (cdr markdown-max-image-size)))
-                            (markdown-max-image-size
-                             (create-image abspath nil nil
-                                           :max-width (car markdown-max-image-size)
-                                           :max-height (cdr markdown-max-image-size)))
-                            (resize
-                             (create-image abspath nil nil
-                                           :max-width (car resize)
-                                           :max-height (cdr resize)))
-                            (t (create-image abspath)))))
-                (when image
-                  (let ((ov (make-overlay start end)))
-                    (overlay-put ov 'display image)
-                    (overlay-put ov 'face 'default)
-                    (push ov markdown-inline-image-overlays)))))))))))
+    (interactive)
+    (unless (display-images-p)
+      (error "Cannot show images"))
+    (save-excursion
+      (save-restriction
+        (widen)
+        (goto-char (point-min))
+        (while (re-search-forward markdown-regex-link-inline nil t)
+          (let* ((start (match-beginning 0))
+                 (imagep (match-beginning 1))
+                 (end (match-end 0))
+                 (file (match-string-no-properties 6))
+                 (resize (ignore-error t
+                           (thread-last (match-string 3)
+                                        (s-split "|")
+                                        cadr
+                                        (s-split "x")
+                                        (seq-map #'string-to-number)
+                                        ((lambda (x) (cons (car x) (cadr x))))))))
+            (message "%S %S" (match-string 3) resize)
+            (when (and imagep
+                       (not (zerop (length file))))
+              (unless (file-exists-p file)
+                (let* ((download-file (funcall markdown-translate-filename-function file))
+                       (valid-url (ignore-errors
+                                    (member (downcase (url-type (url-generic-parse-url download-file)))
+                                            markdown-remote-image-protocols))))
+                  (if (and markdown-display-remote-images valid-url)
+                      (setq file (markdown--get-remote-image download-file))
+                    (when (not valid-url)
+                      ;; strip query parameter
+                      (setq file (replace-regexp-in-string "?.+\\'" "" file))
+                      (unless (file-exists-p file)
+                        (setq file (url-unhex-string file)))))))
+              (when (file-exists-p file)
+                (let* ((abspath (if (file-name-absolute-p file)
+                                    file
+                                  (concat default-directory file)))
+                       (image
+                        (cond ((and markdown-max-image-size
+                                    (image-type-available-p 'imagemagick))
+                               (create-image
+                                abspath 'imagemagick nil
+                                :max-width (car markdown-max-image-size)
+                                :max-height (cdr markdown-max-image-size)))
+                              (markdown-max-image-size
+                               (create-image abspath nil nil
+                                             :max-width (car markdown-max-image-size)
+                                             :max-height (cdr markdown-max-image-size)))
+                              (resize
+                               (create-image abspath nil nil
+                                             :max-width (car resize)
+                                             :max-height (cdr resize)))
+                              (t (create-image abspath)))))
+                  (when image
+                    (let ((ov (make-overlay start end)))
+                      (overlay-put ov 'display image)
+                      (overlay-put ov 'face 'default)
+                      (push ov markdown-inline-image-overlays)))))))))))
   )
 
 ;; TODO: read through this package
@@ -2710,10 +2732,10 @@ or \\[markdown-toggle-inline-images]."
 
 (defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
                                                ;;; custom-set-icons isn't defined for some reason
-  (setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
-  (when (not (file-exists-p custom-file))
-    (shell-command (concat "touch " custom-file)))
-  (load-file custom-file)
+(setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
+(when (not (file-exists-p custom-file))
+  (shell-command (concat "touch " custom-file)))
+(load-file custom-file)
 
 (use-package shell
   :after (minibuffer)
@@ -2789,8 +2811,8 @@ or \\[markdown-toggle-inline-images]."
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp))))
+                         (require 'lsp-pyright)
+                         (lsp))))
 
 ;; https://emacs-lsp.github.io/dap-mode/page/configuration/
 (use-package dap-mode
@@ -2820,28 +2842,28 @@ or \\[markdown-toggle-inline-images]."
     (save-excursion
       (goto-char (point-min))
       (let* ((beg (progn (search-forward-regexp "^package")
-                       (end-of-line)
-                       (point)))
-           (end (progn (search-forward-regexp "^\\(public\\|private\\|protected\\|class\\|@\\|/\\)")
-                       (previous-line)
-                       (end-of-line)
-                       (point)))
-           (imports (thread-last (buffer-substring beg end)
-                                 (s-split "\n")
-                                 (seq-remove #'string-empty-p)))
-           (other-imports (thread-last imports
-                                       (seq-remove (lambda (import) (or (string-match "^import java" import)
-                                                                        (string-match "^import static" import))))
-                                       (seq-sort #'string<)
-                                       (s-join "\n")))
-           (java-imports (thread-last imports
-                                      (seq-filter (lambda (import) (string-match "^import java" import)))
-                                      (seq-sort #'string<)
-                                      (s-join "\n")))
-           (static-imports (thread-last imports
-                                        (seq-filter (lambda (import) (string-match "^import static" import)))
+                         (end-of-line)
+                         (point)))
+             (end (progn (search-forward-regexp "^\\(public\\|private\\|protected\\|class\\|@\\|/\\)")
+                         (previous-line)
+                         (end-of-line)
+                         (point)))
+             (imports (thread-last (buffer-substring beg end)
+                                   (s-split "\n")
+                                   (seq-remove #'string-empty-p)))
+             (other-imports (thread-last imports
+                                         (seq-remove (lambda (import) (or (string-match "^import java" import)
+                                                                          (string-match "^import static" import))))
+                                         (seq-sort #'string<)
+                                         (s-join "\n")))
+             (java-imports (thread-last imports
+                                        (seq-filter (lambda (import) (string-match "^import java" import)))
                                         (seq-sort #'string<)
-                                        (s-join "\n"))))
+                                        (s-join "\n")))
+             (static-imports (thread-last imports
+                                          (seq-filter (lambda (import) (string-match "^import static" import)))
+                                          (seq-sort #'string<)
+                                          (s-join "\n"))))
         (delete-region beg end)
         (insert "\n")
         (when (s-present? other-imports) (insert "\n" other-imports "\n"))
@@ -2935,192 +2957,6 @@ or \\[markdown-toggle-inline-images]."
       (devdocs-lookup nil symbol))))
 
 ;; TODO: figure out evil-replace
-(use-package vterm
-  :after (evil)
-  :ensure t
-  :commands (vterm-fix-evil-cursor)
-  :bind (:map vterm-mode-map
-              ("S-SPC" . nil)
-              ("C-M-h" . nil)
-              ("C-M-l" . nil)
-         :map evil-leader-state-map-extension
-              ("o T" . vterm)
-              ("o t" . vterm+))
-  :config
-  (setq vterm-shell "/bin/zsh")
-  (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
-
-  (defun vterm-fix-evil-cursor ()
-    (interactive)
-    (remove-hook 'post-self-insert-hook 'evil-refresh-cursor))
-  (defun vterm+ (current-dir)
-    (interactive "P")
-    (let ((default-directory (if current-dir default-directory (read-directory-name "directory: ")))
-          (current-prefix-arg nil))
-      (funcall #'vterm t)))
-
-  (defun evil-vterm-insert ()
-    "Insert character before cursor."
-    (interactive)
-    (vterm-goto-char (point))
-    (call-interactively #'evil-insert))
-
-  (defun vterm-on-prompt-p ()
-    (interactive)
-    (save-excursion
-      (let* ((start (point))
-             (bol (save-excursion (goto-char start) (beginning-of-line) (point)))
-             (eol (save-excursion (goto-char start) (end-of-line) (point)))
-             (line (buffer-substring-no-properties bol eol)))
-        (string-match "^.*@.*%.*$" line))))
-
-  (defun evil-vterm-first-non-blank-of-visual-line-or-prompt-start ()
-    (interactive)
-    (if (vterm-on-prompt-p)
-        (vterm-goto-char (vterm--get-prompt-point))
-      (evil-first-non-blank-of-visual-line)))
-
-  (defun evil-vterm-insert-line ()
-    "Insert character at beginning of prompt."
-    (interactive)
-    (vterm-goto-char (vterm--get-prompt-point))
-    (call-interactively #'evil-insert))
-
-  (defun evil-vterm-append ()
-    "Append character after cursor."
-    (interactive)
-    (vterm-goto-char (point))
-    (call-interactively #'evil-append))
-
-  (defun evil-vterm-append-line ()
-    "Append character at end-of-line."
-    (interactive)
-    (vterm-goto-char (vterm--get-end-of-line))
-    (call-interactively #'evil-append))
-
-  (defun evil-vterm-paste-after (&optional arg)
-    (interactive "P")
-    (vterm-goto-char (+ 1 (point)))
-    (call-interactively #'vterm-yank arg))
-
-  (evil-define-operator evil-vterm-delete (beg end type register yank-handler)
-    "Modification of evil-delete to work in vterm buffer.
-Delete text from BEG to END with TYPE.
-Save in REGISTER or in the kill-ring with YANK-HANDLER."
-    (interactive "<R><x><y>")
-    (let* ((beg (max (or beg (point)) (vterm--get-prompt-point)))
-           (end (min (or end beg) (vterm--get-end-of-line))))
-      (unless register
-        (let ((text (filter-buffer-substring beg end)))
-          (unless (string-match-p "\n" text)
-            ;; set the small delete register
-            (evil-set-register ?- text))))
-      (let ((evil-was-yanked-without-register nil))
-        (evil-yank beg end type register yank-handler))
-      (cond
-       ((eq type 'block)
-        (evil-apply-on-block #'vterm-delete-region beg end nil))
-       ((and (eq type 'line)
-             (= end (point-max))
-             (or (= beg end)
-                 (/= (char-before end) ?\n))
-             (/= beg (point-min))
-             (=  (char-before beg) ?\n))
-        (vterm-delete-region (1- beg) end))
-       (t
-        (vterm-delete-region beg end)))
-      ;; place cursor on beginning of line
-      (when (and (called-interactively-p 'any)
-                 (eq type 'line))
-        (vterm-reset-cursor-point))))
-
-  (evil-define-operator evil-vterm-delete-backward-char (beg end type register)
-    "Delete previous character."
-    :motion evil-backward-char
-    (interactive "<R><x>")
-    (evil-vterm-delete beg end type register))
-
-  (evil-define-operator evil-vterm-delete-char (beg end type register)
-    "Delete current character."
-    :motion evil-delete-char
-    (interactive "<R><x>")
-    (evil-vterm-delete beg end type register))
-
-  (evil-define-operator evil-vterm-delete-line (beg end type register yank-handler)
-    "Modification of evil-delete line to work in vterm bufer. Delete to end of line."
-    :motion nil
-    :keep-visual t
-    (interactive "<R><x>")
-    ;; act linewise in Visual state
-    (let* ((beg (or beg (point)))
-           (end (or end beg))
-           (visual-line-mode (and evil-respect-visual-line-mode
-                                  visual-line-mode))
-           (line-end (if visual-line-mode
-                         (save-excursion
-                           (end-of-visual-line)
-                           (point))
-                       (line-end-position))))
-      (when (evil-visual-state-p)
-        (unless (memq type '(line screen-line block))
-          (let ((range (evil-expand beg end
-                                    (if visual-line-mode
-                                        'screen-line
-                                      'line))))
-            (setq beg (evil-range-beginning range)
-                  end (evil-range-end range)
-                  type (evil-type range))))
-        (evil-exit-visual-state))
-      (cond
-       ((eq type 'block)
-        ;; equivalent to $d, i.e., we use the block-to-eol selection and
-        ;; call `evil-collection-vterm-delete'. In this case we fake the call to
-        ;; `evil-end-of-line' by setting `temporary-goal-column' and
-        ;; `last-command' appropriately as `evil-end-of-line' would do.
-        (let ((temporary-goal-column most-positive-fixnum)
-              (last-command 'next-line))
-          (evil-collection-vterm-delete beg end 'block register yank-handler)))
-       ((memq type '(line screen-line))
-        (evil-vterm-delete beg end type register yank-handler))
-       (t
-        (evil-vterm-delete beg line-end type register yank-handler)))))
-
-  (evil-define-operator evil-vterm-change (beg end type register yank-handler)
-    (evil-vterm-delete beg end type register yank-handler)
-    (evil-vterm-insert))
-
-  (evil-define-operator evil-vterm-change-line (beg end type register yank-handler)
-    :motion evil-end-of-line-or-visual-line
-    (evil-vterm-delete-line beg end type register yank-handler)
-    (evil-vterm-insert))
-
-  (evil-define-operator evil-vterm-change-line (beg end type register yank-handler)
-    :motion evil-end-of-line-or-visual-line
-    (evil-vterm-delete-line beg end type register yank-handler)
-    (evil-vterm-insert))
-
-  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-p")   #'previous-line)
-  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-n")   #'next-line)
-  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-a")   #'move-beginning-of-line)
-  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-e")   #'move-end-of-line)
-  (evil-define-key '(normal visual) vterm-mode-map (kbd "^")   #'evil-vterm-first-non-blank-of-visual-line-or-prompt-start)
-  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-r") #'isearch-forward)
-  (evil-define-key '(normal visual) vterm-mode-map (kbd "C-s") #'isearch-backward)
-  (evil-define-key '(normal visual) vterm-mode-map (kbd "k")   #'evil-vterm-delete)
-  (evil-define-key '(normal visual) vterm-mode-map (kbd "c")   #'evil-vterm-change)
-  (evil-define-key '(normal)        vterm-mode-map (kbd "C-k")   #'evil-vterm-delete-line)
-  (evil-define-key '(normal)        vterm-mode-map (kbd "C")   #'evil-vterm-change-line)
-  (evil-define-key '(normal)        vterm-mode-map (kbd "i")   #'evil-vterm-insert)
-  (evil-define-key '(normal)        vterm-mode-map (kbd "d")   #'evil-vterm-append)
-  (evil-define-key '(normal)        vterm-mode-map (kbd "I")   #'evil-vterm-insert-line)
-  (evil-define-key '(normal)        vterm-mode-map (kbd "I")   #'evil-vterm-insert-line))
-
-(unless (require 'vterm-module nil t)
-  (message "Running: brew install cmake")
-  (shell-command "brew install cmake")
-  (message "Running: brew install libvterm")
-  (shell-command "brew install libvterm")
-  (vterm-module-compile))
 
 (use-package ein
   :ensure t
@@ -3180,7 +3016,7 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
               ("C-c M-SPC" . ein:worksheet-clear-all-output-km)
               ("C-c c" . ein:worksheet-change-cell-type)
               ("C-c k" . ein:worksheet-kill-cell)
-         :map evil-leader-state-map-extension
+              :map evil-leader-state-map-extension
               ("f s" . save+))
   :config
   (setq ein:notebooklist-buffer-name-template "*ein* (notebooklist) %s")
@@ -3304,14 +3140,14 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   :ensure t
   :config
   (defun em-gnu-apl-init ()
-  (setq buffer-face-mode-face 'gnu-apl-default)
-  (buffer-face-mode))
+    (setq buffer-face-mode-face 'gnu-apl-default)
+    (buffer-face-mode))
 
 
 
 
-(add-hook 'gnu-apl-interactive-mode-hook 'em-gnu-apl-init)
-(add-hook 'gnu-apl-mode-hook 'em-gnu-apl-init))
+  (add-hook 'gnu-apl-interactive-mode-hook 'em-gnu-apl-init)
+  (add-hook 'gnu-apl-mode-hook 'em-gnu-apl-init))
 
 ;; todo-txt start
 (defun tdt-find-todos ()
@@ -3361,8 +3197,8 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   :after (consult)
   :bind (("C-, t" . archive-insert-tag)
          :map evil-leader-state-map-extension
-	      ("n s" . archive-interactive-search)
-              ("n S" . archive-search)))
+	 ("n s" . archive-interactive-search)
+         ("n S" . archive-search)))
 
 ;; (use-package helpful
 ;;   :ensure t
@@ -3389,7 +3225,10 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
   :ensure t
   :bind ("C-=" . er/expand-region))
 
-
+(use-package move-text
+  :ensure t
+  :bind (("C-s-p" . move-text-up)
+         ("C-s-n" . move-text-down)))
 
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)
@@ -3402,6 +3241,47 @@ Save in REGISTER or in the kill-ring with YANK-HANDLER."
 (defun make-non-dedicated-window ()
   (message "no more dedicate %S" (selected-window))
   (set-window-dedicated-p (selected-window) nil))
+
+(defun open-application+ (application)
+  (lambda () (interactive) (shell-command (concat "open -a " (app-to-exec application)))))
+
+(funcall (open-application+ "Safari"))
+
+(defun app-to-exec (app)
+  (alist-get app '(("Kindle"   . "Amazon Kindle")
+                   ("Emacs" . "/opt/homebrew/opt/emacs-plus@29/Emacs.app/Contents/MacOS/Emacs"))
+             app nil #'equal))
+
+(defun list-open-applications ()
+  (->> (shell-command-to-string "osascript -e 'tell application \"System Events\" to get the name of every application process whose visible is true'")
+       (s-split ",")
+       (seq-map #'s-trim)))
+
+(setq applications
+      '("Safari" "Emacs" "Messages" "Finder" "BetterTouchTool" "Calendar" "Discord" "Kindle" "Terminal" "Spotify" "Activity Monitor"))
+
+(defun switch-application (application)
+  (interactive (list (->> (if current-prefix-arg applications (list-open-applications))
+                          (completing-read "Application: ")
+                          app-to-exec)))
+  (shell-command (format "open -a '%s'" application)))
+
+
+(setq application-switch-map (make-sparse-keymap))
+(define-key application-switch-map (kbd "m") (open-application+ "Messages"))
+(define-key application-switch-map (kbd "s") (open-application+ "Safari"))
+(define-key application-switch-map (kbd "p") (open-application+ "Spotify"))
+(define-key evil-leader-state-map-extension (kbd "O") application-switch-map)
+
+(defun application-switcher ()
+  (interactive)
+  (set-transient-map application-switch-map))
+
+(use-package gptel
+  :ensure t
+  :config
+  )
+
 
 (add-hook 'embark-collect-mode-hook #'make-non-dedicated-window)
 (put 'scroll-left 'disabled nil)
