@@ -844,6 +844,12 @@ Also set its `no-delete-other-windows' parameter to match."
                          (point))))
       (delete-region start end))))
 
+
+(use-package dabbrev
+  :ensure t
+  :config
+  (global-set-key (kbd "M-/") nil))
+
 (use-package vertico
   :after (evil-leader consult)
   :ensure t
@@ -872,9 +878,9 @@ Also set its `no-delete-other-windows' parameter to match."
          ("X" . vertico-repeat)
          ("M-x" . vertico-repeat))
   :config
-  (setq vertico-default-count 20)
+  (setq vertico-default-count 10)
   (setq vertico-count vertico-default-count)
-  (setq vertico-resize nil)
+  (setq vertico-resize t)
   (setq vertico-cycle nil)
   (advice-add #'vertico--format-candidate :around
               (lambda (orig cand prefix suffix index _start)
@@ -982,57 +988,35 @@ Also set its `no-delete-other-windows' parameter to match."
   (defun vertico-reverse-alpha-sort+ ()
     (interactive)
     (setq-local vertico-sort-override-function #'vertico-sort-reversed-alpha)
-    (consult--vertico-refresh))
+    (consult--vertico-refresh)))
 
-  )
+(use-package vertico-multiform
+  :ensure nil
+  :demand t
+  :bind (:map vertico-map
+              ("C-l" . my/vertico-multiform-unobtrusive))
+  :config
 
-;; (use-package vertico-multiform
-;;   :ensure nil
-;;   :demand t
-;;   :config
-;;   (vertico-multiform-mode 1)
-;;   (vertico-reverse-mode 1)
-;;   (vertico-reverse-mode -1)
-;;   (define-key vertico-reverse-map (kbd "M-n") 'vertico-previous)
-;;   (define-key vertico-reverse-map (kbd "M-p") 'vertico-next)
+  (defun my/vertico-multiform-unobtrusive ()
+    "Toggle between vertico-unobtrusive and vertico-reverse."
+    (interactive)
+    (vertico-multiform-vertical 'vertico-reverse-mode))
 
-;;   (setq vertico-multiform-categories '((imenu reverse)
-;;                                        (consult-grep reverse)
-;;                                        (t reverse)))
+  (setq vertico-multiform-categories '((imenu reverse)
+                                       (buffer flat)
+                                       (consult-grep buffer)
+                                       (t flat)))
 
-;;   (setq vertico-multiform-commands '((consult-line reverse)
-;;                                      (consult-imenu reverse)
-;;                                      (consult-buffer-terminal reverse)
-;;                                      (consult-buffer-ein reverse)
-;;                                      (consult-buffer-compilation reverse)
-;;                                      (org-jump+ reverse)
-;;                                      (recompile+ reverse (vertico-resize . t))
-;;                                      (select-from-history reverse (vertico-resize . t))
-;;                                      (select-shell-history reverse (vertico-resize . t))))
-;; (defun +vertico-highlight-directory (file)
-;;   "If FILE ends with a slash, highlight it as a directory."
-;;   (let* ((base (file-name-nondirectory file))
-;;          (dir  (file-name-directory file))
-;;          (highlighted-dir (if dir
-;;                               (propertize dir 'face 'marginalia-file-priv-dir)
-;;                             "")))
-;;     (message "hello")
-;;     (concat highlighted-dir base)))
+  (setq vertico-multiform-commands '((consult-line reverse)
+                                     (consult-imenu reverse)
+                                     (consult-buffer-terminal reverse)
+                                     (execute-extended-command reverse)
+                                     (consult-buffer-ein reverse)
+                                     (consult-buffer-compilation reverse)
+                                     (select-from-history reverse (vertico-resize . t))
+                                     (select-shell-history reverse (vertico-resize . t))))
 
-;; (defvar vertico-transform-functions nil)
-;; (setq vertico-multiform-categories nil)
-
-;; (add-to-list 'vertico-multiform-categories
-;;              '(file
-;;                ;; this is also defined in the wiki, uncomment if used
-;;                ;; (vertico-sort-function . sort-directories-first)
-;;                (+vertico-transform-functions . +vertico-highlight-directory)))
-
-;; (cl-defmethod vertico--format-candidate :around
-;;   (cand prefix suffix index start &context ((not +vertico-transform-functions) null))
-;;   (dolist (fun (ensure-list +vertico-transform-functions))
-;;     (setq cand (funcall fun cand)))
-;;   (cl-call-next-method cand prefix suffix index start)))
+  (vertico-multiform-mode 1))
 
 
 (use-package marginalia
@@ -1821,6 +1805,8 @@ buffer has a unique name."
 (use-package avy
   :ensure t
   :demand t
+  :bind (("M-g c" . avy-goto-char-timer)
+         ("M-g l" . avy-goto-line))
   :config
   (setq avy-single-candidate-jump nil)
   (setq avy-keys (list ?a ?o ?e ?u ?h ?t ?n ?s)))
@@ -2512,13 +2498,6 @@ most recent, and so on."
           (org-roam-node-open node)
         (org-roam-node-create+ today)))))
 
-;; https://git.sr.ht/~casouri/xeft
-;; https://www.reddit.com/r/emacs/comments/10e705g/comment/j4yoecz/
-;; need to make a script to pull and build the module
-;; there isn't one for m1 macs
-;; (use-package xeft
-;;   :ensure t)
-
 (use-package markdown-mode
   :ensure t
   :hook (markdown-mode-hook . (lambda ()
@@ -2723,13 +2702,6 @@ or \\[markdown-toggle-inline-images]."
                       (push ov markdown-inline-image-overlays)))))))))))
   )
 
-;; TODO: read through this package
-;; (use-package ob-http
-;;   :ensure t
-;;   :config
-;;   (add-to-list 'org-babel-load-languages '(http . t))
-;;   (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
-
 (defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
                                                ;;; custom-set-icons isn't defined for some reason
 (setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
@@ -2826,53 +2798,6 @@ or \\[markdown-toggle-inline-images]."
 (use-package realgud
   :ensure t)
 
-
-(use-package lsp-java
-  :after (lsp-mode)
-  :demand t
-  :bind (:map evil-leader-state-map-extension
-              ("l i" . lsp-java-add-import)
-              ("l I" . lsp-java-organize-imports)
-              ("ljm" . dap-java-run-test-method)
-              ("ljc" . dap-java-run-test-class))
-  :ensure t
-  :config
-  (defun sort-java-imports-like-intellij ()
-    (interactive)
-    (save-excursion
-      (goto-char (point-min))
-      (let* ((beg (progn (search-forward-regexp "^package")
-                         (end-of-line)
-                         (point)))
-             (end (progn (search-forward-regexp "^\\(public\\|private\\|protected\\|class\\|@\\|/\\)")
-                         (previous-line)
-                         (end-of-line)
-                         (point)))
-             (imports (thread-last (buffer-substring beg end)
-                                   (s-split "\n")
-                                   (seq-remove #'string-empty-p)))
-             (other-imports (thread-last imports
-                                         (seq-remove (lambda (import) (or (string-match "^import java" import)
-                                                                          (string-match "^import static" import))))
-                                         (seq-sort #'string<)
-                                         (s-join "\n")))
-             (java-imports (thread-last imports
-                                        (seq-filter (lambda (import) (string-match "^import java" import)))
-                                        (seq-sort #'string<)
-                                        (s-join "\n")))
-             (static-imports (thread-last imports
-                                          (seq-filter (lambda (import) (string-match "^import static" import)))
-                                          (seq-sort #'string<)
-                                          (s-join "\n"))))
-        (delete-region beg end)
-        (insert "\n")
-        (when (s-present? other-imports) (insert "\n" other-imports "\n"))
-        (when (s-present? java-imports) (insert "\n" java-imports "\n"))
-        (when (s-present? static-imports) (insert "\n" static-imports "\n"))))))
-
-(use-package lsp-metals
-  :ensure t)
-
 (use-package burly
   :after (evil-leader)
   :ensure t
@@ -2955,9 +2880,6 @@ or \\[markdown-toggle-inline-images]."
     (interactive)
     (let ((symbol (thing-at-point 'symbol)))
       (devdocs-lookup nil symbol))))
-
-(use-package pyvenv
-  :ensure t)
 
 ;; TODO: ibuffer-filter-by-filename filter should use f-short too
 (use-package ibuffer
@@ -3125,10 +3047,18 @@ or \\[markdown-toggle-inline-images]."
   :ensure t
   :bind ("C-=" . er/expand-region))
 
-(use-package move-text
+(use-package drag-stuff
   :ensure t
-  :bind (("C-s-p" . move-text-up)
-         ("C-s-n" . move-text-down)))
+  :bind (("P" . drag-stuff-up)
+         ("N" . drag-stuff-down))
+  :config
+    (define-key evil-normal-state-map (kbd "P") 'drag-stuff-up)
+    (define-key evil-normal-state-map (kbd "N") 'drag-stuff-down)
+    (define-key evil-motion-state-map (kbd "P") 'drag-stuff-up)
+    (define-key evil-motion-state-map (kbd "N") 'drag-stuff-down)
+    (define-key evil-visual-state-map (kbd "P") 'drag-stuff-up)
+    (define-key evil-visual-state-map (kbd "N") 'drag-stuff-down)
+)
 
 (use-package gptel
   :ensure t
