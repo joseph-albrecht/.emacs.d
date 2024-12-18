@@ -180,7 +180,6 @@
 (define-key evil-motion-state-map (kbd "M-o") 'evil-jump-forward)
 (define-key evil-motion-state-map (kbd "RET") nil)
 (define-key evil-motion-state-map "v" 'evil-visual-char)
-(define-key evil-motion-state-map "V" 'evil-visual-line)
 (define-key evil-motion-state-map (kbd "C-M-v") 'evil-visual-block)
 (define-key evil-motion-state-map "gv" 'evil-visual-restore)
 (define-key evil-motion-state-map [left] 'evil-backward-char)
