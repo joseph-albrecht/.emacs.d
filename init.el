@@ -138,9 +138,6 @@
   (when (file-exists-p "/opt/homebrew/sbin")
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/sbin"))
     (setq exec-path (append exec-path (list "/opt/homebrew/sbin"))))
-  (when (file-exists-p "/Users/joey/Library/Python/3.8/bin")
-    (setenv "PATH" (concat (getenv "PATH") ":" "/Users/joey/Library/Python/3.8/bin"))
-    (setq exec-path (append exec-path (list "/Users/joey/Library/Python/3.8/bin"))))
 
   (setq split-width-threshold 120
 	split-height-threshold 9999)
@@ -2503,7 +2500,6 @@ most recent, and so on."
                                 (markdown-toggle-url-hiding)
                                 (my-markdown-add-highlighting)))
   :bind (:map markdown-mode-map
-              ("C-c C-l" . markdown-insert-zk-link)
               ("C-c l" . markdown-open-some-buffer-link+ )
               ("C-c -" . mark-task-complete)
               ("C-c r" . random-line-jump)
@@ -2536,16 +2532,6 @@ most recent, and so on."
     (interactive)
     (when (call-interactively #'markdown-next-link)
       (markdown-follow-thing-at-point t)))
-
-  (defun markdown-insert-zk-link ()
-    (interactive)
-    (let* ((files (seq-filter (lambda (x) (s-contains-p ".md" x)) (project--files-in-directory (project-root (project-current)) nil)))
-           (titles (seq-map (lambda (path) (s-chop-prefix "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/" path)) files))
-           (file  (completing-read "select file: " titles))
-           (id    (when (string-match "\\([0-9.a-z]\\{11,13\\}\\)" file) (match-string 0 file))))
-      (if (not id)
-          (message "No zk ID found")
-        (insert (concat "[" id "]" "(" (string-replace " " "%20" (file-name-base file)) "." (file-name-extension file) ")")))))
 
   (defun collect-markdown-links ()
     "Collect all Markdown links from the current buffer."
