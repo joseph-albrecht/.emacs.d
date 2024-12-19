@@ -669,7 +669,7 @@ Also set its `no-delete-other-windows' parameter to match."
     (let* ((dir-text (propertize "DIR" 'face 'bold))
            (command-text (propertize "COMMAND" 'face 'bold))
            (current-dir default-directory)
-           (prompt (format "%s: (%s) %s: " dir-text current-dir command-text)))
+           (prompt (format "%s: (%s)\n%s: " dir-text current-dir command-text)))
       ;; Execute the shell command with `shell-command`
       (read-shell-command prompt command)))
 
@@ -811,10 +811,7 @@ Also set its `no-delete-other-windows' parameter to match."
               ("C-c $" . select-shell-history)
               ("C-c SPC" . minibuffer-clear+)
               :map evil-leader-state-map-extension
-              ("i $" . insert-shell-history)
-              :map evil-ex-completion-map
-              ("C-c $" . select-shell-history)
-              ("C-c SPC" . minibuffer-clear+))
+              ("i $" . insert-shell-history))
   :config
   (defun insert-shell-history ()
     (interactive)
@@ -1007,8 +1004,8 @@ Also set its `no-delete-other-windows' parameter to match."
                                        (consult-grep buffer)
                                        (t flat)))
 
-  (setq vertico-multiform-commands '((consult-line reverse)
-                                     (consult-imenu reverse)
+  (setq vertico-multiform-commands '((consult-imenu buffer)
+                                     (consult-line buffer)
                                      (consult-buffer-terminal reverse)
                                      (execute-extended-command reverse)
                                      (consult-buffer-ein reverse)
