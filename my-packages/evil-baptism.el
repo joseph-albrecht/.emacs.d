@@ -233,8 +233,7 @@
 
 (define-key evil-visual-state-map "d" 'evil-append)
 (define-key evil-visual-state-map "I" 'evil-insert)
-(define-key evil-visual-state-map "j" 'exchange-point-and-mark)
-(define-key evil-visual-state-map "J" 'evil-visual-exchange-corners)
+(define-key evil-visual-state-map "V" 'exchange-point-and-mark)
 (define-key evil-visual-state-map "R" 'evil-change)
 (define-key evil-visual-state-map "u" 'evil-downcase)
 (define-key evil-visual-state-map "U" 'evil-upcase)
