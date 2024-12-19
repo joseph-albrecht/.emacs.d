@@ -152,8 +152,8 @@
 
 (defun archive-insert-tag ()
   (interactive)
-  (let* ((shell-output (shell-command-to-string (format "grep -rh 'tags:' %s | grep -Eoh '##?[^ #]+' " archive-directory-shell)))
-         (tags (seq-uniq (split-string (s-trim shell-output) "\n")))
+  (let* ((shell-output (shell-command-to-string (format "grep -rh 'tags:' '%s' | grep -Eoh '##?[^ #]+'" archive-directory)))
+         (tags (seq-sort #'string< (seq-uniq (split-string (s-trim shell-output) "\n"))))
          (chosen-tags (completing-read-multiple "Choose a tag: " tags))
          (tag-string (apply #'s-concat (-interpose " " chosen-tags))))
     (insert tag-string)))
