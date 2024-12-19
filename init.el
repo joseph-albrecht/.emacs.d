@@ -2968,29 +2968,6 @@ or \\[markdown-toggle-inline-images]."
   (add-hook 'gnu-apl-interactive-mode-hook 'em-gnu-apl-init)
   (add-hook 'gnu-apl-mode-hook 'em-gnu-apl-init))
 
-;; todo-txt start
-(defun tdt-find-todos ()
-  (interactive)
-  (let ((default-directory "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian")
-        (todo-lines (split-string (shell-command-to-string "grep ' *[+-] \\[[ xX]\\]' *.md") "\n")))
-    (message "%S" (length todo-lines))))
-(provide 'tdt)
-
-(setq atlassian-jira-stem "https://atlassian.net/browse/")
-
-(defun open-jira-id (id)
-  (interactive "sID: ")
-  (browse-url (format "%s%s" atlassian-jira-stem id)))
-
-(define-key evil-leader-state-map-extension (kbd "o j") 'open-jira-id)
-
-(defun uncheck-all ()
-  (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (while (search-forward "[X]" nil t)
-      (replace-match "[ ]"))))
-
 (use-package ediff
   :config
   (defun ediff-setup-windows-tab (buffer-A buffer-B buffer-C control-buffer)
