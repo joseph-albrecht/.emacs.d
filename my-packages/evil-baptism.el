@@ -123,6 +123,7 @@
 (define-key evil-normal-state-map (kbd "S-<return>") 'evil-insert-new-line+)
 (define-key evil-normal-state-map (kbd "M-/") 'evil-search-next)
 (define-key evil-normal-state-map (kbd "M-?") 'evil-search-previous)
+(define-key evil-normal-state-map (kbd "^") 'evil-first-non-blank)
 
 ;; undo
 (define-key evil-normal-state-map "u" 'evil-undo)
