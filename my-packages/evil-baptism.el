@@ -123,6 +123,7 @@
 (define-key evil-normal-state-map (kbd "S-<return>") 'evil-insert-new-line+)
 (define-key evil-normal-state-map (kbd "M-/") 'evil-search-next)
 (define-key evil-normal-state-map (kbd "M-?") 'evil-search-previous)
+(define-key evil-normal-state-map (kbd "x") 'evil-delete-char)
 
 ;; undo
 (define-key evil-normal-state-map "u" 'evil-undo)
@@ -200,6 +201,7 @@
 (define-key evil-motion-state-map (kbd "%") 'ignore)
 (define-key evil-motion-state-map (kbd "-") 'ignore)
 (define-key evil-motion-state-map (kbd "&") 'ignore)
+(define-key evil-motion-state-map "V" 'ignore)
 
 ;; text objects
 (define-key evil-outer-text-objects-map "f" 'evil-a-word)
