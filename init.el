@@ -1003,6 +1003,7 @@ Also set its `no-delete-other-windows' parameter to match."
 
   (setq vertico-multiform-commands '((consult-imenu buffer)
                                      (embark-prefix-help-command reverse)
+                                     (insert-shell-history reverse)
                                      (consult-line buffer)
                                      (consult-buffer-terminal reverse)
                                      (execute-extended-command reverse)
