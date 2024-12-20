@@ -1002,6 +1002,7 @@ Also set its `no-delete-other-windows' parameter to match."
                                        (t flat)))
 
   (setq vertico-multiform-commands '((consult-imenu buffer)
+                                     (embark-prefix-help-command reverse)
                                      (consult-line buffer)
                                      (consult-buffer-terminal reverse)
                                      (execute-extended-command reverse)
@@ -1757,8 +1758,8 @@ buffer has a unique name."
        (?c #'evil-surround-change)
        (?k #'evil-surround-delete))))
 
-  (define-key evil-normal-state-map (kbd "$") 'evil-sandwich)
-  (define-key evil-visual-state-map (kbd "$") 'evil-surround-region))
+  (define-key evil-normal-state-map (kbd "'") 'evil-sandwich)
+  (define-key evil-visual-state-map (kbd "'") 'evil-surround-region))
 
 ;; (use-package lispyville
 ;;   :ensure t
@@ -3009,8 +3010,6 @@ or \\[markdown-toggle-inline-images]."
 
 (use-package drag-stuff
   :ensure t
-  :bind (("P" . drag-stuff-up)
-         ("N" . drag-stuff-down))
   :config
     (define-key evil-normal-state-map (kbd "P") 'drag-stuff-up)
     (define-key evil-normal-state-map (kbd "N") 'drag-stuff-down)

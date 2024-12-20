@@ -123,7 +123,6 @@
 (define-key evil-normal-state-map (kbd "S-<return>") 'evil-insert-new-line+)
 (define-key evil-normal-state-map (kbd "M-/") 'evil-search-next)
 (define-key evil-normal-state-map (kbd "M-?") 'evil-search-previous)
-(define-key evil-normal-state-map (kbd "^") 'evil-first-non-blank)
 
 ;; undo
 (define-key evil-normal-state-map "u" 'evil-undo)
@@ -132,6 +131,7 @@
 ;;; Motion state
 ;; "0" is a special command when called first
 (define-key evil-motion-state-map "a" 'evil-beginning-of-visual-line)
+(define-key evil-motion-state-map "A" 'evil-first-non-blank)
 (define-key evil-motion-state-map "1" 'digit-argument)
 (define-key evil-motion-state-map "2" 'digit-argument)
 (define-key evil-motion-state-map "3" 'digit-argument)
@@ -189,6 +189,17 @@
 (define-key evil-motion-state-map [down] 'evil-next-line)
 (define-key evil-motion-state-map (kbd "{") 'evil-backward-paragraph)
 (define-key evil-motion-state-map (kbd "}") 'evil-forward-paragraph)
+;; ignore keys
+(define-key evil-motion-state-map (kbd "]") 'ignore)
+(define-key evil-motion-state-map (kbd "[") 'ignore)
+(define-key evil-motion-state-map (kbd "(") 'ignore)
+(define-key evil-motion-state-map (kbd ")") 'ignore)
+(define-key evil-motion-state-map (kbd "^") 'ignore)
+(define-key evil-motion-state-map (kbd "$") 'ignore)
+(define-key evil-motion-state-map (kbd "+") 'ignore)
+(define-key evil-motion-state-map (kbd "%") 'ignore)
+(define-key evil-motion-state-map (kbd "-") 'ignore)
+(define-key evil-motion-state-map (kbd "&") 'ignore)
 
 ;; text objects
 (define-key evil-outer-text-objects-map "f" 'evil-a-word)
