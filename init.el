@@ -1099,6 +1099,7 @@ Also set its `no-delete-other-windows' parameter to match."
          ("s-b" . consult-buffer)
          ("s-s" . consult-line)
          ("s-i" . consult-imenu)
+         ("s-y" . consult-yank-from-kill-ring)
          :map evil-leader-state-map-extension
    	 ("b b"   . consult-buffer)
    	 ("b B"   . switch-to-buffer)
