@@ -854,8 +854,8 @@ Also set its `no-delete-other-windows' parameter to match."
 	 ("C-p" . vertico-C-p-or-reverse)
 	 ("C-M-n" . vertico-next-group)
 	 ("C-M-p" . vertico-previous-group)
-	 ("M-n" . vertico-next+)
-	 ("M-p" . vertico-previous+)
+	 ("M-p" . vertico-next+)
+	 ("M-n" . vertico-previous+)
 	 ("C-M-n" . vertico-next-group)
 	 ("C-M-p" . vertico-previous-group)
 	 ("C-<return>" . vertico-exit-input)
@@ -935,12 +935,14 @@ Also set its `no-delete-other-windows' parameter to match."
     (interactive)
     (cond
      (vertico-unobtrusive-mode (vertico-previous))
+     ;; (vertico-reverse-mode     (vertico-next))
      (t                        (vertico-next))))
 
   (defun vertico-previous+ ()
     (interactive)
     (cond
      (vertico-unobtrusive-mode (vertico-next))
+     ;; (vertico-reverse-mode     (vertico-previous))
      (t                        (vertico-previous))))
 
   (defun vertico-C-p-or-reverse ()
@@ -1002,7 +1004,9 @@ Also set its `no-delete-other-windows' parameter to match."
                                        (t flat)))
 
   (setq vertico-multiform-commands '((consult-imenu buffer)
+                                     (notes-find-file reverse)
                                      (embark-prefix-help-command reverse)
+                                     (markdown-open-some-buffer-link+ reverse)
                                      (insert-shell-history reverse)
                                      (consult-line buffer)
                                      (consult-buffer-terminal reverse)
@@ -1012,7 +1016,8 @@ Also set its `no-delete-other-windows' parameter to match."
                                      (select-from-history reverse (vertico-resize . t))
                                      (select-shell-history reverse (vertico-resize . t))))
 
-  (vertico-multiform-mode 1))
+  ;; (vertico-multiform-mode 1)
+  )
 
 
 (use-package marginalia
