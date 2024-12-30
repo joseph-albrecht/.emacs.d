@@ -1,3 +1,9 @@
+;; todo
+;; - replace ww and anything that uses evil line style pasting
+;; - make pasting be in front of cursor
+;; - create functions to paste above/below line
+
+
 (require 'evil)
 
 (setq evil-move-cursor-back nil)
@@ -97,8 +103,8 @@
 
 (define-key evil-normal-state-map "o" 'evil-open-below)
 (define-key evil-normal-state-map "O" 'evil-open-above)
-(define-key evil-normal-state-map "y" 'evil-paste-after)
-(define-key evil-normal-state-map "Y" 'evil-paste-before)
+(define-key evil-normal-state-map "y" 'yank)
+(define-key evil-normal-state-map "Y" 'ignore)
 (define-key evil-normal-state-map "Q" 'evil-record-macro)
 (define-key evil-normal-state-map "q" 'evil-execute-macro)
 (define-key evil-normal-state-map "r" 'evil-replace)
@@ -163,8 +169,8 @@
 (define-key evil-motion-state-map "F" 'evil-forward-WORD-begin)
 (define-key evil-motion-state-map (kbd "M-f") 'evil-forward-symbol)
 (define-key evil-motion-state-map (kbd "C-M-f") 'evil-forward-sexp)
-(define-key evil-motion-state-map "y" 'evil-paste-after)
-(define-key evil-motion-state-map "Y" 'evil-paste-before)
+(define-key evil-motion-state-map "y" 'yank)
+(define-key evil-motion-state-map "Y" 'ignore)
 (define-key evil-motion-state-map "gd" 'evil-goto-definition)
 (define-key evil-motion-state-map "gr" 'xref-find-references)
 (define-key evil-motion-state-map "gg" 'evil-goto-first-line)
@@ -262,6 +268,7 @@
 
 (define-key evil-operator-state-map "d" evil-outer-text-objects-map)
 (define-key evil-operator-state-map "i" evil-inner-text-objects-map)
+(define-key evil-operator-shortcut-map "w" ignore)
 ;; (define-key evil-operator-state-map [escape] 'keyboard-quit)
 
 ;;; Insert state
