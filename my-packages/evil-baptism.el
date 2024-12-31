@@ -69,6 +69,39 @@
     (kill-new string)
     (call-interactively #'evil-paste-after)))
 
+(defun yank-overwrite ()
+  (interactive)
+  (when (region-active-p) (delete-region (region-beginning) (region-end)))
+  (yank))
+
+(defun yank-above ()
+  (interactive)
+  (save-excursion
+  (beginning-of-line)
+    (let ((start (point)))
+      (yank)
+      (when (not (string-suffix-p "\n" (current-kill 0)))
+        (insert "\n"))
+      (indent-region start (point)))))
+
+(defun yank-below ()
+  (interactive)
+  (save-excursion
+    (end-of-line)
+    (insert "\n")
+    (let ((start (point)))
+      (yank)
+      (when (string-suffix-p "\n" (current-kill 0))
+        (delete-char 1))
+      (indent-region start (point)))))
+
+(defun add-region-to-kill-ring ()
+  (interactive)
+  (when (region-active-p)
+    (let ((substring (buffer-substring (region-beginning) (region-end))))
+    (kill-new substring)
+    (message "Killed: %s" substring))))
+
 ;;; functions should be added to the evil jump ring
 
 (evil-add-command-properties 'isearch-forward :jump t)
@@ -95,22 +128,27 @@
 (define-key evil-normal-state-map "c" 'evil-change)
 (define-key evil-normal-state-map "C" 'evil-change-line)
 (define-key evil-normal-state-map "k" 'evil-delete)
+(define-key evil-normal-state-map "K" 'evil-delete-to-blackhole)
 (define-key evil-normal-state-map "i" 'evil-insert)
 (define-key evil-normal-state-map (kbd "<insert>") 'evil-insert)
 (define-key evil-normal-state-map (kbd "<insertchar>") 'evil-insert)
 (define-key evil-normal-state-map "I" 'evil-insert-line)
 (define-key evil-normal-state-map "M" 'evil-set-marker)
-
 (define-key evil-normal-state-map "o" 'evil-open-below)
 (define-key evil-normal-state-map "O" 'evil-open-above)
-(define-key evil-normal-state-map "y" 'yank)
-(define-key evil-normal-state-map "Y" 'ignore)
+(define-key evil-normal-state-map "y" 'yank-overwrite)
+(define-key evil-normal-state-map (kbd "M-y") 'yank-pop)
+(define-key evil-normal-state-map (kbd "Y") nil)
+(define-key evil-normal-state-map (kbd "Y p") 'yank-above)
+(define-key evil-normal-state-map (kbd "Y n") 'yank-below)
+(define-key evil-normal-state-map (kbd "Y Y") 'duplicate-line)
 (define-key evil-normal-state-map "Q" 'evil-record-macro)
 (define-key evil-normal-state-map "q" 'evil-execute-macro)
 (define-key evil-normal-state-map "r" 'evil-replace)
 (define-key evil-normal-state-map "R" 'evil-replace-state)
 (define-key evil-normal-state-map [deletechar] 'evil-delete-char)
 (define-key evil-normal-state-map "w" 'evil-yank)
+(define-key evil-normal-state-map "W" 'add-region-to-kill-ring)
 (define-key evil-normal-state-map "j" 'evil-join)
 (define-key evil-normal-state-map "J" 'evil-join-whitespace)
 (define-key evil-normal-state-map "gi" 'evil-insert-resume)
@@ -123,9 +161,6 @@
 (define-key evil-normal-state-map "<" 'evil-shift-left)
 (define-key evil-normal-state-map ">" 'evil-shift-right)
 (define-key evil-normal-state-map (kbd "DEL") 'evil-backward-char)
-(define-key evil-normal-state-map [escape] 'evil-force-normal-state)
-(define-key evil-normal-state-map [remap cua-paste-pop] 'evil-paste-pop)
-(define-key evil-normal-state-map [remap yank-pop] 'evil-paste-pop)
 (define-key evil-normal-state-map (kbd "S-<return>") 'evil-insert-new-line+)
 (define-key evil-normal-state-map (kbd "M-/") 'evil-search-next)
 (define-key evil-normal-state-map (kbd "M-?") 'evil-search-previous)
@@ -169,8 +204,10 @@
 (define-key evil-motion-state-map "F" 'evil-forward-WORD-begin)
 (define-key evil-motion-state-map (kbd "M-f") 'evil-forward-symbol)
 (define-key evil-motion-state-map (kbd "C-M-f") 'evil-forward-sexp)
-(define-key evil-motion-state-map "y" 'yank)
-(define-key evil-motion-state-map "Y" 'ignore)
+(define-key evil-motion-state-map "y" 'yank-overwrite)
+(define-key evil-motion-state-map "Y" 'yank-pop)
+(define-key evil-motion-state-map (kbd "M-y p") 'yank-above)
+(define-key evil-motion-state-map (kbd "M-y n") 'yank-below)
 (define-key evil-motion-state-map "gd" 'evil-goto-definition)
 (define-key evil-motion-state-map "gr" 'xref-find-references)
 (define-key evil-motion-state-map "gg" 'evil-goto-first-line)
@@ -268,7 +305,7 @@
 
 (define-key evil-operator-state-map "d" evil-outer-text-objects-map)
 (define-key evil-operator-state-map "i" evil-inner-text-objects-map)
-(define-key evil-operator-shortcut-map "w" ignore)
+(define-key evil-operator-shortcut-map "w" 'ignore)
 ;; (define-key evil-operator-state-map [escape] 'keyboard-quit)
 
 ;;; Insert state
@@ -321,4 +358,3 @@
   :intercept-esc nil)
 
 (provide 'evil-baptism)
-
