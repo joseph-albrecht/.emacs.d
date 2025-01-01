@@ -141,7 +141,8 @@
 (define-key evil-normal-state-map (kbd "Y") nil)
 (define-key evil-normal-state-map (kbd "Y p") 'yank-above)
 (define-key evil-normal-state-map (kbd "Y n") 'yank-below)
-(define-key evil-normal-state-map (kbd "Y Y") 'duplicate-line)
+(define-key evil-normal-state-map (kbd "Y d") 'duplicate-line)
+(define-key evil-normal-state-map (kbd "Y Y") 'yank-pop)
 (define-key evil-normal-state-map "Q" 'evil-record-macro)
 (define-key evil-normal-state-map "q" 'evil-execute-macro)
 (define-key evil-normal-state-map "r" 'evil-replace)
@@ -157,7 +158,7 @@
 (define-key evil-normal-state-map "\M-S-y" 'evil-paste-pop-next)
 (define-key evil-normal-state-map "." 'evil-repeat)
 (define-key evil-normal-state-map "\"" 'evil-use-register)
-(define-key evil-normal-state-map "=" 'indent-region)
+(define-key evil-normal-state-map "z" 'indent-region)
 (define-key evil-normal-state-map "<" 'evil-shift-left)
 (define-key evil-normal-state-map ">" 'evil-shift-right)
 (define-key evil-normal-state-map (kbd "DEL") 'evil-backward-char)
@@ -233,6 +234,7 @@
 (define-key evil-motion-state-map [down] 'evil-next-line)
 (define-key evil-motion-state-map (kbd "{") 'evil-backward-paragraph)
 (define-key evil-motion-state-map (kbd "}") 'evil-forward-paragraph)
+
 ;; ignore keys
 (define-key evil-motion-state-map (kbd "]") 'ignore)
 (define-key evil-motion-state-map (kbd "[") 'ignore)
