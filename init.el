@@ -1821,13 +1821,14 @@ buffer has a unique name."
   :commands (find-grep-dired-default-dir)
   :hook (dired-mode-hook . dired-hide-details-mode)
   :demand t
-  :bind (:map evil-leader-state-map-extension
+  :bind (("s-d" . dired+)
+         :map evil-leader-state-map-extension
 	      ("d o" . open-in-finder)
 	      ("s F" . find-grep-dired)
  	      ("s f" . find-grep-dired-default-dir)
               ("d D" . dired+)
               ("D" . dired+)
-  	      :map dired-mode-map
+  	 :map dired-mode-map
  	      ("C-M-n" . nil)
  	      ("C-M-p" . nil)
  	      ("C-t" . nil)
