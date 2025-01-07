@@ -102,7 +102,24 @@
     (kill-new substring)
     (message "Killed: %s" substring))))
 
+(defun mark-line ()
+  (interactive)
+  (beginning-of-line)
+  (set-mark-command nil)
+  (end-of-line))
 ;;; functions should be added to the evil jump ring
+
+(evil-define-text-object evil-outer-line (count &optional beg end type)
+  "Select outer line (including newline)"
+  :extend-selection nil
+  (evil-range (line-beginning-position)
+              (min (point-max) (1+ (line-end-position)))))
+
+(evil-define-text-object evil-inner-line (count &optional beg end type)
+  "Select inner line (excluding newline)"
+  :extend-selection nil
+  (evil-range (line-beginning-position)
+              (line-end-position)))
 
 (evil-add-command-properties 'isearch-forward :jump t)
 (evil-add-command-properties 'isearch-backward :jump t)
@@ -268,6 +285,7 @@
 (define-key evil-outer-text-objects-map "`" 'evil-a-back-quote)
 (define-key evil-outer-text-objects-map "t" 'evil-a-tag)
 (define-key evil-outer-text-objects-map "o" 'evil-a-symbol)
+(define-key evil-outer-text-objects-map "l" 'evil-outer-line)
 (define-key evil-inner-text-objects-map "f" 'evil-inner-word)
 (define-key evil-inner-text-objects-map "F" 'evil-inner-WORD)
 (define-key evil-inner-text-objects-map "s" 'evil-inner-sentence)
@@ -287,6 +305,7 @@
 (define-key evil-inner-text-objects-map "`" 'evil-inner-back-quote)
 (define-key evil-inner-text-objects-map "t" 'evil-inner-tag)
 (define-key evil-inner-text-objects-map "o" 'evil-inner-symbol)
+(define-key evil-inner-text-objects-map "l" 'evil-inner-line)
 
 ;;; Visual state
 
