@@ -986,9 +986,9 @@ Also set its `no-delete-other-windows' parameter to match."
     (setq-local vertico-sort-override-function #'vertico-sort-reversed-alpha)
     (consult--vertico-refresh)))
 
-(use-package vertico-reverse
-  :config
-  (vertico-reverse-mode))
+;; (use-package vertico-reverse
+;;   :config
+;;   (vertico-reverse-mode))
 
 (use-package vertico-multiform
   :ensure nil
@@ -1005,7 +1005,7 @@ Also set its `no-delete-other-windows' parameter to match."
   (setq vertico-multiform-categories '((imenu reverse)
                                        (buffer flat)
                                        (consult-grep buffer)
-                                       (t flat)))
+                                       (t reverse)))
 
   (setq vertico-multiform-commands '((consult-imenu buffer)
                                      (notes-find-file reverse)
@@ -1020,8 +1020,7 @@ Also set its `no-delete-other-windows' parameter to match."
                                      (select-from-history reverse (vertico-resize . t))
                                      (select-shell-history reverse (vertico-resize . t))))
 
-  ;; (vertico-multiform-mode 1)
-  )
+  (vertico-multiform-mode 1))
 
 
 (use-package marginalia
@@ -3041,5 +3040,5 @@ or \\[markdown-toggle-inline-images]."
 (debug-on-entry 'set-window-dedicated-p)
 (cancel-debug-on-entry 'set-window-dedicated-p)
 
-(add-hook 'embark-collect-mode-hook #'make-non-dedicated-window)
+(remove-hook 'embark-collect-mode-hook #'make-non-dedicated-window)
 (put 'scroll-left 'disabled nil)
