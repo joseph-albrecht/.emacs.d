@@ -159,6 +159,8 @@
   (menu-bar-mode -1)
   (fringe-mode nil)
 
+  (setq large-file-warning-threshold nil)
+
   ;; brew search font-
   ;; brew install font-
   ;; Terminus (TTF)
@@ -484,7 +486,7 @@ Also set its `no-delete-other-windows' parameter to match."
     (set-text-properties 0 (length str) nil str)
     str)
 
-  
+
 
 
   )
@@ -971,7 +973,7 @@ Also set its `no-delete-other-windows' parameter to match."
     (interactive)
     (setq-local vertico-sort-override-function nil)
     (consult--vertico-refresh))
-  
+
   (vertico--define-sort (reversed-alpha) 32 (if (equal % "") 0 (/ (aref % 0) 4)) string> string>)
 
   (defun vertico-sort-reversed-alpha (candidates)
@@ -1326,7 +1328,7 @@ See `read-file-name' for the meaning of the arguments."
               (add-to-history 'file-name-history
                               (minibuffer-maybe-quote-filename val))))
 	  val))))
-
+(setq completion-in-region-function #'completion--in-region)
   )
 
 (use-package embark-consult
@@ -1341,7 +1343,7 @@ See `read-file-name' for the meaning of the arguments."
   :bind (:map minibuffer-mode-map
               ("C-c d" . consult-dir)
               :map evil-leader-state-map-extension
-              ("D" . consult-dir)))
+              ("M-d" . consult-dir)))
 
 ;; https://karthinks.com/software/fifteen-ways-to-use-embark/
 ;; TODO: remove confirmation from kill-buffer
@@ -1965,6 +1967,11 @@ buffer has a unique name."
 	      ("t m" . ace-move-window)
               ("t ." . aw-flip-window))
   :config
+  (custom-set-faces
+   '(aw-leading-char-face
+     ((t (:foreground "red"     ;; You can change the color
+                      :height 400           ;; Adjust this value to change the size
+                      :weight bold)))))
   (defun ace-copy-window ()
     (interactive)
     (aw-select #'aw-copy-window))
@@ -1989,7 +1996,7 @@ Also set its `no-delete-other-windows' parameter to match."
     (interactive)
     (aw-select " Ace - Delete Window"
                #'toggle-window-dedicated))
-  
+
 
   (setq aw-keys '(?u ?h ?e ?t))
   (setq aw-dispatch-always t))
@@ -2246,9 +2253,8 @@ most recent, and so on."
          ("n p" . project-dir-notes)
          ("n t" . org-open-todos )
          ("n f" . find-file-notebox)
-         ("n c" . org-capture)
          ("n d" . open-log-file+))
-  :config 
+  :config
   (defun org-open-todos () (interactive) (find-file org-todo-file))
   (setq org-startup-folded 'showeverything)
   (setq org-property-format  "%-12s %s")
@@ -2535,7 +2541,7 @@ most recent, and so on."
     (interactive)
     "Add my custom markdown highlighting."
     (font-lock-add-keywords nil my-markdown-highlight-keyword))
-  
+
   (setq markdown-enable-wiki-links t)
 
   (setq markdown-translate-filename-function (lambda (url) (string-replace "%20" " " url)))
@@ -3033,6 +3039,16 @@ or \\[markdown-toggle-inline-images]."
 (use-package gptel
   :ensure t
   :config)
+
+(use-package which-key
+  :ensure t
+  :init
+  (setq which-key-idle-delay 0)
+  (setq which-key-use-C-h-commands nil)
+  (setq which-key-show-early-on-C-h nil)
+  :bind (:map evil-leader-state-map-extension
+              ("v k" . which-key-mode)
+         :map ))
 
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)
