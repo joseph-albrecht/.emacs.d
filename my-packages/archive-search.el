@@ -4,6 +4,9 @@
 ;; make a consult command to select a #tag present in my note collection
 (require 'consult)
 
+(defvar archive-directory-shell nil)
+(defvar archive-directory nil)
+
 (define-derived-mode archive-search fundamental-mode "Search"
   "Major mode for searching markdown files."
   ;; Define key bindings for this mode
@@ -128,27 +131,24 @@
       (progn
         (message "my-search-results empty query")
         (archive-format-cands (project-files (project-current))))
-      (search-files query "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/")))
+      (search-files query archive-directory)))
 
 
 (defun archive-interactive-search (&optional initial)
   (interactive (list ""))
   (let ((vertico-sort-override-function #'identity)
-        (default-directory "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"))
-    (find-file (concat "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"
+        (default-directory archive-directory))
+    (find-file (concat archive-directory
                        (consult--read
                         (consult--dynamic-collection
                          (lambda (input)
                            (my-search-results input)))
                         :prompt "Select a note file: "
                         :add-history (list (thing-at-point 'symbol) isearch-string)
-
                         :require-match t
                         :initial (concat "%" (or initial ""))
-                        :state (project--file-preview  "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"))))))
+                        :state (project--file-preview archive-directory))))))
 
-(defvar archive-directory-shell "/Users/joey/Library/Mobile\\ Documents/iCloud~md~obsidian/Documents/obsidian")
-(defvar archive-directory "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian")
 
 (defun archive-insert-tag ()
   (interactive)
