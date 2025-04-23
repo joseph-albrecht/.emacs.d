@@ -2940,8 +2940,7 @@ or \\[markdown-toggle-inline-images]."
   :demand t
   :ensure t
   :config
-  (global-treesit-auto-mode)
-  (treesit-auto-install-all))
+  (global-treesit-auto-mode))
 
 (use-package consult-eglot :ensure t)
 
