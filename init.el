@@ -2936,6 +2936,13 @@ or \\[markdown-toggle-inline-images]."
           :documentFormattingProvider t
           :documentRangeFormattingProvider t)))
 
+(use-package treesit-auto
+  :demand t
+  :ensure t
+  :config
+  (global-treesit-auto-mode)
+  (treesit-auto-install-all))
+
 (use-package consult-eglot :ensure t)
 
 (kill-buffer "*scratch*")
