@@ -2769,39 +2769,6 @@ or \\[markdown-toggle-inline-images]."
               ("M-n" . xref-next-line)
               ("M-p" . xref-prev-line)))
 
-(use-package lsp-mode
-  :ensure t
-  :demand t
-  :bind (:map evil-leader-state-map-extension
-              ("l l" . lsp)
-              ("l k" . lsp-shutdown-workspace)
-              ("l r" . lsp-rename))
-  :hook ((lsp-completion-mode-hook . my/lsp-mode-setup-completion))
-  :config
-  (defun my/orderless-dispatch-flex-first (_pattern index _total)
-    (and (eq index 0) 'orderless-flex))
-
-  (defun my/lsp-mode-setup-completion ()
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless)))
-
-  ;; Optionally configure the first word as flex filtered.
-  (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
-
-  ;; Optionally configure the cape-capf-buster.
-  (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point)))
-
-  (setq lsp-completion-provider :none)
-  (setq lsp-enable-symbol-highlighting nil)
-  (setq lsp-enable-imenu  nil)
-  (setq lsp-headerline-breadcrumb-enable nil)
-  (evil-define-key '(normal motion) lsp-mode-map (kbd "g r") 'lsp-find-references))
-
-(use-package lsp-pyright
-  :ensure t
-  :hook (python-mode . (lambda ()
-                         (require 'lsp-pyright)
-                         (lsp))))
 
 (use-package flymake
   :after (evil-leader)
