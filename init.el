@@ -826,15 +826,10 @@ Also set its `no-delete-other-windows' parameter to match."
   (global-set-key (kbd "M-/") nil))
 
 (use-package vertico
-  :after (evil-leader consult)
+  :after (evil-leader)
   :ensure t
   :demand t
   :bind (("C-M-x" . vertico-repeat)
-         :map vertico-reverse-map
-	 ("M-p" . vertico-next+)
-	 ("M-n" . vertico-previous+)
-	 ("C-M-n" . vertico-previous-group)
-	 ("C-M-p" . vertico-next-group)
 	 :map vertico-map
 	 ("s-t" . vertico-quick-insert)
 	 ("C-p" . vertico-C-p-or-reverse)
@@ -978,6 +973,13 @@ Also set its `no-delete-other-windows' parameter to match."
 ;; (use-package vertico-reverse
 ;;   :config
 ;;   (vertico-reverse-mode))
+
+(use-package vertico-reverse
+  :bind (:map vertico-reverse-map
+	 ("M-p" . vertico-next+)
+	 ("M-n" . vertico-previous+)
+	 ("C-M-n" . vertico-previous-group)
+	 ("C-M-p" . vertico-next-group)))
 
 (use-package vertico-multiform
   :ensure nil
