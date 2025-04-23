@@ -111,17 +111,31 @@ or not."
         " ⧈")) ;; ⏿ is not available on Menlo
     "Mode line construct to display if the current buffer has a linked sesman session.")
 
-(put 'mode-line-lsp+ 'risky-local-variable t)
+(defvar-local mode-line-eglot+
+    '(:eval
+      (when (and (fboundp #'eglot-current-server)
+                 (eglot-current-server))
+        " ⏿")) ;; ⏿ is not available on Menlo
+    "Mode line construct to display if the current buffer has a linked sesman session.")
 
-mode-line-lsp+
+(defvar-local mode-line-line-number+
+    '(:eval
+      (format "L%d" (line-number-at-pos))))
+
+(put 'mode-line-lsp+ 'risky-local-variable t)
+(put 'mode-line-eglot+ 'risky-local-variable t)
+(put 'mode-line-line-number+ 'risky-local-variable t)
+
 (setq-default mode-line-format
               '("%e"
                 " "
                 mode-line-kbd-macro+
                 mode-line-lsp+
+                mode-line-eglot+
                 mode-line-sesman+
                 mode-line-buffer-modified+
                 ;; mode-line-evil-mode+
+                mode-line-line-number+
                 mode-line-buffer-name+
                 mode-line-major-mode+
                 mode-line-git-branch+
@@ -132,10 +146,12 @@ mode-line-lsp+
               '("%e"
                 mode-line-kbd-macro+
                 mode-line-lsp+
+                mode-line-eglot+
                 mode-line-sesman+
                 mode-line-buffer-modified+
                 ;; mode-line-evil-mode+
                 mode-line-buffer-name+
+                " L%l"
                 mode-line-major-mode+
                 mode-line-git-branch+
                 ;; mode-line-flymake+
