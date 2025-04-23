@@ -15,6 +15,7 @@
 ;; install brew from: https://brew.sh
 ;; `brew tap d12frosted/emacs-plus`
 ;; `brew install emacs-plus@29 --with-native-comp`
+
 (setq debug-on-error t)
 (setq debugger-stack-frame-as-list t)
 
@@ -121,14 +122,6 @@
   (setq read-minibuffer-restore-windows nil)
   (advice-remove 'server-edit #'server-edit-back-to-terminal+)
 
-  (setq emacs-binary-path "/opt/homebrew/Cellar/emacs-plus@28/28.1/Emacs.app/Contents/MacOS/Emacs")
-
-  (defun open-from-terminal (path name)
-    (let ((buffer (get-buffer-create name)))
-      (pop-to-buffer buffer)
-      (insert-file-contents path)
-      (shell-command (format "open -a %s" emacs-binary-path))))
-
   (defun print-buffer-to-stdout ()
     (print (buffer-substring-no-properties (point-min) (point-max))))
 
@@ -172,6 +165,7 @@
   ;; Hack
   (condition-case nil
       (set-face-attribute 'default nil :font "Iosevka comfy" :height 160)
+      ;; (set-face-attribute 'default nil :font "Iosevka" :height 160)
     (error (set-face-attribute 'default nil :height 120)))
 
   (set-face-attribute 'region nil :background "#A0F5F4")
@@ -464,22 +458,6 @@ Also set its `no-delete-other-windows' parameter to match."
                  (next-file (nth next-index sorted-files)))
             (find-file next-file))
         (message "Current file is not in the directory listing."))))
-
-  (defun random-line (start end)
-    (interactive (if (region-active-p)
-                     (region-bounds)
-                   (list (point-max)
-                         (point-min))))
-    (let* ((content (s-trim (buffer-substring start end)))
-           (command (concat "   echo " (shell-quote-argument content)
-                            " | grep -v '~~.*~~'"
-                            " | grep -v '__.*__'"
-                            " | grep -v '^\w*$'"
-                            " | grep -v '\\*\\*.*\\*\\*'"
-                            " | grep '^\\+'"
-                            " | sort -R"
-                            " | head -n 1")))
-      (message (shell-command-to-string command))))
 
   (defun remove-all-properties (str)
     "Remove all text properties from the given string STR."
@@ -808,6 +786,7 @@ Also set its `no-delete-other-windows' parameter to match."
   :after (evil-leader)
   :bind (:map minibuffer-mode-map
               ("C-c $" . select-shell-history)
+              ("C-c s" . select-shell-history)
               ("C-c SPC" . minibuffer-clear+)
               :map evil-leader-state-map-extension
               ("i $" . insert-shell-history))
@@ -833,7 +812,7 @@ Also set its `no-delete-other-windows' parameter to match."
 
   (defun minibuffer-clear+ ()
     (interactive)
-    (let ((start (progn (move-beginning-of-line 1)
+    (let ((start (progn (goto-char (field-beginning))
                         (point)))
           (end    (progn (end-of-buffer)
                          (move-end-of-line 1)
@@ -842,7 +821,7 @@ Also set its `no-delete-other-windows' parameter to match."
 
 
 (use-package dabbrev
-  :ensure t
+  :ensure nil
   :config
   (global-set-key (kbd "M-/") nil))
 
@@ -851,16 +830,24 @@ Also set its `no-delete-other-windows' parameter to match."
   :ensure t
   :demand t
   :bind (("C-M-x" . vertico-repeat)
+         :map vertico-reverse-map
+	 ("M-p" . vertico-next+)
+	 ("M-n" . vertico-previous+)
+	 ("C-M-n" . vertico-previous-group)
+	 ("C-M-p" . vertico-next-group)
 	 :map vertico-map
 	 ("s-t" . vertico-quick-insert)
 	 ("C-p" . vertico-C-p-or-reverse)
 	 ("C-M-n" . vertico-next-group)
 	 ("C-M-p" . vertico-previous-group)
-	 ("M-p" . vertico-next+)
-	 ("M-n" . vertico-previous+)
-	 ("C-M-n" . vertico-next-group)
+	 ("M-n" . vertico-next+)
+	 ("M-p" . vertico-previous+)
 	 ("C-M-p" . vertico-previous-group)
+	 ("C-M-n" . vertico-next-group)
 	 ("C-<return>" . vertico-exit-input)
+	 ("S-RET" . vertico-quick-exit)
+	 ("S-<return>" . vertico-quick-exit)
+	 ("s-<return>" . vertico-quick-exit)
 	 ("C-^" . vertico-directory-up)
          ("M-h" . vertico-directory-up)
          ("C-c +" . vertico-show-more)
@@ -974,7 +961,7 @@ Also set its `no-delete-other-windows' parameter to match."
     (setq-local vertico-sort-override-function nil)
     (consult--vertico-refresh))
 
-  (vertico--define-sort (reversed-alpha) 32 (if (equal % "") 0 (/ (aref % 0) 4)) string> string>)
+  ;;(vertico--define-sort (reversed-alpha) 32 (if (equal % "") 0 (/ (aref % 0) 4)) string> string>)
 
   (defun vertico-sort-reversed-alpha (candidates)
     (sort candidates #'string>))
@@ -1071,8 +1058,6 @@ Also set its `no-delete-other-windows' parameter to match."
          ("C-, f" . cape-file)
          ("C-, s" . cape-elisp-symbol)
          ("C-, l" . cape-line))
-  :hook (emacs-lisp-mode-hook . (lambda () (setq-local completion-at-point-functions
-                                                       (list #'cape-symbol))))
   :init
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   :config
@@ -1105,7 +1090,6 @@ Also set its `no-delete-other-windows' parameter to match."
    	 ("b b"   . consult-buffer)
    	 ("b B"   . switch-to-buffer)
    	 ("b t"   . consult-buffer-terminal)
-   	 ("b e"   . consult-buffer-ein)
    	 ("b c"   . consult-buffer-compilation)
    	 ("b C-B"   . ibuffer)
    	 ("b L"   . consult-outline)
@@ -1151,11 +1135,6 @@ Also set its `no-delete-other-windows' parameter to match."
     (interactive "P")
     (let ((consult-preview-key (if arg 'any consult-preview-key)))
       (funcall-interactively #'consult-buffer nil "*vterm* ")))
-
-  (defun consult-buffer-ein (&optional arg)
-    (interactive "P")
-    (let ((consult-preview-key (if arg 'any consult-preview-key)))
-      (funcall-interactively #'consult-buffer nil "*ein* ")))
 
   (defun consult-buffer-compilation (&optional arg)
     (interactive "P")
@@ -1328,7 +1307,7 @@ See `read-file-name' for the meaning of the arguments."
               (add-to-history 'file-name-history
                               (minibuffer-maybe-quote-filename val))))
 	  val))))
-(setq completion-in-region-function #'completion--in-region)
+  (setq completion-in-region-function #'completion--in-region)
   )
 
 (use-package embark-consult
@@ -1559,7 +1538,7 @@ buffer has a unique name."
           (tabulated-list-revert))
         buffer))))
 
-(use-package embark-maps
+(use-package embark-maps ;; my package!
   :after (embark evil-leader)
   :demand t
   :load-path my-package-dir
@@ -1663,6 +1642,8 @@ buffer has a unique name."
   (evil-set-undo-system 'undo-tree)
   (setq evil-default-state 'emacs)
   (setq evil-want-minibuffer t)
+  (setq evil-move-beyond-eol t)
+  (setq evil-move-cursor-back nil)
 
   (setq evil-emacs-state-modes nil)
   (setq evil-normal-state-modes nil)
@@ -1802,6 +1783,9 @@ buffer has a unique name."
   :config
   (setq magit-save-repository-buffers 'dontask))
 
+(use-package dash
+  :ensure t)
+
 (use-package magit-delta
   :ensure t
   :demand t
@@ -1816,7 +1800,41 @@ buffer has a unique name."
          ("M-g l" . avy-goto-line))
   :config
   (setq avy-single-candidate-jump nil)
-  (setq avy-keys (list ?a ?o ?e ?u ?h ?t ?n ?s)))
+  (setq avy-keys (list ?a ?o ?e ?u ?h ?t ?n ?s))
+
+  (defun avy-action-kill-whole-line (pt)
+    (save-excursion
+      (goto-char pt)
+      (kill-whole-line))
+    (select-window
+     (cdr
+      (ring-ref avy-ring 0)))
+    t)
+  (defun avy-action-copy-whole-line (pt)
+    (save-excursion
+      (goto-char pt)
+      (cl-destructuring-bind (start . end)
+          (bounds-of-thing-at-point 'line)
+        (copy-region-as-kill start end)))
+    (select-window
+     (cdr
+      (ring-ref avy-ring 0)))
+    t)
+  (defun avy-action-yank-whole-line (pt)
+    (avy-action-copy-whole-line pt)
+    (save-excursion (yank))
+    t)
+  (defun avy-action-teleport-whole-line (pt)
+    (avy-action-kill-whole-line pt)
+    (save-excursion (yank)) t)
+
+  (setq avy-dispatch-alist
+        '((?k . avy-action-kill-whole-line)
+          (?y . avy-action-yank-whole-line)
+          (?w . avy-action-copy-whole-line)
+          (?m . avy-action-teleport-whole-line)))
+
+  )
 
 (use-package dired
   :commands (find-grep-dired-default-dir)
@@ -1824,25 +1842,25 @@ buffer has a unique name."
   :demand t
   :bind (("s-d" . dired+)
          :map evil-leader-state-map-extension
-	      ("d o" . open-in-finder)
-	      ("s F" . find-grep-dired)
- 	      ("s f" . find-grep-dired-default-dir)
-              ("d D" . dired+)
-              ("D" . dired+)
+	 ("d o" . open-in-finder)
+	 ("s F" . find-grep-dired)
+ 	 ("s f" . find-grep-dired-default-dir)
+         ("d D" . dired+)
+         ("D" . dired+)
   	 :map dired-mode-map
- 	      ("C-M-n" . nil)
- 	      ("C-M-p" . nil)
- 	      ("C-t" . nil)
- 	      ("^" . dired-up-directory)
- 	      ("<" . dired-goto-first-item)
- 	      (">" . end-of-buffer)
- 	      ("M-s f C-s" . nil)
-  	      ("M-s f ESC" . nil)
- 	      ("M-s f" . nil)
- 	      ("e" . wdired-change-to-wdired-mode)
-  	      ("M-n" . dired-preview-next)
-  	      ("M-p" . dired-preview-previous)
-	      ("M-<return>" . dired-preview))
+ 	 ("C-M-n" . nil)
+ 	 ("C-M-p" . nil)
+ 	 ("C-t" . nil)
+ 	 ("^" . dired-up-directory)
+ 	 ("<" . dired-goto-first-item)
+ 	 (">" . end-of-buffer)
+ 	 ("M-s f C-s" . nil)
+  	 ("M-s f ESC" . nil)
+ 	 ("M-s f" . nil)
+ 	 ("e" . wdired-change-to-wdired-mode)
+  	 ("M-n" . dired-preview-next)
+  	 ("M-p" . dired-preview-previous)
+	 ("M-<return>" . dired-preview))
   :config
   (setq dired-listing-switches "-Al")
 
@@ -1915,12 +1933,6 @@ buffer has a unique name."
 
   )
 
-(use-package dired-sidebar
-  :after (dired)
-  :ensure t
-  :demand t
-  :commands (dired-sidebar-toggle-sidebar))
-
 (use-package dired-subtree
   :after (dired dired-sidebar)
   :ensure t
@@ -1943,9 +1955,7 @@ buffer has a unique name."
   (set-face-attribute 'dired-subtree-depth-3-face nil :background "#e495e5f4e1df")
   (set-face-attribute 'dired-subtree-depth-4-face nil :background "#e495e5f4e1df")
   (set-face-attribute 'dired-subtree-depth-5-face nil :background "#e495e5f4e1df")
-  (set-face-attribute 'dired-subtree-depth-6-face nil :background "#e495e5f4e1df")
-
-  )
+  (set-face-attribute 'dired-subtree-depth-6-face nil :background "#e495e5f4e1df"))
 
 (use-package ls-lisp
   :after (dired)
@@ -1958,14 +1968,15 @@ buffer has a unique name."
   :ensure t
   :after (evil-leader)
   :commands (ace-copy-window ace-move-window ace-switch-buffer-other-window)
-  :bind (:map evil-leader-state-map-extension
-	      ("t s" . ace-swap-window)
-	      ("t t" . ace-window)
-	      ("t k" . ace-delete-window)
-	      ("t K" . delete-window)
-	      ("t c" . ace-copy-window)
-	      ("t m" . ace-move-window)
-              ("t ." . aw-flip-window))
+  :bind (("s-w" . ace-window)
+         :map evil-leader-state-map-extension
+	 ("t s" . ace-swap-window)
+	 ("t t" . ace-window)
+	 ("t k" . ace-delete-window)
+	 ("t K" . delete-window)
+	 ("t c" . ace-copy-window)
+	 ("t m" . ace-move-window)
+         ("t ." . aw-flip-window))
   :config
   (custom-set-faces
    '(aw-leading-char-face
@@ -2400,9 +2411,6 @@ most recent, and so on."
     (interactive)
     (org-content 10)))
 
-(use-package ob-async
-  :ensure t)
-
 (use-package org-agenda
   :ensure nil
   :after (org)
@@ -2442,73 +2450,73 @@ most recent, and so on."
     (let ((guides (list (expand-file-name "guide.org" user-emacs-directory))))
       (org-ql-find guides :query-prefix "tags:#help "))))
 
-(use-package org-roam
-  :ensure t
-  :custom (org-roam-directory (file-truename org-directory))
-  :bind (:map evil-leader-state-map-extension
-              ("n f" . org-roam-node-find+)
-              ("n i" . org-roam-node-insert+)
-              ("n d" . org-roam-goto-today+))
-  :hook (org-roam-mode . org-show-all)
-  :config
-  (org-roam-db-autosync-mode)
+;; (use-package org-roam
+;;   :ensure t
+;;   :custom (org-roam-directory (file-truename org-directory))
+;;   :bind (:map evil-leader-state-map-extension
+;;               ("n f" . org-roam-node-find+)
+;;               ("n i" . org-roam-node-insert+)
+;;               ("n d" . org-roam-goto-today+))
+;;   :hook (org-roam-mode . org-show-all)
+;;   :config
+;;   (org-roam-db-autosync-mode)
 
-  (advice-add #'org-roam-node-find :after (lambda (&rest args) (org-show-all)))
+;;   (advice-add #'org-roam-node-find :after (lambda (&rest args) (org-show-all)))
 
-  (defun org-roam-node-create+ (node-name &optional hide)
-    (let* ((id        (org-time-id+))
-           (template  (format ":PROPERTIES:\n:ID:  %s\n:TAGGED:\n:END:\n\n#+title: %s\n\n%%?" id node-name))
-           (filename  (format "%s %s.org" id node-name))
-           (org-capture-templates (list (list "i" "i" 'plain
-                                              (list 'file filename)
-                                              template
-                                              :immediate-finish t
-                                              :jump-to-captured t))))
-      (if hide
-          (save-window-excursion (org-capture nil "i")
-                                 (org-show-all))
-        (org-capture nil "i")
-        (org-show-all))
-      id))
+;;   (defun org-roam-node-create+ (node-name &optional hide)
+;;     (let* ((id        (org-time-id+))
+;;            (template  (format ":PROPERTIES:\n:ID:  %s\n:TAGGED:\n:END:\n\n#+title: %s\n\n%%?" id node-name))
+;;            (filename  (format "%s %s.org" id node-name))
+;;            (org-capture-templates (list (list "i" "i" 'plain
+;;                                               (list 'file filename)
+;;                                               template
+;;                                               :immediate-finish t
+;;                                               :jump-to-captured t))))
+;;       (if hide
+;;           (save-window-excursion (org-capture nil "i")
+;;                                  (org-show-all))
+;;         (org-capture nil "i")
+;;         (org-show-all))
+;;       id))
 
-  (defun org-roam-node-find+ ()
-    (interactive)
-    (let* ((node (org-roam-node-read)))
-      (if (org-roam-node-file node)
-          (progn (org-roam-node-open node)
-                 (org-show-all))
-        (org-roam-node-create+ (org-roam-node-title node)))))
+;;   (defun org-roam-node-find+ ()
+;;     (interactive)
+;;     (let* ((node (org-roam-node-read)))
+;;       (if (org-roam-node-file node)
+;;           (progn (org-roam-node-open node)
+;;                  (org-show-all))
+;;         (org-roam-node-create+ (org-roam-node-title node)))))
 
-  (defun org-roam-node-insert+ (with-title &optional title)
-    (interactive (list current-prefix-arg
-                       (org-roam-node-title (org-roam-node-read))))
-    (when (not (org-roam-node-titled title))
-      (org-roam-node-create+ title t))
-    (let* ((node (org-roam-node-titled title))
-           (id (org-roam-node-id node)))
-      (insert (format "id:%s%s"
-                      id
-                      (if with-title (concat " " title) "")))))
+;;   (defun org-roam-node-insert+ (with-title &optional title)
+;;     (interactive (list current-prefix-arg
+;;                        (org-roam-node-title (org-roam-node-read))))
+;;     (when (not (org-roam-node-titled title))
+;;       (org-roam-node-create+ title t))
+;;     (let* ((node (org-roam-node-titled title))
+;;            (id (org-roam-node-id node)))
+;;       (insert (format "id:%s%s"
+;;                       id
+;;                       (if with-title (concat " " title) "")))))
 
-  (defun org-roam-node-titled (node-title)
-    (->> (org-roam-node-list)
-         (seq-find (lambda (node)
-                     (equal (org-roam-node-title node)
-                            node-title)))))
+;;   (defun org-roam-node-titled (node-title)
+;;     (->> (org-roam-node-list)
+;;          (seq-find (lambda (node)
+;;                      (equal (org-roam-node-title node)
+;;                             node-title)))))
 
-  (cl-defmethod org-roam-node-tagged ((node org-roam-node))
-    "Return the currently set category for the NODE."
-    (cdr (assoc-string "TAGGED" (org-roam-node-properties node))))
+;;   (cl-defmethod org-roam-node-tagged ((node org-roam-node))
+;;     "Return the currently set category for the NODE."
+;;     (cdr (assoc-string "TAGGED" (org-roam-node-properties node))))
 
-  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tagged:50}" 'face 'org-tag)))
+;;   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tagged:50}" 'face 'org-tag)))
 
-  (defun org-roam-goto-today+ ()
-    (interactive)
-    (let* ((today (format-time-string "%y-%m-%m" (current-time)))
-           (node  (org-roam-node-titled today)))
-      (if node
-          (org-roam-node-open node)
-        (org-roam-node-create+ today)))))
+;;   (defun org-roam-goto-today+ ()
+;;     (interactive)
+;;     (let* ((today (format-time-string "%y-%m-%m" (current-time)))
+;;            (node  (org-roam-node-titled today)))
+;;       (if node
+;;           (org-roam-node-open node)
+;;         (org-roam-node-create+ today)))))
 
 (use-package markdown-mode
   :ensure t
@@ -2570,25 +2578,29 @@ most recent, and so on."
            (link (consult--read (seq-map (lambda (link) (string-replace "%20" " " link)) links) :prompt "links: " :sort nil)))
       (markdown--browse-url (string-replace " " "%20" link))))
 
+  (defun random-line (start end)
+    (interactive (if (region-active-p)
+                     (list (line-number-at-pos (caar (region-bounds)))
+                           (line-number-at-pos (cadr (region-bounds))))
+                   (list (line-number-at-pos (point-min))
+                         (line-number-at-pos (point-max)))))
+    (save-excursion
+      (when (region-active-p)
+        (deactivate-mark))
+      (forward-line (- (+ start (random (+ 1 (- end start))))
+                         (line-number-at-pos)))
+      (message (buffer-substring-no-properties (line-beginning-position) (line-end-position)))))
+  
   (defun random-line-jump (start end)
     (interactive (if (region-active-p)
-                     (region-bounds)
-                   (list (point-max) (point-min))))
-    (let* ((content (s-trim (buffer-substring start end)))
-           (lines (seq-reduce (lambda (acc line)
-                                (let ((line-number (or (caar acc) 0)))
-                                  (append (list (cons (1+ line-number) (remove-all-properties line))) acc)))
-                              (s-split "\n" content)
-                              nil))
-           (todos (thread-last lines
-                               (seq-filter (lambda (line) (s-starts-with? "+" (cdr line))))
-                               (seq-remove (lambda (line) (s-contains? "~~" (cdr line))))))
-           (todo (seq-random-elt todos)))
-      (goto-line (car todo)
-                 )
-      (message (cdr todo))
-      )
-    )
+                     (list (line-number-at-pos (caar (region-bounds)))
+                           (line-number-at-pos (cadr (region-bounds))))
+                   (list (line-number-at-pos (point-min))
+                         (line-number-at-pos (point-max)))))
+    (when (region-active-p)
+      (deactivate-mark))
+    (forward-line (- (+ start (random (+ 1 (- end start))))
+                     (line-number-at-pos))))
 
   (defun mark-task-complete ()
     (interactive)
@@ -2724,6 +2736,8 @@ or \\[markdown-toggle-inline-images]."
   (setq shell-file-name "/bin/zsh")
   (setq comint-process-echoes t)
 
+  (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+
   (defun clear-line ()
     (move-beginning-of-line 1)
     (ignore-errors (kill-line)
@@ -2787,46 +2801,6 @@ or \\[markdown-toggle-inline-images]."
                          (require 'lsp-pyright)
                          (lsp))))
 
-;; https://emacs-lsp.github.io/dap-mode/page/configuration/
-(use-package dap-mode
-  :ensure nil
-  :commands (dap-debug+)
-  :after (lsp-mode)
-  :bind (:map evil-leader-state-map-extension
-              ("l d d" . dap-debug)
-              ("l d h" . dap-hydra)))
-
-(use-package realgud
-  :ensure t)
-
-(use-package burly
-  :after (evil-leader)
-  :ensure t
-  :demand t
-  :bind (:map evil-leader-state-map-extension
-              ("t b" . burly-open-bookmark)
-              ("t B" . burly-bookmark-windows))
-  :config
-  (setq bookmark-automatically-show-annotations nil)
-  (setq bookmark-set-fringe-mark nil))
-
-(use-package corkboard
-  :after (evil-leader)
-  :load-path my-package-dir
-  :bind (:map evil-leader-state-map-extension
-              ("' b b" . corkboard-select-board)
-              ("' b a" . corkboard-add-board)
-              ("' b d" . corkboard-delete-board)
-              ("' '"   . corkboard-goto-location)
-              ("' ."   . corkboard-add-location)
-              ("' d"   . corkboard-delete-location)
-              ("' l"   . corkboard-next-location)
-              ("' h"   . corkboard-previous-location))
-  :config
-  (evil-add-command-properties 'corkboard-goto-location     :jump t)
-  (evil-add-command-properties 'corkboard-next-location     :jump t)
-  (evil-add-command-properties 'corkboard-previous-location :jump t))
-
 (use-package flymake
   :after (evil-leader)
   :ensure nil
@@ -2862,15 +2836,6 @@ or \\[markdown-toggle-inline-images]."
   (setq pulsar-highlight-face 'pulsar-yellow)
   (pulsar-global-mode 1))
 
-;; https://docs.doomemacs.org/latest/modules/lang/scala/
-(use-package scala-mode
-  :ensure t
-  :config
-  :hook (scala-mode-hook . (lambda ()
-
-                             (setq paragraph-start "[ \t]*$")
-                             (setq paragraph-separate "[ \t]*$"))))
-
 (use-package devdocs
   :after (embark)
   :ensure t
@@ -2882,45 +2847,11 @@ or \\[markdown-toggle-inline-images]."
     (let ((symbol (thing-at-point 'symbol)))
       (devdocs-lookup nil symbol))))
 
-;; TODO: ibuffer-filter-by-filename filter should use f-short too
-(use-package ibuffer
-  :ensure nil
-  :config
-  (defun ibuffer-buffer-file-name ()
-    (cond
-     ((buffer-file-name) (f-short (buffer-file-name)))
-     ((bound-and-true-p list-buffers-directory) (f-short list-buffers-directory))
-     ((let ((dirname (and (boundp 'dired-directory)
-                          (if (stringp dired-directory)
-                              dired-directory
-                            (car dired-directory)))))
-	(and dirname (f-short (expand-file-name dirname))))))))
-
-
-(use-package auth-source
-  :ensure nil)
-
-(use-package auth-source-pass
-  :ensure nil
-  :config
-  (auth-source-pass-enable)
-  (setq epa-pinentry-mode 'loopback))
-
-(use-package password-store
-  :ensure t
-  :bind (:map evil-leader-state-map-extension
-              ("w w" . password-store-copy)
-              ("w SPC" . password-store-clear)))
-
-;; (use-package indent-guide
-;;   :ensure t)
-
 (use-package highlight-indentation
   :ensure t
   :hook ((python-mode-hook . highlight-indentation-mode))
   :config
   (set-face-background 'highlight-indentation-current-column-face "#c3b3b3"))
-
 
 (use-package diff-hl
   :ensure t
@@ -2942,33 +2873,12 @@ or \\[markdown-toggle-inline-images]."
 
 (server-start)
 
-(defun display-startup-echo-area-message ()
-  (let ((seconds (progn (string-match "[[:digit:]]+\\.[[:digit:]]\\{2\\}" (emacs-init-time)) (match-string 0 (emacs-init-time)))))
-    (message (format "Emacs started in %s seconds." seconds))))
-
-(setq site-to-query '(("google" . "https://www.google.com/search?q=")
-                      ("ddg" . "https://duckduckgo.com/?q=")
-                      ("stack overflow" . "https://stackoverflow.com/search?q=")))
-
-(cdr (assoc "google" site-to-query))
-
-(defun search-web (site query)
-  (interactive (list (completing-read "site" site-to-query)
-                     (read-string "query: ")))
-  (let* ((stub (cdr (assoc site site-to-query)))
-         (url (concat stub (s-replace " " "+" query))))
-    (browse-url url)))
-
 (use-package gnu-apl-mode
   :ensure t
   :config
   (defun em-gnu-apl-init ()
     (setq buffer-face-mode-face 'gnu-apl-default)
     (buffer-face-mode))
-
-
-
-
   (add-hook 'gnu-apl-interactive-mode-hook 'em-gnu-apl-init)
   (add-hook 'gnu-apl-mode-hook 'em-gnu-apl-init))
 
@@ -3000,16 +2910,6 @@ or \\[markdown-toggle-inline-images]."
 	 ("n s" . archive-interactive-search)
          ("n S" . archive-search)))
 
-;; (use-package helpful
-;;   :ensure t
-;;   :bind (("C-h f" . helpful-callable)
-;;          ("C-h v" . helpful-variable)
-;;          ("C-h k" . helpful-key)
-;;          :map evil-leader-state-map-extension
-;;               ("h f" . helpful-callable)
-;;               ("h v" . helpful-variable)
-;;               ("h k" . helpful-key)))
-
 (use-package spacious-padding
   :ensure t
   :config
@@ -3020,10 +2920,6 @@ or \\[markdown-toggle-inline-images]."
   (set-face-attribute 'mode-line nil :height 1.2 :underline nil :bold nil)
   (set-face-attribute 'mode-line-active nil :height 1.2 :underline nil :bold nil)
   (set-face-attribute 'mode-line-inactive nil :height 1.2 :underline nil))
-
-(use-package expand-region
-  :ensure t
-  :bind ("C-=" . er/expand-region))
 
 (use-package drag-stuff
   :ensure t
@@ -3036,9 +2932,9 @@ or \\[markdown-toggle-inline-images]."
     (define-key evil-visual-state-map (kbd "N") 'drag-stuff-down)
 )
 
-(use-package gptel
-  :ensure t
-  :config)
+;; (use-package gptel
+;;   :ensure t
+;;   :config)
 
 (use-package which-key
   :ensure t
@@ -3047,8 +2943,7 @@ or \\[markdown-toggle-inline-images]."
   (setq which-key-use-C-h-commands nil)
   (setq which-key-show-early-on-C-h nil)
   :bind (:map evil-leader-state-map-extension
-              ("v k" . which-key-mode)
-         :map ))
+              ("v k" . which-key-mode)))
 
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)
