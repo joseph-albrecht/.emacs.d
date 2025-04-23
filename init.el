@@ -2914,6 +2914,30 @@ or \\[markdown-toggle-inline-images]."
   :bind (:map evil-leader-state-map-extension
               ("v k" . which-key-mode)))
 
+(use-package eglot
+  :config
+  (add-to-list 'eglot-server-programs
+               '(python-ts-mode . ("pyright-langserver" "--stdio")))
+
+  (add-hook 'python-base-mode-hook #'eglot-ensure)   ; python-ts-mode derives from this
+
+  (setq eglot-extend-to-xref t
+        eglot-events-buffer-size 0)
+  (add-hook 'eglot-managed-mode-hook
+            (lambda ()
+              (flymake-mode -1)))      ; turn it off for this buffer only
+
+  (add-hook 'eglot-managed-mode-hook
+            (lambda ()
+              (eglot-format-on-save-mode -1)))
+
+  (setq eglot-ignored-server-capabilities
+        '(:codeActionProvider t
+          :documentFormattingProvider t
+          :documentRangeFormattingProvider t)))
+
+(use-package consult-eglot :ensure t)
+
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)
 
