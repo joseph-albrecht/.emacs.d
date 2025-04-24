@@ -105,12 +105,6 @@ or not."
 (put 'mode-line-sesman+ 'risky-local-variable t)
 
 
-(defvar-local mode-line-lsp+
-    '(:eval
-      (when (lsp-workspaces)
-        " ⧈")) ;; ⏿ is not available on Menlo
-    "Mode line construct to display if the current buffer has a linked sesman session.")
-
 (defvar-local mode-line-eglot+
     '(:eval
       (when (and (fboundp #'eglot-current-server)
@@ -122,7 +116,6 @@ or not."
     '(:eval
       (format "L%d" (line-number-at-pos))))
 
-(put 'mode-line-lsp+ 'risky-local-variable t)
 (put 'mode-line-eglot+ 'risky-local-variable t)
 (put 'mode-line-line-number+ 'risky-local-variable t)
 
@@ -130,7 +123,6 @@ or not."
               '("%e"
                 " "
                 mode-line-kbd-macro+
-                mode-line-lsp+
                 mode-line-eglot+
                 mode-line-sesman+
                 mode-line-buffer-modified+
@@ -145,7 +137,6 @@ or not."
 (setq-default mode-line-format
               '("%e"
                 mode-line-kbd-macro+
-                mode-line-lsp+
                 mode-line-eglot+
                 mode-line-sesman+
                 mode-line-buffer-modified+
