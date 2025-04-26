@@ -122,12 +122,10 @@
   (setq read-minibuffer-restore-windows nil)
   (advice-remove 'server-edit #'server-edit-back-to-terminal+)
 
-  (defun print-buffer-to-stdout ()
-    (print (buffer-substring-no-properties (point-min) (point-max))))
-
   (when (file-exists-p "/opt/homebrew/bin")
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/bin"))
     (setq exec-path (append exec-path (list "/opt/homebrew/bin"))))
+
   (when (file-exists-p "/opt/homebrew/sbin")
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/sbin"))
     (setq exec-path (append exec-path (list "/opt/homebrew/sbin"))))
@@ -1310,6 +1308,7 @@ See `read-file-name' for the meaning of the arguments."
                               (minibuffer-maybe-quote-filename val))))
 	  val))))
   (setq completion-in-region-function #'completion--in-region)
+
   )
 
 (use-package embark-consult
@@ -2871,14 +2870,6 @@ or \\[markdown-toggle-inline-images]."
 
   (add-hook 'ediff-keymap-setup-hook 'my-setup-ediff-keybindings))
 
-(use-package archive-search
-  :load-path my-package-dir
-  :after (consult)
-  :bind (("C-, t" . archive-insert-tag)
-         :map evil-leader-state-map-extension
-	 ("n s" . archive-interactive-search)
-         ("n S" . archive-search)))
-
 (use-package spacious-padding
   :ensure t
   :config
@@ -2927,14 +2918,11 @@ or \\[markdown-toggle-inline-images]."
             (lambda ()
               (flymake-mode -1)))      ; turn it off for this buffer only
 
-  (add-hook 'eglot-managed-mode-hook
-            (lambda ()
-              (eglot-format-on-save-mode -1)))
-
   (setq eglot-ignored-server-capabilities
         '(:codeActionProvider t
           :documentFormattingProvider t
-          :documentRangeFormattingProvider t)))
+          :documentRangeFormattingProvider t))
+  (setq eglot-stay-out-of '(imenu)))
 
 (use-package treesit-auto
   :demand t
