@@ -381,12 +381,24 @@
     (find-file "~/.emacs.d/guide.org"))
 
   (defun run-command-with-default-dir (dir)
-    (interactive (list (read-directory-name "in directory: ")))
-    (let ((default-directory dir)
-          (project-current-inhibit-prompt t)
-          (map (make-composed-keymap evil-leader-state-map (current-global-map))))
-      (message "waiting for command to run in dir: %s" dir)
-      (call-interactively (funcall embark-prompter map #'indentity))))
+  "Run an Embark-chosen command as if DIR were `default-directory'."
+  (interactive (list (read-directory-name "Run in directory: ")))
+  (let* ((default-directory dir)
+         ;; Either *don’t* touch the variable at all…
+         ;; (project-current-directory-override nil)
+
+         ;; …or, if you really want to force project.el to treat DIR as
+         ;; the current project root (and thus silence any prompt),
+         ;; bind it to the *directory string*, not t:
+         ;; (project-current-directory-override dir)
+
+         (map (make-composed-keymap
+               (list evil-leader-state-map (current-global-map))))
+         (cmd (funcall (symbol-value embark-prompter)  ; ensure it’s a function
+                       map
+                       #'identity)))
+    (call-interactively cmd)))
+
 
   (setq regexp-char-classes
         '("[:ascii:]"
@@ -771,7 +783,7 @@ Also set its `no-delete-other-windows' parameter to match."
           (project-current-directory-override nil)
           (map (make-composed-keymap evil-leader-state-map (current-global-map))))
       (message "waiting for command to run in project: %s" dir)
-      (call-interactively (funcall embark-prompter map #'indentity))))
+      (call-interactively (funcall embark-prompter map #'identity))))
 
   (defun project-current-run-command+ ()
     (interactive)
@@ -786,6 +798,7 @@ Also set its `no-delete-other-windows' parameter to match."
               ("C-c $" . select-shell-history)
               ("C-c s" . select-shell-history)
               ("C-c SPC" . minibuffer-clear+)
+              ("C-c r" . insert-region-or-symbol-into-minibuffer+)
               :map evil-leader-state-map-extension
               ("i $" . insert-shell-history))
   :config
@@ -815,7 +828,26 @@ Also set its `no-delete-other-windows' parameter to match."
           (end    (progn (end-of-buffer)
                          (move-end-of-line 1)
                          (point))))
-      (delete-region start end))))
+      (delete-region start end)))
+
+  (defun insert-region-or-symbol-into-minibuffer+ ()
+    "Insert the active region or symbol at point from the originating buffer into the minibuffer."
+    (interactive)
+    (let ((origin-buffer (window-buffer (minibuffer-selected-window))))
+      (if (not (buffer-live-p origin-buffer))
+          (message "Original buffer is no longer available.")
+        (let (text)
+          (with-current-buffer origin-buffer
+            (setq text
+                  (cond
+                   ((use-region-p)
+                    (buffer-substring-no-properties (region-beginning) (region-end)))
+                   ((symbol-at-point)
+                    (symbol-name (symbol-at-point)))
+                   (t nil))))
+          (if text
+              (insert text)  ;; inserts into minibuffer at point
+            (message "No region or symbol at point found.")))))))
 
 
 (use-package dabbrev
@@ -1602,28 +1634,29 @@ buffer has a unique name."
       (?! . error)
       (?~ . error)))
 
-  (defun my-highlight-prefix ()
-    (save-excursion
-      (goto-char (point-min))
-      (dolist (prefix-face my-orderless-prefix-faces)
-        (let* ((prefix (car prefix-face))
-               (face (cdr prefix-face))
-               (search (format "\\(^\\|[^\\\\] \\)%s[^ ]" (char-to-string prefix))))
-          (while (search-forward-regexp search nil t)
-            (let ((prefix-pos (- (match-end 0) 2)))
-              (put-text-property prefix-pos (1+ prefix-pos) 'face face)
-              (remove-list-of-text-properties (1+ prefix-pos)
-                                              (min (1+ (1+ prefix-pos)) (point-max))
-                                              '(face)))))))
-    (set-buffer-modified-p nil))
+  ;; (defun my-highlight-prefix ()
+  ;;   (save-excursion
+  ;;     (goto-char (point-min))
+  ;;     (dolist (prefix-face my-orderless-prefix-faces)
+  ;;       (let* ((prefix (car prefix-face))
+  ;;              (face (cdr prefix-face))
+  ;;              (search (format "\\(^\\|[^\\\\] \\)%s[^ ]" (char-to-string prefix))))
+  ;;         (while (search-forward-regexp search nil t)
+  ;;           (let ((prefix-pos (- (match-end 0) 2)))
+  ;;             (put-text-property prefix-pos (1+ prefix-pos) 'face face)
+  ;;             (remove-list-of-text-properties (1+ prefix-pos)
+  ;;                                             (min (1+ (1+ prefix-pos)) (point-max))
+  ;;                                             '(face)))))))
+  ;;   (set-buffer-modified-p nil))
 
   (setq orderless-smart-case t)
 
-  (defun my-setup-highlight-hook ()
-    (when (eq (current-local-map) vertico-map)
-      (add-hook 'post-command-hook #'my-highlight-prefix nil t)))
+  ;; (defun my-setup-highlight-hook ()
+  ;;   (when (eq (current-local-map) vertico-map)
+  ;;     (add-hook 'post-command-hook #'my-highlight-prefix nil t)))
 
-  (add-hook 'minibuffer-setup-hook #'my-setup-highlight-hook))
+  ;; (add-hook 'minibuffer-setup-hook #'my-setup-highlight-hook)
+  )
 
 (use-package undo-tree
   :ensure t
@@ -1696,14 +1729,14 @@ buffer has a unique name."
   (advice-add 'evil-show-registers
               :after (lambda (&rest r) (evil-change-state evil-default-state))))
 
-(use-package evil-escape
-  :ensure t
-  :demand t
-  :config
-  (evil-escape-mode)
-  (setq evil-escape-key-sequence "jk")
-  (setq evil-escape-unordered-key-sequence t)
-  (setq evil-escape-delay .1))
+;; (use-package evil-escape
+;;   :ensure t
+;;   :demand t
+;;   :config
+;;   (evil-escape-mode)
+;;   (setq evil-escape-key-sequence "jk")
+;;   (setq evil-escape-unordered-key-sequence t)
+;;   (setq evil-escape-delay .1))
 
 (use-package evil-baptism
   :after (evil)
@@ -1733,9 +1766,9 @@ buffer has a unique name."
                   (?\] . ("[" . "]"))
                   (?\} . ("{" . "}"))
 
-                  (?\( . ("( " . " )"))
-                  (?\[ . ("[ " . " ]"))
-                  (?\{ . ("{ " . " }"))
+                  (?\( . ("(" . ")"))
+                  (?\[ . ("[" . "]"))
+                  (?\{ . ("{" . "}"))
 
                   (?# . ("#{" . "}"))
                   (?b . ("(" . ")"))
@@ -1749,6 +1782,7 @@ buffer has a unique name."
     (interactive (evil-surround-input-char))
     (call-interactively
      (pcase char
+       (?w #'evil-surround-edit)
        (?c #'evil-surround-change)
        (?k #'evil-surround-delete))))
 
@@ -1833,7 +1867,8 @@ buffer has a unique name."
         '((?k . avy-action-kill-whole-line)
           (?y . avy-action-yank-whole-line)
           (?w . avy-action-copy-whole-line)
-          (?m . avy-action-teleport-whole-line)))
+          (?m . avy-action-teleport-whole-line)
+          ((kbd "za") . avy-action-copy-whole-line)))
 
   )
 
@@ -2892,9 +2927,8 @@ or \\[markdown-toggle-inline-images]."
     (define-key evil-visual-state-map (kbd "N") 'drag-stuff-down)
 )
 
-;; (use-package gptel
-;;   :ensure t
-;;   :config)
+(use-package gptel
+  :ensure t)
 
 (use-package which-key
   :ensure t
