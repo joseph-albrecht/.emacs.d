@@ -3,7 +3,6 @@
 ;; - make pasting be in front of cursor
 ;; - create functions to paste above/below line
 
-
 (require 'evil)
 
 (setq evil-move-cursor-back nil)
@@ -140,6 +139,7 @@
 (setq evil-operator-state-map (make-sparse-keymap))
 (setq evil-ex-completion-map (make-sparse-keymap))
 
+(define-key evil-normal-state-map (kbd "<escape>") 'evil-force-normal-state)
 (define-key evil-normal-state-map "d" 'evil-append)
 (define-key evil-normal-state-map "D" 'evil-append-line)
 (define-key evil-normal-state-map "c" 'evil-change)
@@ -332,6 +332,7 @@
 
 ;;; Insert state
 (define-key evil-insert-state-map [escape] nil)
+(define-key evil-insert-state-map (kbd "<escape>") 'evil-force-normal-state)
 (define-key evil-insert-state-map (kbd "S-<return>") 'evil-insert-new-line+)
 
 ;;; Replace state
