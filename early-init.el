@@ -98,8 +98,7 @@ or not."
       (when (and (mode-line-sesman-system+)
                  (mode-line-sesman-repls)
                  (sesman--linked-sessions (sesman--system)))
-        (format " ⎶" (mode-line-sesman-repls))
-        ))
+        (format " ⎶" (mode-line-sesman-repls))))
     "Mode line construct to display if the current buffer has a linked sesman session.")
 
 (put 'mode-line-sesman+ 'risky-local-variable t)
@@ -110,7 +109,7 @@ or not."
       (when (and (fboundp #'eglot-current-server)
                  (eglot-current-server))
         " ⏿")) ;; ⏿ is not available on Menlo
-    "Mode line construct to display if the current buffer has a linked sesman session.")
+  "Mode line construct to display if the current buffer has a linked sesman session.")
 
 (defvar-local mode-line-line-number+
     '(:eval
