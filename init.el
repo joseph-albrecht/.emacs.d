@@ -491,10 +491,12 @@ Also set its `no-delete-other-windows' parameter to match."
   (set-face-attribute 'org-level-3 nil :height 1.0 :inherit 'default)
   (set-face-attribute 'org-level-4 nil :height 1.0 :inherit 'default)
 
-  (set-face-attribute 'orderless-match-face-0 nil :foreground "black" :overline nil :underline nil :bold t)
-  (set-face-attribute 'orderless-match-face-1 nil :foreground "black" :overline nil :underline nil :bold t)
-  (set-face-attribute 'orderless-match-face-2 nil :foreground "black" :overline nil :underline nil :bold t)
-  (set-face-attribute 'orderless-match-face-3 nil :foreground "black" :overline nil :underline nil :bold t))
+  (set-face-attribute 'orderless-match-face-0 nil :overline nil :underline nil :bold t)
+  (set-face-attribute 'orderless-match-face-1 nil :overline nil :underline nil :bold t)
+  (set-face-attribute 'orderless-match-face-2 nil :overline nil :underline nil :bold t)
+  (set-face-attribute 'orderless-match-face-3 nil :overline nil :underline nil :bold t)
+
+  )
 
 (use-package grep
   :after (compile)
@@ -682,6 +684,7 @@ Also set its `no-delete-other-windows' parameter to match."
               ("f p" . project-find-file)
               ("b p" . consult-project-buffer)
               ("d p" . project-find-dir)
+              ("p e" . project-emacs.d)
               ("c C-q" . project-query-replace-regexp))
   :config
   (defun lines-in-file-matching-re (file regexp)
@@ -788,6 +791,10 @@ Also set its `no-delete-other-windows' parameter to match."
   (defun project-current-run-command+ ()
     (interactive)
     (project-run-command+ (project-root (project-current))))
+
+  (defun project-emacs.d ()
+    (interactive)
+    (project-run-command+ "/Users/joey/.emacs.d"))
   )
 
 (use-package minibuffer
@@ -1727,7 +1734,9 @@ buffer has a unique name."
 
   ;;; for some reason this is necessary to not start in emacs-state
   (advice-add 'evil-show-registers
-              :after (lambda (&rest r) (evil-change-state evil-default-state))))
+              :after (lambda (&rest r) (evil-change-state evil-default-state)))
+  (add-hook 'post-command-hook #'evil-refresh-cursor)
+  (add-hook 'evil-change-state-hook #'evil-refresh-cursor))
 
 ;; (use-package evil-escape
 ;;   :ensure t
@@ -1782,7 +1791,7 @@ buffer has a unique name."
     (interactive (evil-surround-input-char))
     (call-interactively
      (pcase char
-       (?w #'evil-surround-edit)
+       (?y #'evil-surround-edit)
        (?c #'evil-surround-change)
        (?k #'evil-surround-delete))))
 
@@ -1811,10 +1820,12 @@ buffer has a unique name."
          ("<" . magit-section-up)
          :map evil-leader-state-map-extension
 	 ("g g" . magit-status)
-	 ("g b" . magit-blame)
+	 ("g b" . magit-branch)
+	 ("g h" . magit-blame)
          ("g c" . magit-clone)
-         ("g d" . magit-file-dispatch)
-         ("f g" . magit-file-dispatch))
+         ("g l" . magit-log)
+         ("g d" . magit-diff)
+         ("g f" . magit-file-dispatch))
   :config
   (setq magit-save-repository-buffers 'dontask))
 
@@ -2965,6 +2976,10 @@ or \\[markdown-toggle-inline-images]."
   (global-treesit-auto-mode))
 
 (use-package consult-eglot :ensure t)
+
+(use-package doc-view
+  :bind (:map doc-view-mode-map
+              ("C-t" . nil)))
 
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)

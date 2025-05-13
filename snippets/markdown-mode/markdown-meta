@@ -1,13 +1,15 @@
 # -*- mode: snippet -*-
 # name: markdown-meta
 # key: markdown
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
 # --
 ---
-id:    `(let ((filename (file-name-nondirectory (buffer-file-name))))
-           (string-match "\\([0-9.a-z]\\{12\\}\\).*" filename)
-           (match-string 1 filename))`
-title: `(let ((filename (file-name-nondirectory (buffer-file-name))))
+note:
+  id:    ${1: `(let ((filename (file-name-nondirectory (buffer-file-name))))
+                (string-match "\\([0-9.a-z]\\{12\\}\\).*" filename)
+                (match-string 1 filename))`}
+  title: ${2: `(let ((filename (file-name-nondirectory (buffer-file-name))))
            (string-match "[0-9.a-z]\\{12\\} \\(.*\\).md" filename)
-           (match-string 1 filename))`
-tags:  #new
+           (match-string 1 filename))`}
+  tags:   #new
 ---

@@ -120,6 +120,11 @@
   (evil-range (line-beginning-position)
               (line-end-position)))
 
+(defun evil-inner-line-select ()
+  (interactive)
+  (funcall-interactively #'evil-visual-state)
+  (funcall-interactively #'evil-inner-line))
+
 (evil-add-command-properties 'isearch-forward :jump t)
 (evil-add-command-properties 'isearch-backward :jump t)
 (evil-add-command-properties 'query-replace :jump t)
@@ -264,7 +269,7 @@
 (define-key evil-motion-state-map (kbd "%") 'ignore)
 (define-key evil-motion-state-map (kbd "-") 'ignore)
 (define-key evil-motion-state-map (kbd "&") 'ignore)
-(define-key evil-motion-state-map "V" 'ignore)
+(define-key evil-motion-state-map "V" 'evil-inner-line-select)
 
 ;; text objects
 (define-key evil-outer-text-objects-map "f" 'evil-a-word)
@@ -334,6 +339,8 @@
 (define-key evil-insert-state-map [escape] nil)
 (define-key evil-insert-state-map (kbd "<escape>") 'evil-force-normal-state)
 (define-key evil-insert-state-map (kbd "S-<return>") 'evil-insert-new-line+)
+(global-set-key (kbd "s-t") nil)
+(define-key evil-insert-state-map (kbd "s-t") 'evil-force-normal-state)
 
 ;;; Replace state
 

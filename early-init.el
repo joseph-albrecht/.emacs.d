@@ -51,22 +51,26 @@ or not."
 
 (defvar-local mode-line-buffer-name+
     '(:eval
-      (format " %s" (buffer-name)))
+      (propertize (format "  %s" (buffer-name)) 'face '(:foreground "gray10")))
     "Mode line construct to display the buffer name.")
 
 (put 'mode-line-buffer-name+ 'risky-local-variable t)
 
 (defvar-local mode-line-buffer-modified+
-  '(:eval
-    (when (buffer-file-name)
-      (if (buffer-modified-p) " ●" " ○")))
+    '(:eval
+      (when (buffer-file-name)
+        (if (buffer-modified-p) 
+            (propertize "●"
+                        'face '(:foreground "goldenrod"))
+          (propertize "○"
+                      'face '(:foreground "goldenrod")))))
   "Mode line construct to display if the buffer has been modified.")
 
 (put 'mode-line-buffer-modified+ 'risky-local-variable t)
 
+;; (format "  %s %s" ;;(propertize "𝌭"))
 (defvar-local mode-line-major-mode+
-    '(:eval
-      (format "  𝌭 %s" major-mode))
+    '(:eval (propertize (format "  §%s" major-mode) 'face '(:foreground "gray60")))
     "Mode line construct to display the buffer's major mode.")
 
 (put 'mode-line-major-mode+ 'risky-local-variable t)
@@ -108,7 +112,7 @@ or not."
     '(:eval
       (when (and (fboundp #'eglot-current-server)
                  (eglot-current-server))
-        " ⏿")) ;; ⏿ is not available on Menlo
+        (propertize "⏿" 'face '(:foreground "goldenrod")))) ;; ⏿ is not available on Menlo
   "Mode line construct to display if the current buffer has a linked sesman session.")
 
 (defvar-local mode-line-line-number+
@@ -122,27 +126,27 @@ or not."
               '("%e"
                 " "
                 mode-line-kbd-macro+
+                mode-line-buffer-modified+
                 mode-line-eglot+
                 mode-line-sesman+
-                mode-line-buffer-modified+
                 ;; mode-line-evil-mode+
-                mode-line-line-number+
                 mode-line-buffer-name+
+                "  L%l"
                 mode-line-major-mode+
-                mode-line-git-branch+
+                ;; mode-line-git-branch+
                 ;; mode-line-flymake+
                 ))
 
-(setq-default mode-line-format
-              '("%e"
-                mode-line-kbd-macro+
-                mode-line-eglot+
-                mode-line-sesman+
-                mode-line-buffer-modified+
-                ;; mode-line-evil-mode+
-                mode-line-buffer-name+
-                " L%l"
-                mode-line-major-mode+
-                mode-line-git-branch+
-                ;; mode-line-flymake+
-                ))
+;; (setq-default mode-line-format
+;;               '("%e"
+;;                 mode-line-kbd-macro+
+;;                 mode-line-eglot+
+;;                 mode-line-sesman+
+;;                 mode-line-buffer-modified+
+;;                 ;; mode-line-evil-mode+
+;;                 mode-line-buffer-name+
+;;                 " L%l"
+;;                 mode-line-major-mode+
+;;                 mode-line-git-branch+
+;;                 ;; mode-line-flymake+
+;;                 ))

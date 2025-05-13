@@ -12,7 +12,7 @@
   :input-method t
   :intercept-esc nil)
 
-(setq evil-leader-state-cursor '("black" box))
+(setq evil-leader-state-cursor evil-normal-state-cursor) ;; flashes in the minibuffer if i use black
 (setq evil-emacs-state-cursor '("red" box))
 
 ;; TODO: this doesn't work with C-h to show bound keys
