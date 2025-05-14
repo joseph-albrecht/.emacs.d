@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: markdown-meta
+# name: markdown-note
 # key: markdown
 # expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
 # --
