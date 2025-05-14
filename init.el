@@ -2938,9 +2938,6 @@ or \\[markdown-toggle-inline-images]."
     (define-key evil-visual-state-map (kbd "N") 'drag-stuff-down)
 )
 
-(use-package gptel
-  :ensure t)
-
 (use-package which-key
   :ensure t
   :init
