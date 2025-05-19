@@ -123,7 +123,9 @@
 (defun evil-inner-line-select ()
   (interactive)
   (funcall-interactively #'evil-visual-state)
-  (funcall-interactively #'evil-inner-line))
+  (funcall-interactively #'evil-inner-line)
+  (when (< (point) (mark))
+    (funcall-interactively #'exchange-point-and-mark)))
 
 (evil-add-command-properties 'isearch-forward :jump t)
 (evil-add-command-properties 'isearch-backward :jump t)
@@ -195,6 +197,7 @@
 
 ;;; Motion state
 ;; "0" is a special command when called first
+(define-key evil-motion-state-map (kbd "s-t") 'evil-force-normal-state)
 (define-key evil-motion-state-map "a" 'evil-beginning-of-visual-line)
 (define-key evil-motion-state-map "A" 'evil-first-non-blank)
 (define-key evil-motion-state-map "1" 'digit-argument)
@@ -333,7 +336,7 @@
 (define-key evil-operator-state-map "d" evil-outer-text-objects-map)
 (define-key evil-operator-state-map "i" evil-inner-text-objects-map)
 (define-key evil-operator-shortcut-map "w" 'ignore)
-;; (define-key evil-operator-state-map [escape] 'keyboard-quit)
+(define-key evil-operator-state-map (kbd "s-t") 'evil-force-normal-state)
 
 ;;; Insert state
 (define-key evil-insert-state-map [escape] nil)
@@ -346,6 +349,7 @@
 
 (define-key evil-replace-state-map (kbd "DEL") 'evil-replace-backspace)
 (define-key evil-replace-state-map [escape] 'evil-normal-state)
+(define-key evil-replace-state-map (kbd "s-t") 'evil-force-normal-state)
 
 ;;; Emacs state
 
