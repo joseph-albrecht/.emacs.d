@@ -171,7 +171,19 @@
 
   (setq inhibit-startup-message t)
   (setq ring-bell-function 'ignore)
-  (blink-cursor-mode 0)
+  (blink-cursor-mode 1)
+  (setq blink-cursor-delay 5)
+  (setq blink-cursor-blinks 999)
+  (setq blink-cursor-interval 1)
+
+  (defun my/blink-cursor-start-hook ()
+    "Function to run when cursor blinking starts."
+    (let ((pulsar-pulse t)
+          (pulsar-delay 0.02)
+          (pulsar-iterations 15))
+      (pulsar-pulse-line)))
+
+  (advice-add 'blink-cursor-start :after #'my/blink-cursor-start-hook)
 
   (setq-default fill-column 85)
 
@@ -495,6 +507,7 @@ Also set its `no-delete-other-windows' parameter to match."
   (set-face-attribute 'orderless-match-face-1 nil :overline nil :underline nil :bold t)
   (set-face-attribute 'orderless-match-face-2 nil :overline nil :underline nil :bold t)
   (set-face-attribute 'orderless-match-face-3 nil :overline nil :underline nil :bold t)
+  (set-face-attribute 'region nil :background "khaki2" :foreground "#354b43")
 
   )
 
@@ -1727,9 +1740,9 @@ buffer has a unique name."
   (add-hook 'with-editor-mode-hook 'evil-insert-state)
 
   (setq evil-emacs-state-cursor    '("black" box))
-  (setq evil-insert-state-cursor   '("Royal Blue" (bar . 2)))
-  (setq evil-normal-state-cursor   '("Royal Blue" box))
-  (setq evil-operator-state-cursor '("Royal Blue" (hbar . 2)))
+  (setq evil-insert-state-cursor   '("DarkOliveGreen4" (bar . 2)))
+  (setq evil-normal-state-cursor   '("DarkOliveGreen4" box))
+  (setq evil-operator-state-cursor '("DarkOliveGreen4" (hbar . 2)))
   (evil-mode 1)
 
   ;;; for some reason this is necessary to not start in emacs-state
@@ -2846,7 +2859,8 @@ or \\[markdown-toggle-inline-images]."
   (setq pulsar-pulse t)
   (setq pulsar-delay 0.02)
   (setq pulsar-iterations 20)
-  (setq pulsar-face 'pulsar-green)
+  (setq pulsar-face 'pulsar-generic)
+  (set-face-attribute 'pulsar-generic nil :background "DarkOliveGreen4")
   (setq pulsar-highlight-face 'pulsar-yellow)
   (pulsar-global-mode 1))
 
@@ -2871,6 +2885,9 @@ or \\[markdown-toggle-inline-images]."
   :ensure t
   :hook ((magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
          (magit-post-refresh-hook . diff-hl-magit-post-refresh))
+  :bind (:map evil-leader-state-map-extension
+              ("v d" . diff-hl-mode)
+              ("v D" . global-diff-hl-mode))
   :config
   (global-diff-hl-mode)
   (diff-hl-margin-mode))
@@ -2977,6 +2994,11 @@ or \\[markdown-toggle-inline-images]."
 (use-package doc-view
   :bind (:map doc-view-mode-map
               ("C-t" . nil)))
+
+(use-package olivetti
+  :ensure t
+  :bind (:map evil-leader-state-map-extension
+              ("v o" . olivetti-mode)))
 
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)
