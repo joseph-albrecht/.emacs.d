@@ -541,7 +541,9 @@ Also set its `no-delete-other-windows' parameter to match."
     (interactive)
     (let ((window (selected-window)))
       (occur-mode-goto-occurrence)
-      (select-window window))))
+      (select-window window)))
+  (with-eval-after-load 'replace
+    (define-key query-replace-map "a" (lookup-key query-replace-map "!"))))
 
 (use-package compile
   :after (f evil)
