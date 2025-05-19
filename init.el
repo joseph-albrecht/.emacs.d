@@ -175,13 +175,15 @@
   (setq blink-cursor-delay 5)
   (setq blink-cursor-blinks 999)
   (setq blink-cursor-interval 1)
+  (setq blink-cursor-pulsar nil)
 
   (defun my/blink-cursor-start-hook ()
     "Function to run when cursor blinking starts."
-    (let ((pulsar-pulse t)
-          (pulsar-delay 0.02)
-          (pulsar-iterations 15))
-      (pulsar-pulse-line)))
+    (when blink-cursor-pulsar
+      (let ((pulsar-pulse t)
+            (pulsar-delay 0.02)
+            (pulsar-iterations 15))
+        (pulsar-pulse-line))))
 
   (advice-add 'blink-cursor-start :after #'my/blink-cursor-start-hook)
 
