@@ -30,6 +30,41 @@
     (forward-symbol (or count 1))
     (forward-symbol -1)))
 
+(evil-define-motion evil-jump-item+ (count)
+  "Jump to the matching parenthesis."
+  (interactive)
+  (cond
+   ((looking-at "\\s(") (forward-sexp 1))
+   ((looking-back "\\s)" 1) (backward-sexp 1))
+   (t (forward-sexp 1))))
+
+(evil-define-motion evil-forward-WORD-end+ (count)
+  "Move the cursor to the end of the COUNT-th next WORD."
+  :type inclusive
+  (evil-forward-word-end count t)
+  (if (or (equal evil-state 'visual)
+          (not (memq evil-this-operator evil-change-commands)))
+      (forward-char 1)))
+
+(evil-define-motion evil-find-char+ (count char)
+  "Move the cursor to the end of the COUNT-th next WORD."
+  :type inclusive
+  (interactive "<c><C>")
+  (evil-find-char count char)
+  (when (and (not (memq evil-this-operator evil-change-commands))
+             (not (eq evil-this-operator #'evil-delete)))
+    (forward-char 1) (message "moved! %s" evil-this-operator)))
+
+
+(evil-define-motion evil-find-char-to+ (count char)
+  "Move the cursor to the end of the COUNT-th next WORD."
+  :type inclusive
+  (interactive "<c><C>")
+  (evil-find-char-to count char)
+  (when (and (not (memq evil-this-operator evil-change-commands))
+             (not (eq evil-this-operator #'evil-delete)))
+    (forward-char 1) (message "moved! %s" evil-this-operator)))
+
 (evil-define-motion evil-forward-symbol-end (count)
   (forward-symbol (or count 1)))
 
@@ -198,6 +233,7 @@
 ;;; Motion state
 ;; "0" is a special command when called first
 (define-key evil-motion-state-map (kbd "s-t") 'evil-force-normal-state)
+(define-key evil-motion-state-map (kbd "M-t") 'evil-force-normal-state)
 (define-key evil-motion-state-map "a" 'evil-beginning-of-visual-line)
 (define-key evil-motion-state-map "A" 'evil-first-non-blank)
 (define-key evil-motion-state-map "1" 'digit-argument)
@@ -213,10 +249,10 @@
 (define-key evil-motion-state-map "B" 'evil-backward-WORD-begin)
 (define-key evil-motion-state-map (kbd "M-b") 'evil-backward-symbol)
 (define-key evil-motion-state-map (kbd "C-M-b") 'evil-backward-sexp)
-(define-key evil-motion-state-map (kbd "E") 'evil-forward-WORD-end)
+(define-key evil-motion-state-map (kbd "E") 'evil-forward-WORD-end+)
 (define-key evil-motion-state-map (kbd "M-e") 'evil-forward-symbol-end)
 (define-key evil-motion-state-map (kbd "C-M-e") 'evil-forward-sexp-end)
-(define-key evil-motion-state-map "s" 'evil-find-char)
+(define-key evil-motion-state-map "s" 'evil-find-char+)
 (define-key evil-motion-state-map "S" 'evil-find-char-backward)
 (define-key evil-motion-state-map "h" 'evil-backward-char)
 (define-key evil-motion-state-map "n" 'evil-next-visual-line)
@@ -224,7 +260,7 @@
 (define-key evil-motion-state-map "l" 'evil-forward-char)
 (define-key evil-normal-state-map (kbd "M-/") 'evil-search-previous)
 (define-key evil-normal-state-map (kbd "M-?") 'evil-search-next)
-(define-key evil-motion-state-map "t" 'evil-find-char-to)
+(define-key evil-motion-state-map "t" 'evil-find-char-to+)
 (define-key evil-motion-state-map "T" 'evil-find-char-to-backward)
 (define-key evil-motion-state-map "f" 'evil-forward-word-begin)
 (define-key evil-motion-state-map "F" 'evil-forward-WORD-begin)
@@ -241,13 +277,15 @@
 (define-key evil-motion-state-map "G" 'end-of-buffer)
 (define-key evil-motion-state-map "#" 'evil-search-word-backward)
 (define-key evil-motion-state-map "e" 'move-end-of-line)
-(define-key evil-motion-state-map "," 'evil-jump-item)
+(define-key evil-motion-state-map "," 'evil-jump-item+)
 (define-key evil-motion-state-map "m" 'evil-goto-mark)
 (define-key evil-motion-state-map (kbd "M-m") 'evil-goto-mark-line)
 (define-key evil-motion-state-map "*" 'evil-search-word-forward)
 (define-key evil-motion-state-map "/" 'evil-search-forward)
-(define-key evil-motion-state-map ";" 'evil-repeat-find-char)
 (define-key evil-motion-state-map "?" 'evil-search-backward)
+(define-key evil-motion-state-map ">" 'evil-search-forward)
+(define-key evil-motion-state-map "<" 'evil-search-backward)
+(define-key evil-motion-state-map ";" 'evil-repeat-find-char)
 (define-key evil-motion-state-map (kbd "C-o") 'evil-jump-backward)
 (define-key evil-motion-state-map (kbd "M-o") 'evil-jump-forward)
 (define-key evil-motion-state-map (kbd "RET") nil)
@@ -337,19 +375,25 @@
 (define-key evil-operator-state-map "i" evil-inner-text-objects-map)
 (define-key evil-operator-shortcut-map "w" 'ignore)
 (define-key evil-operator-state-map (kbd "s-t") 'evil-force-normal-state)
+(define-key evil-operator-state-map (kbd "M-t") 'evil-force-normal-state)
 
 ;;; Insert state
 (define-key evil-insert-state-map [escape] nil)
 (define-key evil-insert-state-map (kbd "<escape>") 'evil-force-normal-state)
 (define-key evil-insert-state-map (kbd "S-<return>") 'evil-insert-new-line+)
 (global-set-key (kbd "s-t") nil)
+(global-set-key (kbd "M-t") nil)
 (define-key evil-insert-state-map (kbd "s-t") 'evil-force-normal-state)
+(define-key evil-insert-state-map (kbd "M-t") 'evil-force-normal-state)
+(define-key evil-emacs-state-map (kbd "s-t") 'evil-force-normal-state)
+(define-key evil-emacs-state-map (kbd "M-t") 'evil-force-normal-state)
 
 ;;; Replace state
 
 (define-key evil-replace-state-map (kbd "DEL") 'evil-replace-backspace)
 (define-key evil-replace-state-map [escape] 'evil-normal-state)
 (define-key evil-replace-state-map (kbd "s-t") 'evil-force-normal-state)
+(define-key evil-replace-state-map (kbd "M-t") 'evil-force-normal-state)
 
 ;;; Emacs state
 

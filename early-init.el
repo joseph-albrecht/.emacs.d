@@ -131,7 +131,9 @@ or not."
                 mode-line-sesman+
                 ;; mode-line-evil-mode+
                 mode-line-buffer-name+
-                "  L%l"
+                " "
+                mode-line-evil-mode+
+                " L%l"
                 mode-line-major-mode+
                 ;; mode-line-git-branch+
                 ;; mode-line-flymake+

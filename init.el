@@ -172,7 +172,7 @@
   (setq inhibit-startup-message t)
   (setq ring-bell-function 'ignore)
   (blink-cursor-mode 1)
-  (setq blink-cursor-delay 5)
+  (setq blink-cursor-delay 1)
   (setq blink-cursor-blinks 999)
   (setq blink-cursor-interval 1)
   (setq blink-cursor-pulsar nil)
@@ -397,22 +397,14 @@
   (defun run-command-with-default-dir (dir)
   "Run an Embark-chosen command as if DIR were `default-directory'."
   (interactive (list (read-directory-name "Run in directory: ")))
+    (message (concat "Waiting for command to run in: " dir))
   (let* ((default-directory dir)
-         ;; Either *don’t* touch the variable at all…
-         ;; (project-current-directory-override nil)
-
-         ;; …or, if you really want to force project.el to treat DIR as
-         ;; the current project root (and thus silence any prompt),
-         ;; bind it to the *directory string*, not t:
-         ;; (project-current-directory-override dir)
-
          (map (make-composed-keymap
                (list evil-leader-state-map (current-global-map))))
-         (cmd (funcall (symbol-value embark-prompter)  ; ensure it’s a function
+         (cmd (funcall (symbol-function embark-prompter)  ; ensure it’s a function
                        map
                        #'identity)))
     (call-interactively cmd)))
-
 
   (setq regexp-char-classes
         '("[:ascii:]"
@@ -454,6 +446,7 @@ Also set its `no-delete-other-windows' parameter to match."
       (if (and dir (file-directory-p dir))
           (insert dir)
         (message "Not a valid directory!"))))
+
   (global-hl-line-mode t)
   (setq hl-line-sticky-flag nil)
 
@@ -487,31 +480,49 @@ Also set its `no-delete-other-windows' parameter to match."
     "Remove all text properties from the given string STR."
     (set-text-properties 0 (length str) nil str)
     str)
+  (defun my-show-paren-outside-delimiters (orig-fn)
+    "Extend show-paren-mode to work when point is outside delimiters."
+    (cond
+     ;; Check if we're just before an opening delimiter
+     ((and (fboundp 'evil-insert-state-p) (evil-insert-state-p))
+      (funcall orig-fn))
+     ((and (looking-at "\\s("))
+      (funcall orig-fn))
+     ;; Check if we're just after a closing delimiter
+     ((and (looking-back "\\s)" 1))
+      (save-excursion
+        (backward-char 1)
+        (funcall orig-fn)))
+     (t (funcall orig-fn))))
 
-
-
-
-  )
+  (advice-add 'show-paren-function :around #'my-show-paren-outside-delimiters))
 
 (use-package solarized-theme
   :after (org orderless)
   :ensure t
   :config
-  (load-theme 'solarized-light t)
+  (defun load-solarized-light+ ()
+    (interactive)
+    (load-theme 'solarized-light t)
 
-  (set-face-attribute 'org-headline-done nil :strike-through t)
-  (set-face-attribute 'org-level-1 nil :height 1.0 :inherit 'default)
-  (set-face-attribute 'org-level-2 nil :height 1.0 :inherit 'default)
-  (set-face-attribute 'org-level-3 nil :height 1.0 :inherit 'default)
-  (set-face-attribute 'org-level-4 nil :height 1.0 :inherit 'default)
+    (set-face-attribute 'org-headline-done nil :strike-through t)
+    (set-face-attribute 'org-level-1 nil :height 1.0 :inherit 'default)
+    (set-face-attribute 'org-level-2 nil :height 1.0 :inherit 'default)
+    (set-face-attribute 'org-level-3 nil :height 1.0 :inherit 'default)
+    (set-face-attribute 'org-level-4 nil :height 1.0 :inherit 'default)
 
-  (set-face-attribute 'orderless-match-face-0 nil :overline nil :underline nil :bold t)
-  (set-face-attribute 'orderless-match-face-1 nil :overline nil :underline nil :bold t)
-  (set-face-attribute 'orderless-match-face-2 nil :overline nil :underline nil :bold t)
-  (set-face-attribute 'orderless-match-face-3 nil :overline nil :underline nil :bold t)
-  (set-face-attribute 'region nil :background "khaki2" :foreground "#354b43")
+    (set-face-attribute 'orderless-match-face-0 nil :overline nil :underline nil :bold t)
+    (set-face-attribute 'orderless-match-face-1 nil :overline nil :underline nil :bold t)
+    (set-face-attribute 'orderless-match-face-2 nil :overline nil :underline nil :bold t)
+    (set-face-attribute 'orderless-match-face-3 nil :overline nil :underline nil :bold t)
+    (set-face-attribute 'region nil :background "khaki2" :foreground "#354b43")
 
-  )
+    (set-face-attribute 'hl-line nil :background "#dfdfca")))
+
+(use-package ef-themes
+  :ensure t
+  :config
+  (load-theme 'ef-elea-light))
 
 (use-package grep
   :after (compile)
@@ -569,6 +580,7 @@ Also set its `no-delete-other-windows' parameter to match."
   :config
   (setq compilation-environment '("TERM=tmux-256color"))
   (setq compilation-scroll-output t)
+  (setq compilation-ask-about-save nil)
 
   (defun compile-goto-error-no-select ()
     (interactive)
@@ -687,6 +699,9 @@ Also set its `no-delete-other-windows' parameter to match."
 (use-package ansi-color
   :ensure nil
   :hook (compilation-filter-hook . (lambda () (ansi-color-apply-on-region compilation-filter-start (point)))))
+
+(add-to-list 'auto-mode-alist '("\\.bb\\'" . clojure-mode))
+(add-to-list 'interpreter-mode-alist '("bb" . clojure-mode))
 
 ;;; TODO: i'd prefer to use a normal key-map here. can i write something?
 (use-package project
@@ -1693,6 +1708,15 @@ buffer has a unique name."
   :ensure t
   :demand t
   :config
+  (setq evil-visual-char 'exclusive)
+  (defun visual-block-setup+ (orig-fn &rest args)
+    "Move point forward one char when entering visual block mode."
+    (apply orig-fn args)
+    (when (and (evil-visual-state-p)
+               (eq evil-visual-selection 'block))
+      (forward-char 1)))
+  (setq evil-visual-block 'rectangle)
+  (advice-add 'evil-visual-block :around #'visual-block-setup+)
   (setq evil-respect-visual-line-mode t)
   (setq evil-echo-state nil)
   (setq-default evil-symbol-word-search t)
@@ -2153,6 +2177,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :ensure nil
   :commands (tab-bar-goto-misc+)
   :bind (("C-{" . tab-bar-switch-to-next-tab)
+         ("s-'" . tab-bar-select-tab-by-name)
          ("C-}" . tab-bar-switch-to-prev-tab)
          ("C-M-{" . tab-bar-move-tab)
          ("C-M-}" . tab-bar-move-tab-backward)
@@ -2326,11 +2351,9 @@ most recent, and so on."
          ("c -" . org-decrease-number-at-point)
          ("o l" . open-log-file+)
          ("n p" . project-dir-notes)
-         ("n t" . org-open-todos )
          ("n f" . find-file-notebox)
          ("n d" . open-log-file+))
   :config
-  (defun org-open-todos () (interactive) (find-file org-todo-file))
   (setq org-startup-folded 'showeverything)
   (setq org-property-format  "%-12s %s")
   (setq org-image-actual-width nil)
@@ -2595,7 +2618,7 @@ most recent, and so on."
               ("C-c r" . random-line-jump)
               ("C-c a" . add-task-to-list)
               ("C-c d" . duplicate-task-at-point)
-              ("C-c o" . markdown-follow-thing-at-point))
+              ("C-c o" . markdown-follow-thing-at-point+))
   :config
   (defface my-markdown-highlight-face
     '((t (:background "yellow")))
@@ -2777,6 +2800,9 @@ or \\[markdown-toggle-inline-images]."
                       (overlay-put ov 'display image)
                       (overlay-put ov 'face 'default)
                       (push ov markdown-inline-image-overlays)))))))))))
+
+  (setq zettelkasten-id-regexp "[0-9]\\{2\\}\\.[0-9]\\{4\\}\\.[0-9]\\{4\\}")
+
   )
 
 (defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
@@ -2854,11 +2880,11 @@ or \\[markdown-toggle-inline-images]."
               ("v p" . pulsar-global-mode))
   :custom
   (pulsar-pulse-functions '(recenter-top-bottom move-to-window-line-top-bottom reposition-window bookmark-jump other-window delete-window delete-other-windows forward-page backward-page scroll-up-command scroll-down-command windmove-right windmove-left windmove-up windmove-down windmove-swap-states-right windmove-swap-states-left windmove-swap-states-up windmove-swap-states-down tab-new tab-close tab-next org-next-visible-heading org-previous-visible-heading org-forward-heading-same-level org-backward-heading-same-level outline-backward-same-level outline-forward-same-level outline-next-visible-heading outline-previous-visible-heading outline-up-heading copy-window imenu switch-to-buffer magit-status open-init consult-buffer evil-goto-first-line evil-goto-line evil-jump-backward evil-jump-forward last-buffer elfeed))
-  :hook (focus-in-hook . pulsar-pulse-line)
+  ;; :hook (focus-in-hook . pulsar-pulse-line)
   :config
 
-  (advice-add 'consult-buffer :after #'pulsar-recenter-middle)
-  (advice-add 'consult-imenu :after #'pulsar-recenter-middle)
+  ;; (advice-add 'consult-buffer :after #'pulsar-recenter-middle)
+  ;; (advice-add 'consult-imenu :after #'pulsar-recenter-middle)
 
   (setq pulsar-pulse t)
   (setq pulsar-delay 0.02)
@@ -2866,7 +2892,7 @@ or \\[markdown-toggle-inline-images]."
   (setq pulsar-face 'pulsar-generic)
   (set-face-attribute 'pulsar-generic nil :background "DarkOliveGreen4")
   (setq pulsar-highlight-face 'pulsar-yellow)
-  (pulsar-global-mode 1))
+  (pulsar-global-mode t))
 
 (use-package devdocs
   :after (embark)
@@ -3003,6 +3029,49 @@ or \\[markdown-toggle-inline-images]."
   :ensure t
   :bind (:map evil-leader-state-map-extension
               ("v o" . olivetti-mode)))
+
+;; (use-package isearch
+;;   :ensure nil
+;;   :bind (:map isearch-mode-map
+;;               ("C-<return>" . isearch-exit-other-end))
+;;   :config
+;; (defun isearch-exit-other-end ()
+;;   "Exit isearch, at the opposite end of the string."
+;;   (interactive)
+;;   (isearch-exit)
+;;   (goto-char isearch-other-end)))
+
+(use-package dired-preview
+  :ensure t
+  :bind (:map dired-mode-map
+              ("C-c p" . dired-preview-mode)
+              ("C-c P" . dired-preview-global-mode)))
+
+(use-package isearch-mb
+  :ensure t)
+
+(use-package cider
+  :ensure t)
+
+(use-package kkp
+  :ensure t
+  :config
+  (global-kkp-mode +1))
+
+
+(use-package lispy
+  :ensure t)
+
+(use-package evil-lispy
+  :after (evil)
+  :load-path my-package-dir
+  :demand t
+  :bind (:map evil-leader-state-map-extension
+              (". y" . evil-lispy-state+))
+  :config
+  (setq evil-lispy-state-cursor   '("dark blue" (box . 2))))
+
+(setq duplicate-line-final-position 1)
 
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)
