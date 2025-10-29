@@ -50,20 +50,51 @@
   "Move the cursor to the end of the COUNT-th next WORD."
   :type inclusive
   (interactive "<c><C>")
-  (evil-find-char count char)
-  (when (and (not (memq evil-this-operator evil-change-commands))
-             (not (eq evil-this-operator #'evil-delete)))
-    (forward-char 1) (message "moved! %s" evil-this-operator)))
+  (setq count (or count 1))
+  (let ((fwd (> count 0))
+        (visual (and evil-respect-visual-line-mode visual-line-mode))
+        (start (point))
+        case-fold-search)
+    (setq evil-last-find (list #'evil-find-char+ char fwd))
+    (unless (prog1
+                (search-forward
+                 (char-to-string char)
+                 (cond (evil-cross-lines nil)
+                       ((and fwd visual)
+                        (save-excursion
+                          (end-of-visual-line)
+                          (point)))
+                       (fwd (line-end-position))
+                       (visual
+                        (save-excursion
+                          (beginning-of-visual-line)
+                          (point)))
+                       (t (line-beginning-position)))
+                 t count)
+              (when (and fwd
+                         (not (equal start (point)))
+                         (or (memq evil-this-operator evil-change-commands)
+                             (eq evil-this-operator #'evil-delete)))
+                (backward-char)))
+      (user-error "Can't find `%c'" char))))
 
 
 (evil-define-motion evil-find-char-to+ (count char)
   "Move the cursor to the end of the COUNT-th next WORD."
   :type inclusive
   (interactive "<c><C>")
-  (evil-find-char-to count char)
-  (when (and (not (memq evil-this-operator evil-change-commands))
-             (not (eq evil-this-operator #'evil-delete)))
-    (forward-char 1) (message "moved! %s" evil-this-operator)))
+  (let ((start (point))
+        adjust-start)
+    (unwind-protect
+        (progn
+          (backward-char -1)
+          (setq adjust-start (point))
+          (evil-find-char+ count char)
+          (setcar evil-last-find #'evil-find-char-to+)))
+    (cond ((equal (point) adjust-start) (goto-char start))
+          ((equal (point) start) nil)
+          ((> (or count 1) 0) (backward-char))
+          (t (forward-char)))))
 
 (evil-define-motion evil-forward-symbol-end (count)
   (forward-symbol (or count 1)))
@@ -274,6 +305,7 @@
 (define-key evil-motion-state-map "gr" 'xref-find-references)
 (define-key evil-motion-state-map "gg" 'beginning-of-buffer)
 (define-key evil-motion-state-map "gq" 'fill-region)
+(define-key evil-motion-state-map "gb" 'beginning-of-defun)
 (define-key evil-motion-state-map "G" 'end-of-buffer)
 (define-key evil-motion-state-map "#" 'evil-search-word-backward)
 (define-key evil-motion-state-map "e" 'move-end-of-line)

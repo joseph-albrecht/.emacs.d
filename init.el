@@ -65,6 +65,8 @@
          ("s--" . delete-window)
          ("s-+" . copy-window)
 
+         :map emacs-lisp-mode-map
+         ("C-c C-e" . nil)
          :map isearch-mode-map
          ("C-g" . isearch-abort+)
          :map minibuffer-mode-map
@@ -483,16 +485,20 @@ Also set its `no-delete-other-windows' parameter to match."
   (defun my-show-paren-outside-delimiters (orig-fn)
     "Extend show-paren-mode to work when point is outside delimiters."
     (cond
-     ;; Check if we're just before an opening delimiter
      ((and (fboundp 'evil-insert-state-p) (evil-insert-state-p))
       (funcall orig-fn))
      ((and (looking-at "\\s("))
       (funcall orig-fn))
-     ;; Check if we're just after a closing delimiter
      ((and (looking-back "\\s)" 1))
       (save-excursion
         (backward-char 1)
         (funcall orig-fn)))
+     ((and (looking-at "\\s)")
+           (not (looking-back "\\s)" 1)))
+      (progn
+          (delete-overlay show-paren--overlay)
+          (delete-overlay show-paren--overlay-1)
+          (setq show-paren--last-pos (point))))
      (t (funcall orig-fn))))
 
   (advice-add 'show-paren-function :around #'my-show-paren-outside-delimiters))
@@ -2677,7 +2683,7 @@ most recent, and so on."
       (forward-line (- (+ start (random (+ 1 (- end start))))
                          (line-number-at-pos)))
       (message (buffer-substring-no-properties (line-beginning-position) (line-end-position)))))
-  
+
   (defun random-line-jump (start end)
     (interactive (if (region-active-p)
                      (list (line-number-at-pos (caar (region-bounds)))
@@ -2873,11 +2879,19 @@ or \\[markdown-toggle-inline-images]."
   (setq help-at-pt-display-when-idle t)
   (setq help-at-pt-timer-delay 1.0))
 
+
+(+ 1 1)
+
 (use-package pulsar
   :ensure t
-  :bind (:map evil-leader-state-map-extension
+  :bind (("C-x C-e" . eval-last-sexp+)
+         :map evil-leader-state-map-extension
               ("RET" . pulsar-pulse-line)
-              ("v p" . pulsar-global-mode))
+              ("v p" . pulsar-global-mode)
+              ("e l" . eval-last-sexp+)
+         :map cider-mode-map
+              ("C-c C-e" . cider-eval+)
+              ("C-x C-e" . cider-eval+))
   :custom
   (pulsar-pulse-functions '(recenter-top-bottom move-to-window-line-top-bottom reposition-window bookmark-jump other-window delete-window delete-other-windows forward-page backward-page scroll-up-command scroll-down-command windmove-right windmove-left windmove-up windmove-down windmove-swap-states-right windmove-swap-states-left windmove-swap-states-up windmove-swap-states-down tab-new tab-close tab-next org-next-visible-heading org-previous-visible-heading org-forward-heading-same-level org-backward-heading-same-level outline-backward-same-level outline-forward-same-level outline-next-visible-heading outline-previous-visible-heading outline-up-heading copy-window imenu switch-to-buffer magit-status open-init consult-buffer evil-goto-first-line evil-goto-line evil-jump-backward evil-jump-forward last-buffer elfeed))
   ;; :hook (focus-in-hook . pulsar-pulse-line)
@@ -2892,7 +2906,83 @@ or \\[markdown-toggle-inline-images]."
   (setq pulsar-face 'pulsar-generic)
   (set-face-attribute 'pulsar-generic nil :background "DarkOliveGreen4")
   (setq pulsar-highlight-face 'pulsar-yellow)
-  (pulsar-global-mode t))
+  (pulsar-global-mode t)
+
+  (setq eval-expression-print-length nil)
+  (setq eval-expression-print-level nil)
+
+  (defun my-remove-result-overlay ()
+    "Remove result overlay from current buffer.
+This function also removes itself from `post-command-hook'."
+    (remove-hook 'post-command-hook #'my-remove-result-overlay 'local)
+    (remove-overlays nil nil 'category 'result))
+
+  (defun my-remove-result-overlay-after-command ()
+    "Add `my-remove-result-overlay' locally to `post-command-hook'.
+This function also removes itself from `post-command-hook'."
+    (remove-hook 'post-command-hook #'my-remove-result-overlay-after-command 'local)
+    (add-hook 'post-command-hook #'my-remove-result-overlay nil 'local))
+
+  (defun display-result-overlay (value pos)
+  "Display VALUE as an overlay at POS. Remove on next command."
+  (let* ((display-string (propertize (format " => %s" value)
+                                     'face 'cider-result-overlay-face))
+         (ov (make-overlay pos pos)))
+    ;; Critical: set cursor property to prevent cursor displacement
+    (put-text-property 0 1 'cursor 0 display-string)
+    
+    (overlay-put ov 'category 'result)
+    (overlay-put ov 'after-string display-string)
+    
+    (if this-command
+        (add-hook 'post-command-hook
+                  #'my-remove-result-overlay-after-command
+                  nil 'local)
+      (my-remove-result-overlay-after-command))))
+
+  
+
+  
+
+
+
+  (defun eval-last-sexp+ ()
+    (interactive)
+    (let (beg end result)
+      (cond ((looking-back "\\s)" 1)
+             (setq end (point))
+             (setq beg (save-excursion (evil-jump-item+ 1) (point))))
+            ((looking-at-p "\\s(")
+             (setq beg (point))
+             (setq end (save-excursion (evil-jump-item+ 1) (point))))
+            ((bounds-of-thing-at-point 'symbol)
+             (let ((sexp-bounds (bounds-of-thing-at-point 'symbol)))
+               (setq beg (car sexp-bounds))
+               (setq end (cdr sexp-bounds)))))
+      (if (not (and beg end))
+          (message "No sexp found!")
+        (pulsar--pulse nil pulsar-region-face beg end)
+        (setq result (eval (read (buffer-substring-no-properties beg end))))
+        (message "%s" result)
+        (display-result-overlay result (save-excursion (end-of-line) (point))))))
+
+  (defun cider-eval+ (&optional OUTPUT-TO-CURRENT-BUFFER)
+    (interactive)
+    (let (beg end)
+      (cond ((looking-back "\\s)" 1)
+             (setq end (point))
+             (setq beg (save-excursion (evil-jump-item+ 1) (point))))
+            ((looking-at-p "\\s(")
+             (setq beg (point))
+             (setq end (save-excursion (evil-jump-item+ 1) (point))))
+            ((bounds-of-thing-at-point 'symbol)
+             (let ((sexp-bounds (bounds-of-thing-at-point 'symbol)))
+               (setq beg (car sexp-bounds))
+               (setq end (cdr sexp-bounds)))))
+      (if (not (and beg end))
+          (message "No sexp found!")
+        (pulsar--pulse nil pulsar-region-face beg end)
+        (cider-eval-region beg end)))))
 
 (use-package devdocs
   :after (embark)

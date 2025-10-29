@@ -114,6 +114,15 @@
 (define-key evil-visual-state-map (kbd "- r") 'lispy-raise)
 (define-key evil-normal-state-map (kbd "- <") 'lispy-slurp-or-barf-left)
 (define-key evil-normal-state-map (kbd "- >") 'lispy-slurp-or-barf-right)
+(define-key evil-normal-state-map (kbd "- b") 'lispy-forward-barf-sexp)
+(define-key evil-normal-state-map (kbd "- s") 'lispy-forward-slurp-sexp)
+(define-key evil-motion-state-map (kbd "g l") 'lispy-left)
+(define-key evil-motion-state-map (kbd "gap") 'lispy-ace-paren)
+(define-key evil-motion-state-map (kbd "gas") 'lispy-ace-symbol)
+;; only seems to work from the special position
+;; todo: rewrite so that it doesn't mark and it works on the entire defun
+(define-key evil-motion-state-map (kbd "gac") 'lispy-ace-char)
+
 
 (defun my-bounds-of-quoted-symbol-at-point ()
   "Return bounds of symbol including quote prefixes like ' and #'."
