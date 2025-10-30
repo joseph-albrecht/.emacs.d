@@ -22,3 +22,8 @@ devdocs/
 eshell/
 org-roam.db
 request/
+.DS_Store
+/#*
+/image-dired
+/tramp
+/tree-sitter
