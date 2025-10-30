@@ -2962,7 +2962,10 @@ This function also removes itself from `post-command-hook'."
                (setq end (cdr sexp-bounds)))))
       (if (not (and beg end))
           (message "No sexp found!")
-        (pulsar--pulse nil pulsar-region-face beg end)
+        (let ((pulsar-pulse t)
+            (pulsar-delay 0.01)
+            (pulsar-iterations 15))
+        (pulsar--pulse nil pulsar-region-face beg end))
         (setq result (eval (read (buffer-substring-no-properties beg end))))
         (message "%s" result)
         (display-result-overlay result (save-excursion (end-of-line) (point))))))
@@ -2982,7 +2985,10 @@ This function also removes itself from `post-command-hook'."
                (setq end (cdr sexp-bounds)))))
       (if (not (and beg end))
           (message "No sexp found!")
-        (pulsar--pulse nil pulsar-region-face beg end)
+        (let ((pulsar-pulse t)
+            (pulsar-delay 0.01)
+            (pulsar-iterations 15))
+        (pulsar--pulse nil pulsar-region-face beg end))
         (cider-eval-region beg end)))))
 
 (use-package devdocs
