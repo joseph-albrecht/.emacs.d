@@ -3157,7 +3157,21 @@ This function also removes itself from `post-command-hook'."
 
 
 (use-package lispy
-  :ensure t)
+  :after (evil)
+  :ensure t
+  :bind (:map evil-normal-state-map
+              ("- r" . lispy-raise)
+              ("- <" . lispy-slurp-or-barf-left)
+              ("- >" . lispy-slurp-or-barf-right)
+              ("- b" . lispy-forward-barf-sexp)
+              ("- s" . lispy-forward-slurp-sexp)
+         :map evil-motion-state-map
+              ("g l" . lispy-left)
+              ("gap" . lispy-ace-paren)
+              ("gas" . lispy-ace-symbol)
+              ("gac" . lispy-ace-char)
+         :map evil-visual-state-map
+              ("- r" . lispy-raise)))
 
 (use-package evil-lispy
   :after (evil)

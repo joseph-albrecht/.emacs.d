@@ -186,6 +186,24 @@
   (evil-range (line-beginning-position)
               (line-end-position)))
 
+
+(defun my-bounds-of-quoted-symbol-at-point ()
+  "Return bounds of symbol including quote prefixes like ' and #'."
+  (let ((bounds (bounds-of-thing-at-point 'symbol)))
+    (when bounds
+      (save-excursion
+        (goto-char (car bounds))
+        ;; Check for #' or ' before the symbol
+        (when (looking-back "#?'" (- (point) 2))
+          (setcar bounds (match-beginning 0)))
+        bounds))))
+
+(evil-define-text-object my-evil-quoted-symbol (count &optional beg end type)
+  "Select a symbol including its quote prefix."
+  (let ((bounds (my-bounds-of-quoted-symbol-at-point)))
+    (when bounds
+      (list (car bounds) (cdr bounds)))))
+
 (defun evil-inner-line-select ()
   (interactive)
   (funcall-interactively #'evil-visual-state)
@@ -363,6 +381,8 @@
 (define-key evil-outer-text-objects-map "t" 'evil-a-tag)
 (define-key evil-outer-text-objects-map "o" 'evil-a-symbol)
 (define-key evil-outer-text-objects-map "l" 'evil-outer-line)
+(define-key evil-outer-text-objects-map "q" 'my-evil-quoted-symbol)
+(define-key evil-inner-text-objects-map "q" 'my-evil-quoted-symbol)
 (define-key evil-inner-text-objects-map "f" 'evil-inner-word)
 (define-key evil-inner-text-objects-map "F" 'evil-inner-WORD)
 (define-key evil-inner-text-objects-map "s" 'evil-inner-sentence)

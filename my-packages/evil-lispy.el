@@ -25,8 +25,6 @@
   (setq-local evil-emacs-state-cursor evil-emacs-state-cursor-original)
   (evil-force-normal-state))
 
-
-
 (setq lispy-mode-map
       (let ((map (make-sparse-keymap)))
         ;; navigation
@@ -109,41 +107,5 @@
 (setcdr
    (assq 'lispy-mode minor-mode-map-alist)
    lispy-mode-map)
-
-(define-key evil-normal-state-map (kbd "- r") 'lispy-raise)
-(define-key evil-visual-state-map (kbd "- r") 'lispy-raise)
-(define-key evil-normal-state-map (kbd "- <") 'lispy-slurp-or-barf-left)
-(define-key evil-normal-state-map (kbd "- >") 'lispy-slurp-or-barf-right)
-(define-key evil-normal-state-map (kbd "- b") 'lispy-forward-barf-sexp)
-(define-key evil-normal-state-map (kbd "- s") 'lispy-forward-slurp-sexp)
-(define-key evil-motion-state-map (kbd "g l") 'lispy-left)
-(define-key evil-motion-state-map (kbd "gap") 'lispy-ace-paren)
-(define-key evil-motion-state-map (kbd "gas") 'lispy-ace-symbol)
-;; only seems to work from the special position
-;; todo: rewrite so that it doesn't mark and it works on the entire defun
-(define-key evil-motion-state-map (kbd "gac") 'lispy-ace-char)
-
-
-(defun my-bounds-of-quoted-symbol-at-point ()
-  "Return bounds of symbol including quote prefixes like ' and #'."
-  (let ((bounds (bounds-of-thing-at-point 'symbol)))
-    (when bounds
-      (save-excursion
-        (goto-char (car bounds))
-        ;; Check for #' or ' before the symbol
-        (when (looking-back "#?'" (- (point) 2))
-          (setcar bounds (match-beginning 0)))
-        bounds))))
-
-(with-eval-after-load 'evil
-  (evil-define-text-object my-evil-quoted-symbol (count &optional beg end type)
-    "Select a symbol including its quote prefix."
-    (let ((bounds (my-bounds-of-quoted-symbol-at-point)))
-      (when bounds
-        (list (car bounds) (cdr bounds)))))
-  
-  ;; Bind it, e.g., to 'q' for "quoted symbol"
-  (define-key evil-inner-text-objects-map "q" 'my-evil-quoted-symbol)
-  (define-key evil-outer-text-objects-map "q" 'my-evil-quoted-symbol))
 
 (provide 'evil-lispy)
