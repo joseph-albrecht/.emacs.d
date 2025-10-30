@@ -132,6 +132,7 @@
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/sbin"))
     (setq exec-path (append exec-path (list "/opt/homebrew/sbin"))))
 
+  (setq resize-mini-windows t)
   (setq split-width-threshold 120
 	split-height-threshold 9999)
   (setq display-buffer-alist
