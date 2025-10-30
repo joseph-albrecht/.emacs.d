@@ -483,7 +483,7 @@ Also set its `no-delete-other-windows' parameter to match."
     "Remove all text properties from the given string STR."
     (set-text-properties 0 (length str) nil str)
     str)
-  (defun my-show-paren-outside-delimiters (orig-fn)
+  (defun show-paren-on-outside+ (orig-fn)
     "Extend show-paren-mode to work when point is outside delimiters."
     (cond
      ((and (fboundp 'evil-insert-state-p) (evil-insert-state-p))
@@ -502,7 +502,7 @@ Also set its `no-delete-other-windows' parameter to match."
           (setq show-paren--last-pos (point))))
      (t (funcall orig-fn))))
 
-  (advice-add 'show-paren-function :around #'my-show-paren-outside-delimiters))
+  (advice-add 'show-paren-function :around #'show-paren-on-outside+))
 
 (use-package solarized-theme
   :after (org orderless)
