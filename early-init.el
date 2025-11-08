@@ -112,7 +112,9 @@ or not."
     '(:eval
       (when (and (fboundp #'eglot-current-server)
                  (eglot-current-server))
-        (propertize "⏿" 'face '(:foreground "goldenrod")))) ;; ⏿ is not available on Menlo
+        (propertize "⏿"
+                    'face '(:foreground "goldenrod")
+                    'help-echo "Eglot is on."))) ;; ⏿ is not available on Menlo
   "Mode line construct to display if the current buffer has a linked sesman session.")
 
 (defvar-local mode-line-line-number+

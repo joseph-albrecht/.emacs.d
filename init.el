@@ -1,6 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 ;; packages to try
-;; https://github.com/emacs-citar/citar
+;;   - https://github.com/florommel/bufferlo
+;;   - https://github.com/emacs-citar/citar
 ;; debug something something for jira ticket number clicking
 ;; try to fix vterm window sizing issue
 ;; vertico float for ultra tall mode
@@ -1812,6 +1813,7 @@ buffer has a unique name."
   :demand t
   :ensure t
   :config
+  ;;todo: visual surround shouldn't go to left-most part of region. point stay in place
   (defun evil-surround-read-string ()
     (let ((delimiter (if (evil-operator-state-p)
                          (save-restriction (widen) (read-string "delimiter: "))
@@ -3079,8 +3081,7 @@ This function also removes itself from `post-command-hook'."
     (define-key evil-motion-state-map (kbd "P") 'drag-stuff-up)
     (define-key evil-motion-state-map (kbd "N") 'drag-stuff-down)
     (define-key evil-visual-state-map (kbd "P") 'drag-stuff-up)
-    (define-key evil-visual-state-map (kbd "N") 'drag-stuff-down)
-)
+    (define-key evil-visual-state-map (kbd "N") 'drag-stuff-down))
 
 (use-package which-key
   :ensure t
@@ -3155,7 +3156,6 @@ This function also removes itself from `post-command-hook'."
   :config
   (global-kkp-mode +1))
 
-
 (use-package lispy
   :after (evil)
   :ensure t
@@ -3165,6 +3165,7 @@ This function also removes itself from `post-command-hook'."
               ("- >" . lispy-slurp-or-barf-right)
               ("- b" . lispy-forward-barf-sexp)
               ("- s" . lispy-forward-slurp-sexp)
+              ("- c" . lispy-clone)
          :map evil-motion-state-map
               ("g l" . lispy-left)
               ("gap" . lispy-ace-paren)
@@ -3186,9 +3187,6 @@ This function also removes itself from `post-command-hook'."
 
 (kill-buffer "*scratch*")
 (setq debug-on-error nil)
-
-(debug-on-entry 'set-window-dedicated-p)
-(cancel-debug-on-entry 'set-window-dedicated-p)
 
 (remove-hook 'embark-collect-mode-hook #'make-non-dedicated-window)
 (put 'scroll-left 'disabled nil)
