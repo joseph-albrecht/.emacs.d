@@ -373,13 +373,13 @@
             current-prefix-arg)))
 
   (defun shell-command-on-region+ (start end command &optional output)
-    (interactive (let ((start (if (region-active-p) (region-beginning) (point)))
-                       (end (if (region-active-p) (region-end)       (point)))
-                       (output (if current-prefix-arg
-                                   (intern (completing-read "output: " '(buffer echo replace)))
-                                 'replace))
-                       (command (read-shell-command "Shell command on region: "))
-                       )
+    (interactive (let* ((vertico-sort-override-function #'identity)
+                        (start (if (region-active-p) (region-beginning) (point)))
+                        (end (if (region-active-p) (region-end)       (point)))
+                        (output (if current-prefix-arg
+                                    (intern (completing-read "output: " '(replace echo buffer)))
+                                  'replace))
+                        (command (read-shell-command "Shell command on region: ")))
                    (list start end command output)))
     (let ((buffer (when (equal output 'buffer)
                     (get-buffer-create (format "*shell-command* (%s) %s"
@@ -2873,17 +2873,43 @@ or \\[markdown-toggle-inline-images]."
   :hook (flymake-mode-hook . (lambda () (cond
                                          (flymake-mode (help-at-pt-set-timer))
                                          (t            (help-at-pt-cancel-timer)))))
-  :bind (:map evil-leader-state-map-extension
+  :bind (:map evil-normal-state-map
+              ("g n" . flymake-goto-next-error)
+              ("g p" . flymake-goto-prev-error)
+              :map evil-leader-state-map-extension
               ("m a" . flymake-show-project-diagnostics)
               ("m n" . flymake-goto-next-error)
               ("m p" . flymake-goto-prev-error)
-              ("m c" . consult-flymake))
+              ("m c" . consult-flymake)
+         :map flymake-project-diagnostics-mode-map
+              ("M-n" . flymake-show-next-error+)
+              ("M-p" . flymake-show-previous-error+)
+              ("S-<return>" . flymake-show-previous-error+))
   :config
+
+  (defun flymake-show-current-error+ ()
+    (interactive)
+    (let ((window (selected-window)))
+      (push-button)
+      (select-window window)))
+
+  (defun flymake-show-next-error+ ()
+    (interactive)
+    (let ((window (selected-window)))
+      (next-line)
+      (push-button)
+      (select-window window)))
+
+  (defun flymake-show-previous-error+ ()
+    (interactive)
+    (let ((window (selected-window)))
+      (previous-line)
+      (push-button)
+      (select-window window)))
+
   (setq help-at-pt-display-when-idle t)
   (setq help-at-pt-timer-delay 1.0))
 
-
-(+ 1 1)
 
 (use-package pulsar
   :ensure t
@@ -3146,7 +3172,10 @@ This function also removes itself from `post-command-hook'."
               ("C-c P" . dired-preview-global-mode)))
 
 (use-package isearch-mb
-  :ensure t)
+  :ensure t
+  :config
+  (isearch-mb-mode 1)
+  (set-face-attribute 'isearch nil :bold t))
 
 (use-package cider
   :ensure t)
@@ -3182,6 +3211,20 @@ This function also removes itself from `post-command-hook'."
               (". y" . evil-lispy-state+))
   :config
   (setq evil-lispy-state-cursor   '("dark blue" (box . 2))))
+
+(use-package visual-regexp-steroids
+  :ensure t
+  :bind (:map evil-leader-state-map-extension
+              ("c q" . vr/replace)
+              ("c Q" . vr/query-replace)))
+
+(use-package centered-cursor-mode
+  :ensure t
+  :diminish
+  :bind (:map evil-leader-state-map-extension
+              ("v c" . global-centered-cursor-mode)
+              :map evil-normal-state-map
+              ("g c" . global-centered-cursor-mode)))
 
 (setq duplicate-line-final-position 1)
 
