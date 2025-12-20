@@ -929,6 +929,7 @@ Also set its `no-delete-other-windows' parameter to match."
          ("C-c s h" . vertico-history-sort+)
          ("C-c s l" . vertico-length-sort+)
          ("C-c s r" . vertico-reverse-alpha-sort+)
+         ("C-g" . minibuffer-quit+)
          :map evil-leader-state-map-extension
          ("X" . vertico-repeat)
          ("M-x" . vertico-repeat))
@@ -951,6 +952,12 @@ Also set its `no-delete-other-windows' parameter to match."
 
   (add-hook 'minibuffer-exit-hook #'vertico-settings)
 
+  (defun minibuffer-quit+ ()
+    (interactive)
+    (if (> (minibuffer-depth) 1)
+        (exit-recursive-edit)
+      (minibuffer-keyboard-quit)))
+  
   (defun vertico-show-more ()
     (interactive)
     (if vertico-unobtrusive-mode
@@ -1943,7 +1950,7 @@ buffer has a unique name."
 	 ("s F" . find-grep-dired)
  	 ("s f" . find-grep-dired-default-dir)
          ("d D" . dired+)
-         ("D" . dired+)
+         ("D" . dired-jump)
   	 :map dired-mode-map
  	 ("C-M-n" . nil)
  	 ("C-M-p" . nil)
@@ -1963,15 +1970,12 @@ buffer has a unique name."
 
   (defun dired+ ()
     (interactive)
-    (let* ((filepath (buffer-file-name))
-           (filename (when filepath (concat " " (file-name-base filepath) "\\." (file-name-extension filepath))))
-           (prefix "[0-9]\\{2\\}[-:][0-9]\\{2\\}"))
-      (dired-default-directory+)
-      (goto-char (point-min))
+    (dired-default-directory+)
+    (goto-char (point-min))
+    (dired-next-line 1)
+    (when (and (buffer-file-name) (search-forward-regexp (file-name-nondirectory (buffer-file-name)) nil t))
       (dired-next-line 1)
-      (when (and filepath (search-forward-regexp (concat prefix filename) nil t))
-        (dired-next-line 1)
-        (dired-previous-line 1))))
+      (dired-previous-line 1)))
 
   (defun dired-goto-first-item ()
     (interactive)
