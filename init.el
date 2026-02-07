@@ -65,6 +65,9 @@
          ("s-." . delete-other-windows)
          ("s--" . delete-window)
          ("s-+" . copy-window)
+         ("M-{" . nil)
+         ("M-}" . nil)
+         ("M-$" . nil)
 
          :map emacs-lisp-mode-map
          ("C-c C-e" . nil)
@@ -1395,7 +1398,12 @@ See `read-file-name' for the meaning of the arguments."
 	  val))))
   (setq completion-in-region-function #'completion--in-region)
 
-  )
+  (setq consult-async-split-styles-alist
+    `((none :function ,#'consult--split-none)
+      (comma :separator ?, :function ,#'consult--split-separator)
+      (semicolon :separator ?\; :function ,#'consult--split-separator)
+      (perl :initial ?# :function ,#'consult--split-perl)
+      (perl% :initial ?% :function ,#'consult--split-perl))))
 
 (use-package embark-consult
   :ensure t
@@ -1762,7 +1770,7 @@ buffer has a unique name."
   (evil-set-initial-state 'sh-mode 'normal)
   (evil-set-initial-state 'js-mode 'normal)
   (evil-set-initial-state 'racket-mode 'normal)
-  (evil-set-initial-state 'vterm-mode 'insert)
+  (evil-set-initial-state 'vterm-mode 'emacs)
   (evil-set-initial-state 'scheme-mode 'normal)
   (evil-set-initial-state 'css-mode 'normal)
   (evil-set-initial-state 'markdown-mode 'normal)
@@ -1773,7 +1781,6 @@ buffer has a unique name."
   (evil-set-initial-state 'inferior-python-mode 'normal)
   (evil-set-initial-state 'inferior-emacs-lisp-mode 'normal)
   (evil-set-initial-state 'ein-notebook-mode 'normal)
-  (evil-set-initial-state 'vterm-mode 'insert)
   (evil-set-initial-state 'conf-mode 'normal)
   (evil-set-initial-state 'shell-mode 'normal)
   (evil-set-initial-state 'cider-repl-mode 'normal)
@@ -1877,6 +1884,7 @@ buffer has a unique name."
          ("<" . magit-section-up)
          :map evil-leader-state-map-extension
 	 ("g g" . magit-status)
+	 ("g i" . magit-init)
 	 ("g b" . magit-branch)
 	 ("g h" . magit-blame)
          ("g c" . magit-clone)
@@ -1950,7 +1958,7 @@ buffer has a unique name."
 	 ("s F" . find-grep-dired)
  	 ("s f" . find-grep-dired-default-dir)
          ("d D" . dired+)
-         ("D" . dired-jump)
+         ("D" . dired+)
   	 :map dired-mode-map
  	 ("C-M-n" . nil)
  	 ("C-M-p" . nil)
@@ -1970,12 +1978,13 @@ buffer has a unique name."
 
   (defun dired+ ()
     (interactive)
-    (dired-default-directory+)
-    (goto-char (point-min))
-    (dired-next-line 1)
-    (when (and (buffer-file-name) (search-forward-regexp (file-name-nondirectory (buffer-file-name)) nil t))
+    (let ((file-name (and (buffer-file-name) (file-name-nondirectory (buffer-file-name)))))
+      (dired-default-directory+)
+      (goto-char (point-min))
       (dired-next-line 1)
-      (dired-previous-line 1)))
+      (when (search-forward-regexp (concat "[[:blank:]]+" file-name) nil t)
+        (dired-next-line 1)
+        (dired-previous-line 1))))
 
   (defun dired-goto-first-item ()
     (interactive)
@@ -2189,15 +2198,16 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package tab-bar
   :ensure nil
   :commands (tab-bar-goto-misc+)
-  :bind (("C-{" . tab-bar-switch-to-next-tab)
+  :bind (("C-}" . tab-bar-switch-to-next-tab)
+         ("C-{" . tab-bar-switch-to-prev-tab)
          ("s-'" . tab-bar-select-tab-by-name)
-         ("C-}" . tab-bar-switch-to-prev-tab)
-         ("C-M-{" . tab-bar-move-tab)
-         ("C-M-}" . tab-bar-move-tab-backward)
+         ("C-M-}" . tab-bar-move-tab)
+         ("C-M-{" . tab-bar-move-tab-backward)
          ("C-s-l" . tab-bar-switch-to-next-tab)
          ("C-s-h" . tab-bar-switch-to-prev-tab)
          :map evil-leader-state-map-extension
          ("TAB m" . tab-bar-goto-misc+)
+         ("TAB <return>" . tab-bar-mode)
          ("TAB 1" . tab-bar-switch-to-tab-1+)
          ("TAB 2" . tab-bar-switch-to-tab-2+)
          ("TAB 3" . tab-bar-switch-to-tab-3+)
@@ -2631,7 +2641,10 @@ most recent, and so on."
               ("C-c r" . random-line-jump)
               ("C-c a" . add-task-to-list)
               ("C-c d" . duplicate-task-at-point)
-              ("C-c o" . markdown-follow-thing-at-point+))
+              ("C-c o" . markdown-follow-thing-at-point+)
+              ("C-c q" . markdown-quote-region)
+              ("M-{" . nil)
+              ("M-}" . nil))
   :config
   (defface my-markdown-highlight-face
     '((t (:background "yellow")))
@@ -2644,6 +2657,19 @@ most recent, and so on."
        (2 'my-markdown-highlight-face t)
        (3 'default t)))
     "Keyword for highlighting text in markdown mode.")
+
+  (defun markdown-quote-region (start end)
+    "Prepend '> ' to each line in the region for markdown blockquote syntax."
+    (interactive "r")
+    (save-excursion
+      (goto-char end)
+      (let ((end-marker (point-marker)))
+        (goto-char start)
+        (while (< (point) end-marker)
+          (beginning-of-line)
+          (insert "> ")
+          (forward-line 1))
+        (set-marker end-marker nil))))
 
   (defun my-markdown-add-highlighting ()
     (interactive)
@@ -3229,6 +3255,47 @@ This function also removes itself from `post-command-hook'."
               ("v c" . global-centered-cursor-mode)
               :map evil-normal-state-map
               ("g c" . global-centered-cursor-mode)))
+
+(use-package notes-search
+  :load-path my-package-dir
+  :bind (:map evil-leader-state-map-extension
+              ("n s" . notes-search)
+              :map evil-normal-state-map
+              ("g c" . global-centered-cursor-mode))
+  :config
+  (setq notes-search-directory "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"))
+
+(use-package docker
+  :ensure t
+  :bind (:map evil-leader-state-map-extension
+              ("k" . docker))
+  :custom
+  (docker-container-shell-file-name "/bin/bash")
+  (docker-show-messages nil))
+
+(use-package tramp
+  :custom
+  (tramp-default-remote-shell "/bin/bash")
+  (tramp-connection-timeout 300)
+  :config
+  (let ((docker-method (assoc "docker" tramp-methods)))
+    (setf (cadr (assoc 'tramp-remote-shell (cdr docker-method))) "/bin/bash")))
+
+(use-package vterm
+  :bind (:map term-mode-map
+              ("C-t" .  nil))
+  :custom
+  (vterm-tramp-shells '(("ssh" login-shell) ("scp" login-shell) ("docker" "/bin/bash")))
+  :config
+  (add-hook 'vterm-mode-hook
+            (lambda ()
+              (define-key vterm-mode-map (kbd "C-t") nil)
+              (define-key vterm-mode-map (kbd "C-\\") nil)
+              (define-key vterm-mode-map (kbd "C-p")
+                          (lambda () (interactive)
+                            (process-send-string vterm--process "\e[A"))))))
+
+
 
 (setq duplicate-line-final-position 1)
 
