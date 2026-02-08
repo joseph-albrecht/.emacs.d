@@ -11,7 +11,7 @@ note:
   title: ${2: `(let ((filename (file-name-nondirectory (buffer-file-name))))
            (string-match "[0-9.a-z]\\{12\\} \\(.*\\).md" filename)
            (match-string 1 filename))`}
-  tags:   #new
+  tags:   #new #reference
   type:   note
 reference:
   author:

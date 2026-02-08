@@ -37,9 +37,9 @@
 (define-key evil-leader-state-map-extension (kbd "q") 'save-buffers-kill-terminal)
 
 ;; states
-(define-key evil-leader-state-map-extension (kbd ". n") 'evil-normal-state)
-(define-key evil-leader-state-map-extension (kbd ". e") 'evil-emacs-state)
-(define-key evil-leader-state-map-extension (kbd ". l") 'evil-leader-state)
+(define-key evil-leader-state-map-extension (kbd "' n") 'evil-normal-state)
+(define-key evil-leader-state-map-extension (kbd "' e") 'evil-emacs-state)
+(define-key evil-leader-state-map-extension (kbd "' l") 'evil-leader-state)
 
 ;; buffers
 (define-key evil-leader-state-map-extension (kbd "b b") 'switch-to-buffer)

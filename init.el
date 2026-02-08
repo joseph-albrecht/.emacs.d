@@ -60,7 +60,13 @@
          ("s-h" . windmove-left)
          ("s-p" . windmove-up)
          ("s-n" . windmove-down)
+         ("C-w" . nil)
+         ("C-w l" . windmove-right)
+         ("C-w h" . windmove-left)
+         ("C-w p" . windmove-up)
+         ("C-w n" . windmove-down)
          ("s-f" . find-file)
+         ("C-," . nil)
          ("s-," . mode-line-other-buffer)
          ("s-." . delete-other-windows)
          ("s--" . delete-window)
@@ -108,7 +114,9 @@
          ("b h U" . 'unhighlight-regexp-all+)
          ("b h p" . 'highlight-phrase)
          ("i r c" . 'insert-regexp-char-class)
-         ("C-d" . run-command-with-default-dir))
+         ("C-d" . run-command-with-default-dir)
+         ("," . mode-line-other-buffer)
+         ("." . delete-other-windows))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   (defun unhighlight-regexp-all+ ()
@@ -921,6 +929,7 @@ Also set its `no-delete-other-windows' parameter to match."
 	 ("C-M-n" . vertico-next-group)
 	 ("C-<return>" . vertico-exit-input)
 	 ("S-RET" . vertico-quick-exit)
+         ("C-c <return>" . vertico-quick-exit)
 	 ("S-<return>" . vertico-quick-exit)
 	 ("s-<return>" . vertico-quick-exit)
 	 ("C-^" . vertico-directory-up)
@@ -1176,6 +1185,7 @@ Also set its `no-delete-other-windows' parameter to match."
          ("s-i" . consult-imenu)
          ("s-y" . consult-yank-from-kill-ring)
          :map evil-leader-state-map-extension
+         ("y k" . consult-yank-from-kill-ring)
    	 ("b b"   . consult-buffer)
    	 ("b B"   . switch-to-buffer)
    	 ("b t"   . consult-buffer-terminal)
@@ -2913,8 +2923,7 @@ or \\[markdown-toggle-inline-images]."
               ("m c" . consult-flymake)
          :map flymake-project-diagnostics-mode-map
               ("M-n" . flymake-show-next-error+)
-              ("M-p" . flymake-show-previous-error+)
-              ("S-<return>" . flymake-show-previous-error+))
+              ("M-p" . flymake-show-previous-error+))
   :config
 
   (defun flymake-show-current-error+ ()
@@ -3238,7 +3247,7 @@ This function also removes itself from `post-command-hook'."
   :load-path my-package-dir
   :demand t
   :bind (:map evil-leader-state-map-extension
-              (". y" . evil-lispy-state+))
+              ("' y" . evil-lispy-state+))
   :config
   (setq evil-lispy-state-cursor   '("dark blue" (box . 2))))
 
@@ -3294,7 +3303,6 @@ This function also removes itself from `post-command-hook'."
               (define-key vterm-mode-map (kbd "C-p")
                           (lambda () (interactive)
                             (process-send-string vterm--process "\e[A"))))))
-
 
 
 (setq duplicate-line-final-position 1)
