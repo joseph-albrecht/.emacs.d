@@ -479,6 +479,38 @@ Search is case-insensitive."
   (message "generating candidates...")
   (notes-search--format-candidates (notes-search--query input)))
 
+(defun notes-search--format-candidates (pairs)
+  "Format all PAIRS with aligned tags."
+  (let ((max-width (min 60  ; cap it
+                        (apply #'max 0
+                               (mapcar (lambda (p) (string-width (car p))) pairs)))))
+    (mapcar (lambda (pair)
+              (notes-search--format-candidate pair max-width))
+            pairs)))
+
+(defun notes-search--format-candidate (title-path-pair width)
+  "Format TITLE-PATH-PAIR with title padded to WIDTH."
+  (let* ((title (car title-path-pair))
+         (path (cdr title-path-pair))
+         (fm (notes-search--get-front-matter path))
+         (tags (alist-get 'tags fm))
+         (tags-str (if tags
+                       (propertize
+                        (if (listp tags)
+                            (mapconcat #'identity tags ", ")
+                          tags)
+                        'face 'font-lock-comment-face)
+                     ""))
+         (padded-title (truncate-string-to-width title width nil ?\s "…"))
+         (display (if tags
+                      (concat padded-title "  " tags-str)
+                    padded-title)))
+    (puthash display path notes-search--display-to-path)
+    (puthash title path notes-search--display-to-path)
+    (propertize display
+                'consult--candidate path
+                'notes-search-file path)))
+
 (defun notes-search--lookup (selected candidates &rest _)
   "Lookup function to get the file path from SELECTED candidate.
 CANDIDATES is the candidates list."
