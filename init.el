@@ -22,7 +22,9 @@
 
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("elpa"  . "https://elpa.gnu.org/packages/")))
+			 ("elpa"  . "https://elpa.gnu.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+
 (setq my-package-dir (concat (expand-file-name user-emacs-directory) "my-packages/"))
 
 (setq use-package-enable-imenu-support t)
@@ -177,7 +179,8 @@
   ;; Cascadia Mono
   ;; Hack
   (condition-case nil
-      (set-face-attribute 'default nil :font "Iosevka comfy" :height 160)
+      (set-face-attribute 'default nil :font "Iosevka Comfy" :height 160)
+    (setq-default line-spacing 2)
       ;; (set-face-attribute 'default nil :font "Iosevka" :height 160)
     (error (set-face-attribute 'default nil :height 120)))
 
@@ -1185,7 +1188,7 @@ Also set its `no-delete-other-windows' parameter to match."
          ("s-i" . consult-imenu)
          ("s-y" . consult-yank-from-kill-ring)
          :map evil-leader-state-map-extension
-         ("y k" . consult-yank-from-kill-ring)
+         ("i k" . consult-yank-from-kill-ring)
    	 ("b b"   . consult-buffer)
    	 ("b B"   . switch-to-buffer)
    	 ("b t"   . consult-buffer-terminal)
@@ -2653,6 +2656,8 @@ most recent, and so on."
               ("C-c d" . duplicate-task-at-point)
               ("C-c o" . markdown-follow-thing-at-point+)
               ("C-c q" . markdown-quote-region)
+              ("C-c c" . markdown-copy-line-to-bottom)
+              ("C-c t" . insert-buffer-tag)
               ("M-{" . nil)
               ("M-}" . nil))
   :config
@@ -2737,6 +2742,19 @@ most recent, and so on."
       (deactivate-mark))
     (forward-line (- (+ start (random (+ 1 (- end start))))
                      (line-number-at-pos))))
+
+  (defun insert-buffer-tag ()
+    "Find all #tags in the current buffer, prompt to select one, and insert it at point."
+    (interactive)
+    (let* ((tag-regexp "#[[:alnum:]_-]+")
+           (tags (save-excursion
+                   (goto-char (point-min))
+                   (let (found)
+                     (while (re-search-forward tag-regexp nil t)
+                       (push (match-string-no-properties 0) found))
+                     (delete-dups (nreverse found)))))
+           (tag (completing-read "Insert tag: " tags nil t)))
+      (insert tag " ")))
 
   (defun mark-task-complete ()
     (interactive)
@@ -2852,6 +2870,28 @@ or \\[markdown-toggle-inline-images]."
 
   (setq zettelkasten-id-regexp "[0-9]\\{2\\}\\.[0-9]\\{4\\}\\.[0-9]\\{4\\}")
 
+  (defun insert-newline ()
+    (insert "\n"))
+
+  (defun point-at-bol ()
+    (save-excursion (beginning-of-line) (point)))
+
+  (defun point-at-eol ()
+    (save-excursion (end-of-line) (point)))
+
+  (defun markdown-copy-line-to-bottom ()
+    (interactive)
+    (save-excursion
+      (let ((line (buffer-substring (point-at-bol) (point-at-eol))))
+        (end-of-buffer)
+        (if (not (equal (point) (point-at-bol)))
+            (insert-newline))
+        (insert line)
+        (insert-newline))))
+
+  (defun markdown-longlist-todos ()
+    (interactive)
+    (occur "- [^~]"))
   )
 
 (defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
@@ -2961,7 +3001,7 @@ or \\[markdown-toggle-inline-images]."
               ("C-c C-e" . cider-eval+)
               ("C-x C-e" . cider-eval+))
   :custom
-  (pulsar-pulse-functions '(recenter-top-bottom move-to-window-line-top-bottom reposition-window bookmark-jump other-window delete-window delete-other-windows forward-page backward-page scroll-up-command scroll-down-command windmove-right windmove-left windmove-up windmove-down windmove-swap-states-right windmove-swap-states-left windmove-swap-states-up windmove-swap-states-down tab-new tab-close tab-next org-next-visible-heading org-previous-visible-heading org-forward-heading-same-level org-backward-heading-same-level outline-backward-same-level outline-forward-same-level outline-next-visible-heading outline-previous-visible-heading outline-up-heading copy-window imenu switch-to-buffer magit-status open-init consult-buffer evil-goto-first-line evil-goto-line evil-jump-backward evil-jump-forward last-buffer elfeed))
+  (pulsar-pulse-functions '(random-line-jump recenter-top-bottom move-to-window-line-top-bottom reposition-window bookmark-jump other-window delete-window delete-other-windows forward-page backward-page scroll-up-command scroll-down-command windmove-right windmove-left windmove-up windmove-down windmove-swap-states-right windmove-swap-states-left windmove-swap-states-up windmove-swap-states-down tab-new tab-close tab-next org-next-visible-heading org-previous-visible-heading org-forward-heading-same-level org-backward-heading-same-level outline-backward-same-level outline-forward-same-level outline-next-visible-heading outline-previous-visible-heading outline-up-heading copy-window imenu switch-to-buffer magit-status open-init consult-buffer evil-goto-first-line evil-goto-line evil-jump-backward evil-jump-forward last-buffer elfeed))
   ;; :hook (focus-in-hook . pulsar-pulse-line)
   :config
 
@@ -3234,6 +3274,11 @@ This function also removes itself from `post-command-hook'."
               ("- b" . lispy-forward-barf-sexp)
               ("- s" . lispy-forward-slurp-sexp)
               ("- c" . lispy-clone)
+              ("- n" . lispy-move-down)
+              ("- p" . lispy-move-up)
+         :map evil-visual-state-map
+              ("- n" . lispy-move-down)
+              ("- p" . lispy-move-up)
          :map evil-motion-state-map
               ("g l" . lispy-left)
               ("gap" . lispy-ace-paren)
@@ -3290,19 +3335,26 @@ This function also removes itself from `post-command-hook'."
   (let ((docker-method (assoc "docker" tramp-methods)))
     (setf (cadr (assoc 'tramp-remote-shell (cdr docker-method))) "/bin/bash")))
 
-(use-package vterm
-  :bind (:map term-mode-map
-              ("C-t" .  nil))
-  :custom
-  (vterm-tramp-shells '(("ssh" login-shell) ("scp" login-shell) ("docker" "/bin/bash")))
+;; (use-package vterm
+;;   :bind (:map term-mode-map
+;;               ("C-t" .  nil))
+;;   :custom
+;;   (vterm-tramp-shells '(("ssh" login-shell) ("scp" login-shell) ("docker" "/bin/bash")))
+;;   :config
+;;   (add-hook 'vterm-mode-hook
+;;             (lambda ()
+;;               (define-key vterm-mode-map (kbd "C-t") nil)
+;;               (define-key vterm-mode-map (kbd "C-\\") nil)
+;;               (define-key vterm-mode-map (kbd "C-p")
+;;                           (lambda () (interactive)
+;;                             (process-send-string vterm--process "\e[A"))))))
+
+(use-package eat
+  :ensure t
   :config
-  (add-hook 'vterm-mode-hook
-            (lambda ()
-              (define-key vterm-mode-map (kbd "C-t") nil)
-              (define-key vterm-mode-map (kbd "C-\\") nil)
-              (define-key vterm-mode-map (kbd "C-p")
-                          (lambda () (interactive)
-                            (process-send-string vterm--process "\e[A"))))))
+  (define-key eat-mode-map (kbd "C-t") nil)
+  (define-key eat-semi-char-mode-map (kbd "C-t") nil)
+  (define-key eat-char-mode-map (kbd "C-t") nil))
 
 
 (setq duplicate-line-final-position 1)

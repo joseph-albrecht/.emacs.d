@@ -329,6 +329,9 @@ note:
         (puthash file mtime notes-search--cache-timestamps)
         fm))))
 
+(defun notes-search--fm-get (file key)
+  (alist-get key (notes-search--get-front-matter file)))
+
 (defun notes-search--get-title (file)
   "Get display title for FILE."
   (let* ((fm (notes-search--get-front-matter file))
@@ -367,7 +370,6 @@ note:
 
 (defun notes-search--list-files ()
   "List all note files in `notes-search-directory'."
-  (message "listing files...")
   (let ((dir (expand-file-name notes-search-directory))
         (extensions notes-search-file-extensions))
     (if notes-search-recursive
@@ -423,7 +425,6 @@ note:
 When SEARCH-TERM is empty or short, returns all notes.
 Space-separated words are combined with AND to narrow results.
 Search is case-insensitive."
-  (message "querying...")
   (notes-search--ensure-module)
   (notes-search--ensure-db-dir)
   (condition-case nil
@@ -436,14 +437,11 @@ Search is case-insensitive."
                 (let* ((words (split-string (downcase trimmed)))
                        (query (mapconcat (lambda (w) (concat "+" w))
                                          words " ")))
-                  (message "%s" query)
                   (xapian-lite-query-term
                    query
                    notes-search-database-dir
                    0 500)))))
-        (mapcar (lambda (file)
-                  (cons (notes-search--get-title file) file))
-                files))
+        (reverse files))
     (error nil)))
 
 (defun notes-search--state ()
@@ -452,48 +450,32 @@ Search is case-insensitive."
 
 ;;; Candidate formatting
 
-(defun notes-search--format-candidate (title-path-pair)
-  "Format TITLE-PATH-PAIR for display with path stored as property."
-  (let* ((title (car title-path-pair))
-         (path (cdr title-path-pair))
-         (fm (notes-search--get-front-matter path))
-         (tags (alist-get 'tags fm))
-         (tags-str (if tags
-                       (concat "  " (propertize
-                                     (if (listp tags)
-                                         (mapconcat #'identity tags ", ")
-                                       tags)
-                                     'face 'font-lock-comment-face))
-                     ""))
-         (display (concat title tags-str)))
-    ;; Cache the display string -> path mapping for embark
-    (puthash display path notes-search--display-to-path)
-    (puthash title path notes-search--display-to-path)
-    ;; Store path in multiple properties for compatibility
-    (propertize display
-                'consult--candidate path
-                'notes-search-file path)))
-
 (defun notes-search--generate-candidates (input)
   "Generate candidates for INPUT query."
-  (message "generating candidates...")
   (notes-search--format-candidates (notes-search--query input)))
 
-(defun notes-search--format-candidates (pairs)
+(defun notes-search--format-candidates (files)
   "Format all PAIRS with aligned tags."
   (let ((max-width (min 60  ; cap it
                         (apply #'max 0
-                               (mapcar (lambda (p) (string-width (car p))) pairs)))))
-    (mapcar (lambda (pair)
-              (notes-search--format-candidate pair max-width))
-            pairs)))
+                               (mapcar (lambda (file)
+                                         (string-width (notes-search--get-title file)))
+                                       files)))))
+    (mapcar (lambda (file) (notes-search--format-candidate file max-width))
+            files)))
 
-(defun notes-search--format-candidate (title-path-pair width)
+(->> "[[1234]]"
+                  (s-replace "[" "")
+                  (s-replace "]" ""))
+
+(defun notes-search--format-candidate (file width)
   "Format TITLE-PATH-PAIR with title padded to WIDTH."
-  (let* ((title (car title-path-pair))
-         (path (cdr title-path-pair))
-         (fm (notes-search--get-front-matter path))
-         (tags (alist-get 'tags fm))
+  (let* ((path file)
+         (title (notes-search--get-title file))
+         (tags (notes-search--fm-get file 'tags))
+         (id (->> (or (notes-search--fm-get file 'id) "")
+                  (s-replace "[" "")
+                  (s-replace "]" "")))
          (tags-str (if tags
                        (propertize
                         (if (listp tags)
@@ -501,7 +483,7 @@ Search is case-insensitive."
                           tags)
                         'face 'font-lock-comment-face)
                      ""))
-         (padded-title (truncate-string-to-width title width nil ?\s "…"))
+         (padded-title (concat (truncate-string-to-width title width nil ?\s " ") id))
          (display (if tags
                       (concat padded-title "  " tags-str)
                     padded-title)))

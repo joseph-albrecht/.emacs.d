@@ -42,9 +42,8 @@
   "Move the cursor to the end of the COUNT-th next WORD."
   :type inclusive
   (evil-forward-word-end count t)
-  (if (or (equal evil-state 'visual)
-          (not (memq evil-this-operator evil-change-commands)))
-      (forward-char 1)))
+  (when (not (memq evil-this-operator '(evil-change evil-delete)))
+    (forward-char 1)))
 
 (evil-define-motion evil-find-char+ (count char)
   "Move the cursor to the end of the COUNT-th next WORD."
