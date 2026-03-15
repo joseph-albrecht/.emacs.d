@@ -1797,6 +1797,7 @@ buffer has a unique name."
   (evil-set-initial-state 'conf-mode 'normal)
   (evil-set-initial-state 'shell-mode 'normal)
   (evil-set-initial-state 'cider-repl-mode 'normal)
+  (evil-set-initial-state 'eat-mode 'emacs)
 
   (evil-set-initial-state 'magit-log-edit-mode 'insert)
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
@@ -3351,6 +3352,8 @@ This function also removes itself from `post-command-hook'."
 
 (use-package eat
   :ensure t
+  :bind (:map evil-leader-state-map-extension
+              ("o t" . eat))
   :config
   (define-key eat-mode-map (kbd "C-t") nil)
   (define-key eat-semi-char-mode-map (kbd "C-t") nil)
