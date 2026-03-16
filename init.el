@@ -3311,15 +3311,6 @@ This function also removes itself from `post-command-hook'."
               :map evil-normal-state-map
               ("g c" . global-centered-cursor-mode)))
 
-(use-package notes-search
-  :load-path my-package-dir
-  :bind (:map evil-leader-state-map-extension
-              ("n s" . notes-search)
-              :map evil-normal-state-map
-              ("g c" . global-centered-cursor-mode))
-  :config
-  (setq notes-search-directory "/Users/joey/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian/"))
-
 (use-package docker
   :ensure t
   :bind (:map evil-leader-state-map-extension
