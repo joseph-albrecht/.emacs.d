@@ -9,6 +9,28 @@
 (setq evil-move-beyond-eol t)
 (setq evil-search-module 'isearch)
 
+(setq evil-visual-char 'exclusive)
+  (defun visual-block-setup+ (orig-fn &rest args)
+    "Move point forward one char when entering visual block mode."
+    (apply orig-fn args)
+    (when (and (evil-visual-state-p)
+               (eq evil-visual-selection 'block))
+      (forward-char 1)))
+  (setq evil-visual-block 'rectangle)
+  (advice-add 'evil-visual-block :around #'visual-block-setup+)
+  (setq evil-respect-visual-line-mode t)
+
+(defun my/evil-visual-force-exclusive (orig beg end &optional type)
+  (if (eq type 'inclusive)
+      (funcall orig beg (1+ end) 'exclusive)
+    (funcall orig beg end type)))
+
+(advice-add 'evil-visual-make-selection :around #'my/evil-visual-force-exclusive)
+
+(setq evil-move-beyond-eol t)
+
+(setq evil-move-cursor-back nil)
+
 (defun thing-at-pos (pos thing &optional props)
   (save-excursion
     (goto-char pos)

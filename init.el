@@ -1744,24 +1744,13 @@ buffer has a unique name."
   :ensure t
   :demand t
   :config
-  (setq evil-visual-char 'exclusive)
-  (defun visual-block-setup+ (orig-fn &rest args)
-    "Move point forward one char when entering visual block mode."
-    (apply orig-fn args)
-    (when (and (evil-visual-state-p)
-               (eq evil-visual-selection 'block))
-      (forward-char 1)))
-  (setq evil-visual-block 'rectangle)
-  (advice-add 'evil-visual-block :around #'visual-block-setup+)
-  (setq evil-respect-visual-line-mode t)
+  
   (setq evil-echo-state nil)
   (setq-default evil-symbol-word-search t)
   (setq evil-mode-line-format nil)
   (evil-set-undo-system 'undo-tree)
   (setq evil-default-state 'emacs)
   (setq evil-want-minibuffer t)
-  (setq evil-move-beyond-eol t)
-  (setq evil-move-cursor-back nil)
 
   (setq evil-emacs-state-modes nil)
   (setq evil-normal-state-modes nil)
@@ -1815,14 +1804,6 @@ buffer has a unique name."
   (add-hook 'post-command-hook #'evil-refresh-cursor)
   (add-hook 'evil-change-state-hook #'evil-refresh-cursor))
 
-;; (use-package evil-escape
-;;   :ensure t
-;;   :demand t
-;;   :config
-;;   (evil-escape-mode)
-;;   (setq evil-escape-key-sequence "jk")
-;;   (setq evil-escape-unordered-key-sequence t)
-;;   (setq evil-escape-delay .1))
 
 (use-package evil-baptism
   :after (evil)
