@@ -3325,11 +3325,25 @@ This function also removes itself from `post-command-hook'."
 (use-package eat
   :ensure t
   :bind (:map evil-leader-state-map-extension
-              ("o t" . eat))
+              ("o t" . eat)
+              :map eat-semi-char-mode-map
+              ("C-c C-e" . eat-emacs-mode+)
+              :map eat-mode-map
+              ("C-c C-j" . eat-semi-char-mode+))
   :config
   (define-key eat-mode-map (kbd "C-t") nil)
   (define-key eat-semi-char-mode-map (kbd "C-t") nil)
-  (define-key eat-char-mode-map (kbd "C-t") nil))
+  (define-key eat-char-mode-map (kbd "C-t") nil)
+
+  (defun eat-emacs-mode+ ()
+    (interactive)
+    (eat-emacs-mode)
+    (evil-normal-state))
+
+  (defun eat-semi-char-mode+ ()
+    (interactive)
+    (eat-semi-char-mode)
+    (evil-emacs-state)))
 
 
 (setq duplicate-line-final-position 1)
