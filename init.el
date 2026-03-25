@@ -3232,11 +3232,24 @@ This function also removes itself from `post-command-hook'."
               ("C-c p" . dired-preview-mode)
               ("C-c P" . dired-preview-global-mode)))
 
+
+
+
 (use-package isearch-mb
   :ensure t
   :config
   (isearch-mb-mode 1)
-  (set-face-attribute 'isearch nil :bold t))
+  (set-face-attribute 'isearch nil :bold t)
+
+  (defvar my-isearch-source-window nil)
+
+  (add-hook 'isearch-mode-hook
+            (lambda ()
+              (setq-local cursor-in-non-selected-windows 'box)))
+
+  (add-hook 'isearch-mode-end-hook
+            (lambda ()
+              (kill-local-variable 'cursor-in-non-selected-windows))))
 
 (use-package cider
   :ensure t)
