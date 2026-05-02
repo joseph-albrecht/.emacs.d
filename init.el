@@ -125,18 +125,8 @@
     (interactive)
     (unhighlight-regexp t))
 
-  (defun server-edit-back-to-terminal+ ()
-    (interactive)
-    (let ((frame (selected-frame)))
-      (when (not server-buffer-clients)
-        (with-selected-frame frame
-          (when (< 1 (length (frame-list)))
-            (delete-frame frame)))
-        (shell-command "open -a iTerm"))))
-
   (setq warning-minimum-level :error)
   (setq read-minibuffer-restore-windows nil)
-  (advice-remove 'server-edit #'server-edit-back-to-terminal+)
 
   (when (file-exists-p "/opt/homebrew/bin")
     (setenv "PATH" (concat (getenv "PATH") ":" "/opt/homebrew/bin"))
