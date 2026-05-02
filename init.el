@@ -1154,7 +1154,7 @@ Also set its `no-delete-other-windows' parameter to match."
   :demand t
   :bind (("C-," . nil)
          ("C-, C-," . completion-at-point)
-         ("C-, d" . cape-dabbr)
+         ("C-, d" . cape-dabbrev)
          ;; ("C-, h" . cape-history)
          ("C-, f" . cape-file)
          ("C-, s" . cape-elisp-symbol)
