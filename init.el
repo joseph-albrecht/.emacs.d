@@ -1676,29 +1676,7 @@ buffer has a unique name."
       (?! . error)
       (?~ . error)))
 
-  ;; (defun my-highlight-prefix ()
-  ;;   (save-excursion
-  ;;     (goto-char (point-min))
-  ;;     (dolist (prefix-face my-orderless-prefix-faces)
-  ;;       (let* ((prefix (car prefix-face))
-  ;;              (face (cdr prefix-face))
-  ;;              (search (format "\\(^\\|[^\\\\] \\)%s[^ ]" (char-to-string prefix))))
-  ;;         (while (search-forward-regexp search nil t)
-  ;;           (let ((prefix-pos (- (match-end 0) 2)))
-  ;;             (put-text-property prefix-pos (1+ prefix-pos) 'face face)
-  ;;             (remove-list-of-text-properties (1+ prefix-pos)
-  ;;                                             (min (1+ (1+ prefix-pos)) (point-max))
-  ;;                                             '(face)))))))
-  ;;   (set-buffer-modified-p nil))
-
-  (setq orderless-smart-case t)
-
-  ;; (defun my-setup-highlight-hook ()
-  ;;   (when (eq (current-local-map) vertico-map)
-  ;;     (add-hook 'post-command-hook #'my-highlight-prefix nil t)))
-
-  ;; (add-hook 'minibuffer-setup-hook #'my-setup-highlight-hook)
-  )
+  (setq orderless-smart-case t))
 
 (use-package undo-tree
   :ensure t
