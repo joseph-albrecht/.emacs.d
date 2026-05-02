@@ -791,12 +791,6 @@ Also set its `no-delete-other-windows' parameter to match."
        ((= 1 (length matching-files)) (find-file (nth 0 matching-files)))
        (t (find-file (completing-read "Pick test: " matching-files))))))
 
-  (defun project-find-test-pair (file-path)
-    (interactive)
-    (let ((file-path (or file-path buffer-file-name))))
-    (cond
-     ((not (s-contains-p "test" (file-name-base file-path))) (project-jump-to-test))))
-
   (defun project-find-file-no-ignores (project)
     (interactive (list nil))
     (let ((project (or project (project-current))))
