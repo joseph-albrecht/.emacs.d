@@ -3082,17 +3082,6 @@ This function also removes itself from `post-command-hook'."
   :bind (:map evil-leader-state-map-extension
               ("v o" . olivetti-mode)))
 
-;; (use-package isearch
-;;   :ensure nil
-;;   :bind (:map isearch-mode-map
-;;               ("C-<return>" . isearch-exit-other-end))
-;;   :config
-;; (defun isearch-exit-other-end ()
-;;   "Exit isearch, at the opposite end of the string."
-;;   (interactive)
-;;   (isearch-exit)
-;;   (goto-char isearch-other-end)))
-
 (use-package dired-preview
   :ensure t
   :bind (:map dired-mode-map
