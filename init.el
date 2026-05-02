@@ -3118,7 +3118,8 @@ This function also removes itself from `post-command-hook'."
   (when (file-exists-p local-init-file)
     (load local-init-file)))
 
-(server-start)
+(unless (and (boundp 'server-process) server-process)
+  (server-start))
 
 (use-package gnu-apl-mode
   :ensure t
