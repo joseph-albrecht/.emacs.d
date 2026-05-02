@@ -2719,13 +2719,6 @@ or \\[markdown-toggle-inline-images]."
     (occur "- [^~]"))
   )
 
-(defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
-                                               ;;; custom-set-icons isn't defined for some reason
-(setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
-(when (not (file-exists-p custom-file))
-  (shell-command (concat "touch " custom-file)))
-(load-file custom-file)
-
 (use-package shell
   :after (minibuffer)
   :commands (select-shell-history)
@@ -3187,3 +3180,10 @@ This function also removes itself from `post-command-hook'."
 
 (remove-hook 'embark-collect-mode-hook #'make-non-dedicated-window)
 (put 'scroll-left 'disabled nil)
+
+(defun custom-set-icons (&rest args) (ignore)) ;;; needed for bug when loading custom.el
+                                               ;;; custom-set-icons isn't defined for some reason
+(setq custom-file (concat (expand-file-name user-emacs-directory) "custom.el"))
+(when (not (file-exists-p custom-file))
+  (shell-command (concat "touch " custom-file)))
+(load-file custom-file)
