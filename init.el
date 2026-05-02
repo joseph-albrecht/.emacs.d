@@ -3251,9 +3251,6 @@ This function also removes itself from `post-command-hook'."
             (lambda ()
               (kill-local-variable 'cursor-in-non-selected-windows))))
 
-(use-package cider
-  :ensure t)
-
 (use-package kkp
   :ensure t
   :config
