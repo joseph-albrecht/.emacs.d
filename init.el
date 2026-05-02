@@ -1895,9 +1895,9 @@ buffer has a unique name."
 (use-package magit-delta
   :ensure t
   :demand t
-  :init
-  (shell-command "which delta || brew install git-delta" nil)
-  :hook (magit-mode-hook . (lambda () (magit-delta-mode +1))))
+  :hook (magit-mode-hook . (lambda ()
+                             (when (executable-find "delta")
+                               (magit-delta-mode +1)))))
 
 (use-package avy
   :ensure t
