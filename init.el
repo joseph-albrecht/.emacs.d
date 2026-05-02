@@ -1802,20 +1802,6 @@ buffer has a unique name."
   (define-key evil-normal-state-map (kbd "'") 'evil-sandwich)
   (define-key evil-visual-state-map (kbd "'") 'evil-surround-region))
 
-;; (use-package lispyville
-;;   :ensure t
-;;   :demand t
-;;   :bind (("C-k" . lispy-kill))
-;;   :hook ((prog-mode-hook   . lispyville-mode)))
-
-;; (use-package elec-pair
-;;   :hook ((text-mode-hook   . electric-pair-local-mode)
-;;          (prog-mode-hook   . electric-pair-local-mode)
-;;          (python-mode-hook . electric-pair-local-mode)
-;;          (java-mode-hook   . electric-pair-local-mode)
-;;          (scala-mode-hook  . electric-pair-local-mode)
-;;          (emacs-lisp-mode  . electric-pair-local-mode)))
-
 (use-package magit
   :ensure t
   :demand t
