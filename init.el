@@ -239,10 +239,11 @@
 			  :height font-height)
       (set-frame-size (selected-frame) frame-width 80)))
 
-  ;; (setq mac-command-modifier 'meta)
-  ;; (setq mac-right-command-modifier 'meta)
-  (setq mac-option-modifier 'meta)
-  (setq mac-right-option-modifier 'meta)
+  (when (eq system-type 'darwin)
+    ;; (setq mac-command-modifier 'meta)
+    ;; (setq mac-right-command-modifier 'meta)
+    (setq mac-option-modifier 'meta)
+    (setq mac-right-option-modifier 'meta))
   ;; (define-key input-decode-map [?\C-m] [C-m]) ;;; allow C-m in GUI emacs
 
   (setq completion-cycle-threshold nil)
