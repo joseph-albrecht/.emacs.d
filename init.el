@@ -1040,10 +1040,6 @@ Also set its `no-delete-other-windows' parameter to match."
     (setq-local vertico-sort-override-function #'vertico-sort-reversed-alpha)
     (consult--vertico-refresh)))
 
-;; (use-package vertico-reverse
-;;   :config
-;;   (vertico-reverse-mode))
-
 (use-package vertico-reverse
   :bind (:map vertico-reverse-map
 	 ("M-p" . vertico-next+)
