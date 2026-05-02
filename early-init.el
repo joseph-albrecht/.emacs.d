@@ -141,16 +141,3 @@ or not."
                 ;; mode-line-flymake+
                 ))
 
-;; (setq-default mode-line-format
-;;               '("%e"
-;;                 mode-line-kbd-macro+
-;;                 mode-line-eglot+
-;;                 mode-line-sesman+
-;;                 mode-line-buffer-modified+
-;;                 ;; mode-line-evil-mode+
-;;                 mode-line-buffer-name+
-;;                 " L%l"
-;;                 mode-line-major-mode+
-;;                 mode-line-git-branch+
-;;                 ;; mode-line-flymake+
-;;                 ))
