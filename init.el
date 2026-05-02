@@ -180,9 +180,9 @@
   ;; Hack
   (condition-case nil
       (set-face-attribute 'default nil :font "Iosevka Comfy" :height 160)
-    (setq-default line-spacing 2)
       ;; (set-face-attribute 'default nil :font "Iosevka" :height 160)
     (error (set-face-attribute 'default nil :height 120)))
+  (setq-default line-spacing 2)
 
   (set-face-attribute 'region nil :background "#A0F5F4")
   (set-cursor-color "#007F00")
