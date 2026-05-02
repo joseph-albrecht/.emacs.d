@@ -2987,15 +2987,6 @@ This function also removes itself from `post-command-hook'."
 (unless (and (boundp 'server-process) server-process)
   (server-start))
 
-(use-package gnu-apl-mode
-  :ensure t
-  :config
-  (defun em-gnu-apl-init ()
-    (setq buffer-face-mode-face 'gnu-apl-default)
-    (buffer-face-mode))
-  (add-hook 'gnu-apl-interactive-mode-hook 'em-gnu-apl-init)
-  (add-hook 'gnu-apl-mode-hook 'em-gnu-apl-init))
-
 (use-package ediff
   :config
   (defun ediff-setup-windows-tab (buffer-A buffer-B buffer-C control-buffer)
