@@ -791,23 +791,6 @@ Also set its `no-delete-other-windows' parameter to match."
        ((= 1 (length matching-files)) (find-file (nth 0 matching-files)))
        (t (find-file (completing-read "Pick test: " matching-files))))))
 
-  (defun project-jump-to-src ()
-    (defun project-jump-to-test ()
-      (let* ((target-base (file-name-base buffer-file-name))
-             (target-extension (file-name-extension buffer-file-name))
-             (all-files (project--files-in-directory (project-root (project-current)) nil))
-             (matching-files (seq-filter (lambda (file)
-                                           (let ((base (file-name-base file))
-                                                 (extension (file-name-extension file)))
-                                             (and (s-contains-p target-base base)
-                                                  (s-contains-p "test" base)
-                                                  (s-equals-p target-extension extension)
-                                                  (s-contains-p "test" (file-name-directory file)))))
-                                         all-files)))
-        (cond
-         ((= 1 (length matching-files)) (find-file (nth 0 matching-files)))
-         (t (find-file (completing-read "Pick test: " matching-files)))))))
-
   (defun project-find-test-pair (file-path)
     (interactive)
     (let ((file-path (or file-path buffer-file-name))))
