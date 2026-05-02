@@ -985,25 +985,6 @@ Also set its `no-delete-other-windows' parameter to match."
   (set-face-attribute 'vertico-group-title nil :foreground "blue")
   (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
 
-  ;; (defun vertico--exhibit ()
-  ;;   "Exhibit completion UI."
-  ;;   (let* ((buffer-undo-list t) ;; Overlays affect point position and undo list!
-  ;;          (pt (max 0 (- (point) (minibuffer-prompt-end))))
-  ;;          (content (minibuffer-contents-no-properties)))
-  ;;     (unless (or (input-pending-p) (equal vertico--input (cons content pt)))
-  ;;       (vertico--update-candidates pt content))
-  ;;     (vertico--prompt-selection)
-  ;;     (vertico--display-count)
-  ;;     (vertico--display-candidates (vertico--arrange-candidates))
-  ;;     (when (and (bound-and-true-p last-vertico--index)
-  ;;                (> last-vertico--index 0))
-  ;;       (dotimes (1- last-vertico--index)
-  ;;         (message "...")
-  ;;         (vertico-next 1))
-  ;;       (setq last-vertico--index -1)
-  ;;       (vertico--update-scroll)
-  ;;       (vertico--exhibit))))
-
   (defun vertico-next+ ()
     (interactive)
     (cond
