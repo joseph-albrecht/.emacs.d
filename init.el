@@ -53,7 +53,8 @@
              keep-lines+
              flush-lines+
              isearch-abort+)
-  :bind (("M-n" . open-next-file-in-directory+)
+  :bind (("C-z" . suspend-frame)
+         ("M-n" . open-next-file-in-directory+)
          ("M-p" . open-previous-file-in-directory+)
          ("C-x f" . find-file)
          ("C-x >" . scroll-left)
@@ -1384,11 +1385,11 @@ See `read-file-name' for the meaning of the arguments."
   :ensure t
   :demand t
   :commands (embark-act-quit forward-button-click+ backward-button-click+ embark-collect-delete+)
-  :bind (("C-z" . embark-act)
+  :bind (("C--" . embark-act)
    	 :map minibuffer-mode-map
    	 ("TAB" . minibuffer-force-complete)
    	 ("SPC" . nil)
-   	 ("C-z" . embark-act)
+   	 ("C--" . embark-act)
    	 ("M-z" . embark-select-next-line)
    	 ("C-c a" . embark-select-all-vertico)
    	 ("C-c u" . embark-unselect-all-vertico)
@@ -1399,7 +1400,7 @@ See `read-file-name' for the meaning of the arguments."
    	 ("C-c c" . embark-collect)
    	 :map embark-meta-map
    	 ("C-h" . nil)
-   	 ("C-z" . embark-act)
+   	 ("C--" . embark-act)
 	 :map embark-collect-mode-map
 	 ("m" . embark-select-forward-button)
 	 ("d" . embark-collect-delete+)
@@ -1597,6 +1598,17 @@ buffer has a unique name."
   :load-path my-package-dir
   :config
   (define-key embark-general-map (kbd "SPC") evil-leader-state-map-extension))
+
+(use-package claude-targets ;; my package!
+  :after (consult)
+  :load-path my-package-dir
+  :commands (claude-targets)
+  :config
+  ;; Default is ~/.claude-targets.  Add per-project files here so
+  ;; entries Claude writes inside a Docker volume are picked up by
+  ;; host emacs:
+  (add-to-list 'claude-targets-files
+               "/Users/joey/home/claude/.claude-targets"))
 
 (use-package orderless
   :ensure t
